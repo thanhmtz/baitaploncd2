@@ -1,0 +1,271 @@
+================================================================================
+                    HƯỚNG DẪN VẼ TAY BIỂU ĐỒ ERD
+                    (Chen Notation - Classic)
+================================================================================
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║                           CÁC KÝ HIỆU CẦN DÙNG                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │  1. HÌNH CHỮ NHẬT (Entity)                                                   │
+  │     ┌─────────────────────────────────────────┐                             │
+  │     │           TEN ENTITY                     │                             │
+  │     ├─────────────────────────────────────────┤                             │
+  │     │ PK ten_thuoc_tinh                       │ ← Primary Key (gạch chân)  │
+  │     │ FK ten_thuoc_tinh                       │ ← Foreign Key (gạch chân)  │
+  │     │     ten_thuoc_tinh                      │ ← Attribute thường         │
+  │     │ {field} ten_mang[]                      │ ← EMBED (dữ liệu lồng)    │
+  │     └─────────────────────────────────────────┘                             │
+  │                                                                            │
+  │  2. HÌNH THOI (Relationship)                                                │
+  │          ◇                                                             │
+  │         ╱ ╲                                                            │
+  │        ╱   ╲                                                           │
+  │       ╱     ╲                                                          │
+  │      ╱       ╲                                                         │
+  │     ◊ten_moi_quan_he◊                                                  │
+  │                                                                            │
+  │  3. CARDINALITY                                                            │
+  │     (1,N) = Một - Nhiều      │  (N,1) = Nhiều - Một                      │
+  │     (N,N) = Nhiều - Nhiều    │  (1,1) = Một - Một                        │
+  │                                                                            │
+  │  4. ĐƯỜNG THẲNG                                                           │
+  │     ─────────── = 1:N        │  ─ ─ ─ ─ = N:N (Nhiều-Nhiều)              │
+  │     ─ · ─ · ─ = Embed        │  ─ ─ ─ ─► = N:1 (Tham chiếu)             │
+  │                                                                            │
+  │  5. MÀU SẮC (Tùy chọn)                                                    │
+  │     User: Xanh nhạt     │ Diary: Cam nhạt    │ Community: Xám nhạt         │
+  │     Recipes: Xanh lá   │ Workouts: Vàng nhạt│ Challenges: Xanh đậm        │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         SƠ ĐỒ VẼ TAY - VỊ TRÍ CÁC ELEMENT
+================================================================================
+
+                                    [USERS]
+                                   ┌─────────┐
+                                   │ USERS   │
+                                   ├─────────┤
+                                   │ PK uid  │
+                                   │ email   │
+                                   │username │
+                                   │ bio     │
+                                   │ bookmark│
+                                   └────┬────┘
+                                        │
+          ═══════════════════════════════╪══════════════════════════════
+                    │                   │
+                    ▼                   ▼
+          ┌─────────────────┐   ┌─────────────────┐
+          │       ◊         │   │       ◊         │
+          │   "has"        │   │  "tracks"       │
+          │       ◊         │   │       ◊         │
+          └───────┬─────────┘   └───────┬─────────┘
+                  │                   │
+                  ▼                   ▼
+          ┌───────────────┐   ┌───────────────┐
+          │  MEALS        │   │ WATER_INTAKES │
+          ├───────────────┤   ├───────────────┤
+          │ PK id         │   │ PK id         │
+          │ FK user_id    │   │ FK user_id    │
+          │ title         │   │ amount        │
+          │ foods[] ◊     │   │ date          │
+          └───────┬───────┘   └───────────────┘
+                  │
+                  ▼
+          ┌───────────────┐
+          │     ◊         │
+          │  "contains"  │
+          │     ◊         │
+          │   (EMBED)     │
+          └───────┬───────┘
+                  │
+                  ▼
+          ┌───────────────┐
+          │   FOODS       │
+          ├───────────────┤
+          │ PK id         │
+          │ name         │
+          │ calories     │
+          └───────────────┘
+
+
+          │                   │                   │
+          ▼                   ▼                   ▼
+    ┌───────────┐     ┌───────────┐     ┌───────────┐
+    │    ◊      │     │    ◊      │     │    ◊      │
+    │ "records" │     │  "logs"   │     │"measures"│
+    │    ◊      │     │    ◊      │     │    ◊      │
+    └────┬──────┘     └────┬──────┘     └────┬──────┘
+         │                │                │
+         ▼                ▼                ▼
+    ┌───────────┐   ┌───────────┐   ┌───────────┐
+    │ WEIGHTS   │   │  SLEEPS   │   │HEART_RATES│
+    ├───────────┤   ├───────────┤   ├───────────┤
+    │PK id      │   │PK id      │   │PK id      │
+    │FK user_id │   │FK user_id │   │FK user_id │
+    │ weight    │   │total_hours│   │ bpm       │
+    └───────────┘   └───────────┘   └───────────┘
+
+
+          │
+          ▼
+    ┌───────────────┐     ┌───────────────┐
+    │      ◊        │     │      ◊        │
+    │ "performs"   │     │ "creates"     │
+    │      ◊        │     │      ◊        │
+    └───────┬───────┘     └───────┬───────┘
+            │                    │
+            ▼                    ▼
+    ┌───────────────┐   ┌───────────────┐
+    │  WORKOUTS     │   │   POSTS      │
+    ├───────────────┤   ├───────────────┤
+    │PK id         │   │PK postId     │
+    │FK user_id    │   │FK uid        │
+    │exercises[] ◊ │   │FK recipe_id   │
+    └───────┬───────┘   └───┬─────────┘
+            │                │
+            ▼                ▼
+    ┌───────────────┐   ┌───────────────┐
+    │      ◊        │   │      ◊        │
+    │ "contains"   │   │    "has"     │
+    │    (EMBED)   │   │      ◊        │
+    └───────┬───────┘   └───────┬───────┘
+            │                  │
+            ▼                  ▼
+    ┌───────────────┐   ┌───────────────┐
+    │  EXERCISES    │   │  COMMENTS    │
+    ├───────────────┤   ├───────────────┤
+    │PK id         │   │PK id         │
+    │name          │   │FK postId     │
+    │duration      │   │FK uid        │
+    │reps, sets    │   │text          │
+    └───────────────┘   └───────────────┘
+
+              │                    │
+              ▼                    ▼
+        ┌───────────┐      ┌───────────────┐
+        │    ◊      │      │      ◊        │
+        │"joins"   │      │  "shares"    │
+        │    ◊      │      │      ◊        │
+        └────┬──────┘      └───────┬───────┘
+             │                    │
+             ▼                    ▼
+    ┌─────────────────┐    ┌───────────────┐
+    │USER_CHALLENGES │    │   RECIPES     │
+    ├─────────────────┤    ├───────────────┤
+    │PK id           │    │PK id          │
+    │FK user_id     │    │title          │
+    │FK challenge_id│    │author         │
+    │progress       │    └───────────────┘
+    │status         │
+    └───────┬────────┘
+            │
+            ▼
+    ┌───────────┐
+    │    ◊      │
+    │"belongs" │
+    │    ◊      │
+    └────┬──────┘
+         │
+         ▼
+    ┌───────────┐
+    │CHALLENGES │
+    ├───────────┤
+    │PK id      │
+    │type       │
+    │goal       │
+    │points     │
+    └───────────┘
+
+
+        │                   │
+        ▼                   ▼
+  ┌───────────┐       ┌───────────┐
+  │    ◊      │       │    ◊      │
+  │"practices"│       │"receives"│
+  │    ◊      │       │    ◊      │
+  └────┬──────┘       └────┬──────┘
+       │                  │
+       ▼                  ▼
+  ┌───────────┐    ┌───────────────┐
+  │ MEDITATION│    │NOTIFICATIONS │
+  ├───────────┤    ├───────────────┤
+  │PK id     │    │PK id         │
+  │FK user_id│    │FK user_id    │
+  │duration  │    │title         │
+  └───────────┘    └───────────────┘
+
+              │
+              ▼
+        ┌───────────┐
+        │    ◊      │
+        │"bookmarks"│
+        │    ◊      │
+        └────┬──────┘
+             │
+             ▼
+        ┌───────────┐
+        │  RECIPES  │
+        ├───────────┤
+        │PK id      │
+        │title      │
+        └───────────┘
+
+
+================================================================================
+                         BẢNG VẼ NHANH (ĐỂ COPY)
+================================================================================
+
+  ╔═══════════════════════════════════════════════════════════════════════════════╗
+  ║ Entity                      │ PK              │ FK                │ EMBED    ║
+  ╠═════════════════════════════╪═════════════════╪══════════════════╪══════════╣
+  ║ USERS                       │ uid             │ -                 │ -        ║
+  ║ MEALS                       │ id              │ user_id           │ foods[]  ║
+  ║ FOODS                       │ id              │ -                 │ -        ║
+  ║ WATER_INTAKES              │ id              │ user_id           │ -        ║
+  ║ WEIGHTS                    │ id              │ user_id           │ -        ║
+  ║ SLEEPS                     │ id              │ user_id           │ -        ║
+  ║ HEART_RATES               │ id              │ user_id           │ -        ║
+  ║ WORKOUTS                  │ id              │ user_id           │ exercises[]║
+  ║ EXERCISES                 │ id              │ -                 │ -        ║
+  ║ POSTS                      │ postId          │ uid, recipe_id    │ -        ║
+  ║ COMMENTS                  │ id              │ postId, uid       │ -        ║
+  ║ RECIPES                   │ id              │ -                 │ -        ║
+  ║ CHALLENGES               │ id              │ -                 │ -        ║
+  ║ USER_CHALLENGES          │ id              │ user_id, challenge_id│ -     ║
+  ║ MEDITATION_SESSIONS      │ id              │ user_id           │ -        ║
+  ║ NOTIFICATIONS            │ id              │ user_id           │ -        ║
+  ╚═══════════════════════════════════════════════════════════════════════════════╝
+
+
+================================================================================
+                         CÁCH VẼ BƯỚC ĐẦU
+================================================================================
+
+  Bước 1: Vẽ USERS ở giữa/trên cùng (hình chữ nhật)
+  
+  Bước 2: Kẻ đường từ USERS xuống:
+          - MEALS, WATER, WEIGHTS, SLEEPS, HEART, WORKOUTS, POSTS, 
+            USER_CHALLENGES, MEDITATION, NOTIFICATIONS (1:N)
+          - RECIPES (N:N - đường chấm chấm)
+  
+  Bước 3: Vẽ hình thoi (◇) ở giữa các đường, ghi tên relationship:
+          "has", "tracks", "records", "logs", "measures", 
+          "performs", "creates", "joins", "practices", "receives"
+  
+  Bước 4: Ghi cardinality (1,N) hoặc (N,1) ở hai đầu đường
+  
+  Bước 5: Vẽ EMBED:
+          - MEALS → FOODS (trong MEALS có foods[])
+          - WORKOUTS → EXERCISES (trong WORKOUTS có exercises[])
+          - Vẽ FOODS, EXERCISES bên trong MEALS, WORKOUTS
+  
+  Bước 6: Vẽ relationship đặc biệt:
+          - POSTS → COMMENTS (1:N)
+          - POSTS → RECIPES (N:1) - chia sẻ
+          - USER_CHALLENGES → CHALLENGES (N:1)
+
+================================================================================

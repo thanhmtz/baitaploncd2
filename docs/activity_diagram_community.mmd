@@ -1,0 +1,46 @@
+@startuml Activity_Community
+
+title Biểu đồ hoạt động - Cộng đồng (Community)
+
+start
+:Mở ứng dụng;
+:Đăng nhập;
+:Vào màn hình Home/Feed;
+
+:Xem danh sách bài viết;
+
+:Lướt feed;
+
+:Chọn bài viết;
+
+if (Chọn Tương tác?) then (Like)
+  :Nhấn nút Like;
+  :Cập nhật số like;
+else (Comment)
+  :Nhập bình luận;
+  :Gửi comment;
+  :Hiển thị comment;
+else (Share)
+  :Chia sẻ bài viết;
+endif
+
+if (Chọn Đăng bài mới?) then (Có)
+  :Nhấn nút tạo bài viết;
+  :Nhập nội dung;
+  if (Thêm ảnh/video?) then (Có)
+    :Chọn ảnh/video từ thư viện;
+    :Tải lên;
+  else (Không)
+  endif
+  if (Chia sẻ recipe?) then (Có)
+    :Chọn recipe để chia sẻ;
+  else (Không)
+  endif
+  :Đăng bài;
+  :Hiển thị trên feed;
+else (Không)
+endif
+
+stop
+
+@enduml

@@ -1,0 +1,196 @@
+============================================================
+HEALTH TRACKER APP - MAIN COLLECTIONS FOR ERD
+(Only collections actually used in Flutter code)
+============================================================
+Generated: 2026-05-06
+============================================================
+
+1. USERS (Root Collection)
+   -----------------------
+   Collection: users
+   
+   Fields:
+   - uid: String (Document ID)
+   - username: String
+   - email: String
+   - photoUrl: String
+   - bio: String
+   - sex: int (1=Male, 2=Female)
+   - isDarkMode: bool
+   - bookmarkedRecipes: List<String>
+   - followers: List<String> (array of user UIDs)
+   - following: List<String> (array of user UIDs)
+   
+   Code refs: firestore.dart:111, 115, 119, 292, 297, 302
+             user_model.dart:4-49
+
+============================================================
+
+2. DIARY (Subcollection of Users)
+   ------------------------------
+   Path: users/{uid}/diary/{date}
+   Document ID format: d-M-y (e.g., "6-5-2026")
+   
+   Fields:
+   - totalCalories: float
+   - totalProtein: float
+   - totalCarbs: float
+   - totalFat: float
+   - water: int
+   - weight: List<map> (hour, minute, weight, bodyFat, notes)
+   - breakfast: { calories, protein, fat, carbs, foods[] }
+   - lunch: { calories, protein, fat, carbs, foods[] }
+   - dinner: { calories, protein, fat, carbs, foods[] }
+   - snack: { calories, protein, fat, carbs, foods[] }
+   - quickAdd: { calories, protein, fat, carbs }
+   
+   Code refs: firestore.dart:148-288
+             steps_counter_service.dart:122-396
+
+============================================================
+
+3. POSTS (Root Collection)
+   -----------------------
+   Collection: posts
+   
+   Fields:
+   - postId: String (Document ID, UUID v1)
+   - uid: String (author's user ID)
+   - username: String
+   - description: String
+   - likes: List<String> (array of user UIDs)
+   - postUrl: String (image URL)
+   - profImage: String (author's profile image)
+   - datePublished: Timestamp
+   
+   Code refs: firestore.dart:17-42, 44-63, 97-106
+             post_model.dart
+             home_screen.dart:41
+
+============================================================
+
+4. COMMENTS (Subcollection of Posts)
+   --------------------------------
+   Path: posts/{postId}/comments/{commentId}
+   
+   Fields:
+   - commentId: String (Document ID, UUID v1)
+   - uid: String (commenter's user ID)
+   - name: String
+   - profilePic: String
+   - text: String
+   - datePublished: Timestamp
+   
+   Code refs: firestore.dart:66-94
+             comments_screen.dart:62-64
+
+============================================================
+
+5. HEALTH_DATA / RECORDS (Subcollection of Users)
+   ---------------------------------------------
+   Path: users/{uid}/health_data/records/{recordId}
+   
+   Fields: (inferred from meassure_bpm_screen.dart)
+   - Heart rate / BPM records
+   - Timestamp-based health metrics
+   
+   Code refs: meassure_bpm_screen.dart:481-485, 1138-1142
+
+============================================================
+
+6. STEPS (Root Collection)
+   -----------------------
+   Collection: steps
+   
+   Fields: (inferred from step_counter_service.dart)
+   - Step counter data per user
+   - Date-based records
+   
+   Code refs: step_counter_service.dart:334, 367
+
+============================================================
+
+ENTITY RELATIONSHIP DIAGRAM (ERD)
+============================================================
+
+        [USERS] (Root Collection)
+           |
+           | 1 : ∞ (One user has many diary entries)
+           |
+           +---> [diary] (Subcollection: users/{uid}/diary/{date})
+           |         |
+           |         +-- Contains: meals, water, weight data
+           |
+           | 1 : ∞ (One user has many posts)
+           |
+           +---> [posts] (Root Collection)
+           |         |
+           |         | 1 : ∞ (One post has many comments)
+           |         |
+           |         +---> [comments] (Subcollection: posts/{postId}/comments)
+           |
+           | 1 : ∞ (One user has many health records)
+           |
+           +---> [health_data/records] (Subcollection)
+           |
+           | 1 : ∞ (One user has many step records)
+           |
+           +---> [steps] (Root Collection)
+           |
+           | (Embedded relationships via arrays)
+           |
+           +-- followers: List<String> (references other user UIDs)
+           +-- following: List<String> (references other user UIDs)
+           +-- bookmarkedRecipes: List<String> (references recipe IDs)
+           +-- posts.likes: List<String> (references user UIDs)
+
+============================================================
+
+RELATIONSHIP SUMMARY
+============================================================
+
+1. USERS → DIARY
+   Type: One-to-Many
+   Implementation: Subcollection
+   Path: users/{uid}/diary/{date}
+   
+2. USERS → POSTS
+   Type: One-to-Many
+   Implementation: Root collection with uid field
+   users.uid == posts.uid
+
+3. POSTS → COMMENTS
+   Type: One-to-Many
+   Implementation: Subcollection
+   Path: posts/{postId}/comments/{commentId}
+
+4. USERS → HEALTH_DATA
+   Type: One-to-Many
+   Implementation: Subcollection
+   Path: users/{uid}/health_data/records
+
+5. USERS → STEPS
+   Type: One-to-Many
+   Implementation: Root collection
+
+6. USERS (Self-Referencing)
+   Type: Many-to-Many (Followers/Following)
+   Implementation: Array fields (followers[], following[])
+
+7. POSTS (Likes)
+   Type: Many-to-Many (Users like Posts)
+   Implementation: Array field (likes[] in posts)
+
+============================================================
+
+NOTE: The following collections from SQL schema are NOT implemented
+in Firestore code yet (only have models):
+- recipes, recipe_ingredients, recipe_steps, favorite_recipes
+- workout_plans, workouts, exercises, user_workouts
+- challenges, user_challenges
+- conversations, conversation_participants, messages
+- notifications
+- meals, foods, meal_foods, water_intakes, weights, sleeps, heart_rates
+  (These are stored in 'diary' subcollection instead)
+
+============================================================

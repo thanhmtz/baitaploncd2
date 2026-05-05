@@ -1,0 +1,59 @@
+@startuml Activity_Diary
+
+title Biểu đồ hoạt động - Nhật ký sức khỏe (Diary)
+
+start
+:Mở ứng dụng;
+:Đăng nhập;
+:Vào màn hình Diary;
+
+:Chọn loại theo dõi;
+
+if (Chọn Dinh dưỡng?) then (Có)
+  :Chọn bữa ăn\n(Breakfast/Lunch/Dinner/Snack);
+  :Nhập thực phẩm;
+  if (Chọn cách nhập?) then (Quét barcode)
+    :Quét barcode;
+    :Xem thông tin thực phẩm;
+  else (Tìm kiếm)
+    :Tìm kiếm thực phẩm;
+    :Chọn thực phẩm;
+  endif
+  :Nhập số lượng;
+  :Lưu;
+  :Cập nhật calories;
+else (Không)
+endif
+
+if (Chọn Nước?) then (Có)
+  :Nhập lượng nước;
+  :Lưu;
+  :Cập nhật tổng lượng nước;
+else (Không)
+endif
+
+if (Chọn Cân nặng?) then (Có)
+  :Nhập cân nặng;
+  :Lưu;
+  :Cập nhật biểu đồ cân nặng;
+else (Không)
+endif
+
+if (Chọn Giấc ngủ?) then (Có)
+  :Nhập giờ ngủ/thức dậy;
+  :Lưu;
+  :Tính tổng giờ ngủ;
+else (Không)
+endif
+
+if (Chọn Nhịp tim?) then (Có)
+  :Đo nhịp tim (sensor);
+  :Lưu;
+  :Xem lịch sử;
+else (Không)
+endif
+
+:Xem thống kê tổng quan;
+stop
+
+@enduml

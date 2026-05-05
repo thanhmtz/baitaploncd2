@@ -1,0 +1,189 @@
+# CHỨC NĂNG CHÍNH VÀ CHỨC NĂNG PHỤ - HEALTH TRACKER APP
+
+================================================================================
+                           CHỨC NĂNG CHÍNH
+================================================================================
+
+1. NHẬT KÝ SỨC KHỎE (DIARY) - 14 màn hình
+--------------------------------------------------------------------------------
+   1.1. Dinh dưỡng (Nutrition/Calories)
+       • diary_screen.dart            - Xem tổng quan nhật ký
+       • add_meal_screen.dart         - Thêm bữa ăn (Breakfast/Lunch/Dinner/Snack)
+       • food_details_screen.dart     - Xem chi tiết thực phẩm
+       • upc_details_screen.dart      - Quét barcode thực phẩm
+       • quick_add_screen.dart        - Thêm nhanh thực phẩm
+       • calories_stats_screen.dart   - Xem thống kê calories (ngày/tuần/tháng)
+
+   1.2. Nước (Water)
+       • add_water_screen.dart        - Thêm lượng nước uống
+       • water_stats_screen.dart      - Xem thống kê lượng nước
+
+   1.3. Cân nặng (Weight)
+       • add_weight_screen.dart       - Thêm cân nặng mới
+       • weight_details_screen.dart   - Xem chi tiết biểu đồ cân nặng
+
+   1.4. Giấc ngủ (Sleep)
+       • record_sleep_screen.dart     - Ghi nhận giờ ngủ/thức dậy
+       • sleep_stats_screen.dart      - Xem thống kê giấc ngủ
+
+   1.5. Nhịp tim (Heart Rate)
+       • meassure_bpm_screen.dart     - Đo nhịp tim (sensor)
+       • heart_stats_screen.dart      - Xem thống kê nhịp tim
+
+
+2. CÔNG THỨC NẤU ĂN (RECIPES) - 2 màn hình
+--------------------------------------------------------------------------------
+   2.1. recipes_screen.dart          - Xem danh sách công thức
+   2.2. recipe_details_screen.dart   - Xem chi tiết (nguyên liệu, cách nấu)
+
+
+3. KẾ HOẠCH TẬP (PLANS) - 3 màn hình
+--------------------------------------------------------------------------------
+   3.1. plans_screen.dart            - Xem danh sách kế hoạch tập
+   3.2. workouts_details.dart         - Xem chi tiết workout
+   3.3. exercise_card_widget.dart     - Xem bài tập (exercise)
+
+
+4. CỘNG ĐỒNG (COMMUNITY) - 3 màn hình
+--------------------------------------------------------------------------------
+   4.1. home_screen.dart             - Xem feed/bài viết của cộng đồng
+   4.2. add_post_screen.dart          - Tạo bài viết mới (text, ảnh, video)
+   4.3. comments_screen.dart          - Xem và bình luận bài viết
+
+
+5. THỬ THÁCH (CHALLENGES) - 1 màn hình
+--------------------------------------------------------------------------------
+   5.1. together_screen.dart         - Xem thử thách (Daily/Weekly/Monthly)
+
+
+6. THIỀN ĐỊNH (MEDITATION) - 1 màn hình
+--------------------------------------------------------------------------------
+   6.1. meditation_screen.dart       - Thiền định, nghe nhạc thiền
+
+
+================================================================================
+                           CHỨC NĂNG PHỤ
+================================================================================
+
+1. XÁC THỰC (AUTHENTICATION) - 6 màn hình
+--------------------------------------------------------------------------------
+   1.1. welcome_screen.dart           - Màn hình chào welcome
+   1.2. login_screen.dart             - Đăng nhập (Email/Google/Facebook)
+   1.3. registration_screen.dart     - Đăng ký tài khoản
+   1.4. forgot_password_screen.dart   - Quên mật khẩu
+   1.5. onboarding_screen.dart        - Giới thiệu app (onboarding)
+   1.6. about_screen.dart             - Nhập thông tin cá nhân (chiều cao, cân nặng, tuổi, giới tính)
+
+
+2. PROFILE (HỒ SƠ) - 2 màn hình
+--------------------------------------------------------------------------------
+   2.1. profile_screen.dart           - Xem profile người dùng
+   2.2. edit_profile_screen.dart     - Chỉnh sửa profile
+
+
+3. CÀI ĐẶT (SETTINGS) - 1 màn hình
+--------------------------------------------------------------------------------
+   3.1. settings_screen.dart          - Cài đặt ứng dụng (chế độ tối/sáng, ngôn ngữ...)
+
+
+4. THÔNG BÁO (NOTIFICATIONS) - 1 màn hình
+--------------------------------------------------------------------------------
+   4.1. notifications_screen.dart     - Xem danh sách thông báo
+
+
+5. NHẮN TIN (MESSAGES) - 2 màn hình
+--------------------------------------------------------------------------------
+   5.1. messages_screen.dart          - Xem danh sách hội thoại
+   5.2. conversation_screen.dart      - Chat riêng với người dùng khác
+
+
+================================================================================
+                              TÓM TẮT
+================================================================================
+
+   ╔════════════════════════════════════════════════════════════════════════╗
+   ║  CHỨC NĂNG CHÍNH                                                        
+   ║  ────────────────────────────────────────────────────────────────        
+   ║  Module                    │ Số màn hình │ Chức năng                    
+   ╠════════════════════════════╪══════════════╪═══════════════════════════╣
+   ║  1. Diary (Nhật ký)       │      14      │ Dinh dưỡng, Nước, Cân nặng, 
+   ║                            │              │ Giấc ngủ, Nhịp tim           
+   ║  2. Recipes (Công thức)   │       2      │ Tìm kiếm, Xem chi tiết       
+   ║  3. Plans (Kế hoạch tập)   │       3      │ Workout, Exercise            
+   ║  4. Community (Cộng đồng) │       3      │ Feed, Post, Comments         
+   ║  5. Challenges (Thử thách) │       1      │ Daily/Weekly/Monthly         
+   ║  6. Meditation (Thiền)    │       1      │ Thiền định                   
+   ╠════════════════════════════╧══════════════╧═══════════════════════════╣
+   ║  TỔNG CỘNG CHÍNH           │      24      │                              
+   ╚════════════════════════════════════════════════════════════════════════╝
+
+   ╔════════════════════════════════════════════════════════════════════════╗
+   ║  CHỨC NĂNG PHỤ                                                          
+   ║  ────────────────────────────────────────────────────────────────        
+   ║  Module                    │ Số màn hình │ Chức năng                    
+   ╠════════════════════════════╪══════════════╪═══════════════════════════╣
+   ║  1. Authentication         │       6      │ Đăng nhập, Đăng ký, Onboard │
+   ║  2. Profile               │       2      │ Xem, Chỉnh sửa              
+   ║  3. Settings              │       1      │ Cài đặt ứng dụng            
+   ║  4. Notifications          │       1      │ Xem thông báo                
+   ║  5. Messages              │       2      │ Nhắn tin                    
+   ╠════════════════════════════╧══════════════╧═══════════════════════════╣
+   ║  TỔNG CỘNG PHỤ           │      12      │                              
+   ╚════════════════════════════════════════════════════════════════════════╝
+
+   ╔════════════════════════════════════════════════════════════════════════╗
+   ║  TỔNG CỘNG: 24 + 12 = 36 màn hình chức năng                           
+   ╚════════════════════════════════════════════════════════════════════════╝
+
+
+================================================================================
+                            CẤU TRÚC THƯ MỤC
+================================================================================
+
+   lib/ui/screens/
+   ├── auth/                    → Đăng nhập, đăng ký, onboarding
+   │   ├── login_screen.dart
+   │   ├── registration_screen.dart
+   │   ├── forgot_password_screen.dart
+   │   └── onboarding/
+   │
+   ├── diary/                  → Nhật ký sức khỏe
+   │   ├── diary_screen.dart
+   │   ├── nutrition/          → Dinh dưỡng
+   │   ├── water/              → Nước
+   │   ├── weight/             → Cân nặng
+   │   ├── sleep/              → Giấc ngủ
+   │   └── heart/              → Nhịp tim
+   │
+   ├── recipes/                → Công thức nấu ăn
+   │   ├── recipes_screen.dart
+   │   └── recipe_details_screen.dart
+   │
+   ├── plans/                  → Kế hoạch tập
+   │   ├── plans_screen.dart
+   │   └── workouts_details.dart
+   │
+   ├── home/                   → Cộng đồng
+   │   ├── home_screen.dart
+   │   ├── add_post_screen.dart
+   │   └── comments_screen.dart
+   │
+   ├── together/               → Thử thách & Thiền
+   │   ├── together_screen.dart
+   │   └── meditation_screen.dart
+   │
+   ├── profile/                → Profile
+   │   ├── profile_screen.dart
+   │   └── edit_profile_screen.dart
+   │
+   ├── settings/               → Cài đặt
+   │   └── settings_screen.dart
+   │
+   ├── messages/               → Nhắn tin
+   │   ├── messages_screen.dart
+   │   └── conversation_screen.dart
+   │
+   └── notifications_screen.dart → Thông báo
+
+
+================================================================================

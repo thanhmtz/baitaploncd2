@@ -1,0 +1,107 @@
+@startuml HealthTracker_UseCase_Report
+
+left to right direction
+
+skinparam handwritten false
+skinparam packageStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam usecaseBorderStyle rounded
+skinparam usecaseBorderThickness 2
+skinparam usecaseBackgroundColor #F5F5F5
+skinparam usecaseBorderColor #616161
+skinparam actorBackgroundColor #1976D2
+skinparam actorBorderColor #1565C0
+skinparam actorFontColor #FFFFFF
+skinparam usecaseFontColor #212121
+skinparam usecaseFontSize 11
+skinparam actorFontSize 14
+
+actor "Người dùng" <<User>> as User
+
+package "1. Quản lý tài khoản" {
+  usecase "UC1: Đăng nhập/Đăng ký" as UC1
+  usecase "UC2: Quản lý Profile" as UC2
+  usecase "UC3: Cài đặt" as UC3
+  usecase "UC4: Thông báo" as UC4
+}
+
+package "2. Nhật ký sức khỏe" {
+  usecase "UC5: Dinh dưỡng" as UC5
+  usecase "UC6: Nước" as UC6
+  usecase "UC7: Cân nặng" as UC7
+  usecase "UC8: Giấc ngủ" as UC8
+  usecase "UC9: Nhịp tim" as UC9
+  usecase "UC10: Thống kê" as UC10
+}
+
+package "3. Công thức nấu ăn" {
+  usecase "UC11: Tìm kiếm" as UC11
+  usecase "UC12: Chi tiết" as UC12
+  usecase "UC13: Lọc theo mục tiêu" as UC13
+}
+
+package "4. Kế hoạch tập" {
+  usecase "UC14: Kế hoạch" as UC14
+  usecase "UC15: Bài tập" as UC15
+}
+
+package "5. Cộng đồng" {
+  usecase "UC16: Feed" as UC16
+  usecase "UC17: Đăng bài" as UC17
+  usecase "UC18: Tương tác" as UC18
+}
+
+package "6. Nhắn tin" {
+  usecase "UC19: Hội thoại" as UC19
+  usecase "UC20: Nhắn tin" as UC20
+}
+
+package "7. Thử thách & Thiền" {
+  usecase "UC21: Thử thách" as UC21
+  usecase "UC22: Thiền" as UC22
+}
+
+' Actor to Use Cases
+User -- UC1
+User -- UC2
+User -- UC3
+User -- UC4
+User -- UC5
+User -- UC6
+User -- UC7
+User -- UC8
+User -- UC9
+User -- UC10
+User -- UC11
+User -- UC12
+User -- UC13
+User -- UC14
+User -- UC15
+User -- UC16
+User -- UC17
+User -- UC18
+User -- UC19
+User -- UC20
+User -- UC21
+User -- UC22
+
+' Include relationships (<<include>>)
+UC1 -[#2E7D32]- UC2 : <<include>>
+UC2 -[#2E7D32]- UC3 : <<include>>
+UC11 -[#2E7D32]- UC12 : <<include>>
+UC13 -[#2E7D32]- UC12 : <<include>>
+UC14 -[#2E7D32]- UC15 : <<include>>
+UC16 -[#2E7D32]- UC17 : <<include>>
+UC16 -[#2E7D32]- UC18 : <<include>>
+UC19 -[#2E7D32]- UC20 : <<include>>
+UC21 -[#2E7D32]- UC22 : <<include>>
+
+' Relationships between packages
+note bottom of UC5 : Extend từ UC12, UC15\n(cập nhật dinh dưỡng)
+note bottom of UC2 : Extend từ UC7, UC10\n(cập nhật profile)
+note bottom of UC13 : Extend từ UC2\n(gợi ý recipe)
+note bottom of UC14 : Extend từ UC2\n(gợi ý kế hoạch)
+note bottom of UC20 : Extend từ UC18\n(nhắn tin riêng)
+note bottom of UC4 : Extend từ UC5,6,8,21\n(nhắc nhở)
+
+@enduml

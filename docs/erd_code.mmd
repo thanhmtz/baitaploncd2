@@ -1,0 +1,173 @@
+@startuml HealthTracker_ERD
+
+' Cấu hình style
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+
+' Định nghĩa các Entity
+class USERS {
+  uid PK
+  email
+  username
+  photoUrl
+  bio
+  sex
+  isDarkMode
+  bookmarkedRecipes[]
+  followers[]
+  following[]
+}
+
+class MEALS {
+  id PK
+  user_id FK
+  title
+  foods[] EMBED
+  created_at
+}
+
+class FOODS {
+  id PK
+  name
+  calories
+  protein
+  carbs
+  fat
+  imageUrl
+  servingSize
+}
+
+class WATER_INTAKES {
+  id PK
+  user_id FK
+  amount
+  date
+  time
+}
+
+class WEIGHTS {
+  id PK
+  user_id FK
+  weight
+  date
+}
+
+class SLEEPS {
+  id PK
+  user_id FK
+  sleep_time
+  wake_time
+  total_hours
+  date
+}
+
+class HEART_RATES {
+  id PK
+  user_id FK
+  bpm
+  date
+  time
+}
+
+class WORKOUTS {
+  id PK
+  user_id FK
+  name
+  level
+  exercises[] EMBED
+  status
+  completed_at
+}
+
+class EXERCISES {
+  id PK
+  name
+  description
+  image
+  duration
+  reps
+  sets
+}
+
+class POSTS {
+  postId PK
+  uid FK
+  recipe_id FK
+  description
+  username
+  postUrl
+  likes{}
+}
+
+class COMMENTS {
+  id PK
+  postId FK
+  uid FK
+  text
+  datePublished
+}
+
+class RECIPES {
+  id PK
+  title
+  author
+  description
+  ingredients[]
+  preparation[]
+}
+
+class CHALLENGES {
+  id PK
+  title
+  type
+  goal
+  points
+}
+
+class USER_CHALLENGES {
+  id PK
+  user_id FK
+  challenge_id FK
+  progress
+  status
+}
+
+class MEDITATION_SESSIONS {
+  id PK
+  user_id FK
+  duration
+  completed_at
+}
+
+class NOTIFICATIONS {
+  id PK
+  user_id FK
+  title
+  body
+  type
+  is_read
+}
+
+' Relationships
+USERS "1" --> "N" MEALS : has
+USERS "1" --> "N" WATER_INTAKES : tracks
+USERS "1" --> "N" WEIGHTS : records
+USERS "1" --> "N" SLEEPS : logs
+USERS "1" --> "N" HEART_RATES : measures
+USERS "1" --> "N" WORKOUTS : performs
+USERS "1" --> "N" POSTS : creates
+USERS "1" --> "N" USER_CHALLENGES : joins
+USERS "1" --> "N" MEDITATION_SESSIONS : practices
+USERS "1" --> "N" NOTIFICATIONS : receives
+
+MEALS "1" *-- "N" FOODS : contains (EMBED)
+WORKOUTS "1" *-- "N" EXERCISES : contains (EMBED)
+
+POSTS "1" --> "N" COMMENTS : has
+POSTS "N" --> "1" RECIPES : shares
+
+USER_CHALLENGES "N" --> "1" CHALLENGES : belongs_to
+
+USERS "N" -- "N" RECIPES : bookmarks
+
+@enduml

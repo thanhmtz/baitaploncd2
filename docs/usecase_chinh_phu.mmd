@@ -1,0 +1,119 @@
+@startuml HealthTracker_UseCase_Chinh_Phu
+
+left to right direction
+
+skinparam usecaseBorderStyle rounded
+skinparam usecaseBorderThickness 2
+skinparam actorFontSize 14
+
+actor "Người dùng" as User #1565C0
+
+package "CHỨC NĂNG CHÍNH" #E8F5E9 {
+  note right of package
+    Chức năng cốt lõi của hệ thống
+    Không thể thiếu được
+  end note
+  
+  usecase "1. Nhật ký sức khỏe" as Diary #4CAF50
+  usecase "  • Theo dõi dinh dưỡng" as D_Nutrition
+  usecase "  • Theo dõi nước" as D_Water
+  usecase "  • Theo dõi cân nặng" as D_Weight
+  usecase "  • Theo dõi giấc ngủ" as D_Sleep
+  usecase "  • Đo nhịp tim" as D_Heart
+  usecase "  • Xem thống kê" as D_Stats
+  
+  usecase "2. Công thức nấu ăn" as Recipes #4CAF50
+  usecase "  • Tìm kiếm recipe" as R_Search
+  usecase "  • Xem chi tiết" as R_Detail
+  usecase "  • Thêm vào bữa ăn" as R_Add
+  
+  usecase "3. Kế hoạch tập luyện" as Plans #4CAF50
+  usecase "  • Xem kế hoạch" as P_Plan
+  usecase "  • Xem bài tập" as P_Exercise
+  usecase "  • Bắt đầu tập" as P_Start
+  
+  usecase "4. Cộng đồng" as Community #4CAF50
+  usecase "  • Xem feed" as C_Feed
+  usecase "  • Đăng bài" as C_Post
+  usecase "  • Tương tác (Like/Comment)" as C_Interact
+  
+  usecase "5. Thử thách" as Challenges #4CAF50
+  usecase "  • Thử thách hàng ngày" as Ch_Daily
+  usecase "  • Thử thách hàng tuần" as Ch_Weekly
+  usecase "  • Thử thách hàng tháng" as Ch_Monthly
+  
+  usecase "6. Thiền định" as Meditation #4CAF50
+  usecase "  • Thiền định" as M_Meditate
+}
+
+package "CHỨC NĂNG PHỤ" #FFF3E0 {
+  note right of package
+    Chức năng hỗ trợ
+    Tăng trải nghiệm người dùng
+  end note
+  
+  usecase "A. Quản lý tài khoản" as Account #FF9800
+  usecase "  • Đăng nhập/Đăng ký" as A_Auth
+  usecase "  • Quản lý profile" as A_Profile
+  usecase "  • Cài đặt" as A_Settings
+  
+  usecase "B. Nhắn tin" as Messages #FF9800
+  usecase "  • Xem hội thoại" as M_List
+  usecase "  • Nhắn tin" as M_Send
+  
+  usecase "C. Thông báo" as Notification #FF9800
+  usecase "  • Xem thông báo" as N_View
+  usecase "  • Quản lý thông báo" as N_Settings
+}
+
+' Actor to Main Functions
+User -up-> Diary
+User -up-> Recipes
+User -up-> Plans
+User -up-> Community
+User -up-> Challenges
+User -up-> Meditation
+
+' Actor to Secondary Functions
+User -down-> Account
+User -down-> Messages
+User -down-> Notification
+
+' Decomposition - Main
+Diary - D_Nutrition
+Diary - D_Water
+Diary - D_Weight
+Diary - D_Sleep
+Diary - D_Heart
+Diary - D_Stats
+
+Recipes - R_Search
+Recipes - R_Detail
+Recipes - R_Add
+
+Plans - P_Plan
+Plans - P_Exercise
+Plans - P_Start
+
+Community - C_Feed
+Community - C_Post
+Community - C_Interact
+
+Challenges - Ch_Daily
+Challenges - Ch_Weekly
+Challenges - Ch_Monthly
+
+Meditation - M_Meditate
+
+' Decomposition - Secondary
+Account - A_Auth
+Account - A_Profile
+Account - A_Settings
+
+Messages - M_List
+Messages - M_Send
+
+Notification - N_View
+Notification - N_Settings
+
+@enduml

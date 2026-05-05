@@ -1,0 +1,60 @@
+@startuml HealthTracker_Activity_Diagram
+
+start
+
+:Đăng nhập/Đăng ký;
+
+if (Đăng nhập thành công?) then (Có)
+  :Vào màn hình Home;
+  
+  partition "Chức năng chính" {
+    :Chọn chức năng;
+    
+    fork
+      :Nhật ký sức khỏe;
+      :Chọn loại theo dõi;
+      :Nhập/Ghi dữ liệu;
+      :Lưu;
+      :Xem thống kê;
+    fork again
+      :Công thức nấu ăn;
+      :Tìm kiếm/Lọc recipe;
+      :Xem chi tiết;
+      :Thêm vào bữa ăn;
+    fork again
+      :Kế hoạch tập;
+      :Chọn kế hoạch;
+      :Xem bài tập;
+      :Bắt đầu tập;
+      :Ghi nhận tiến độ;
+    fork again
+      :Cộng đồng;
+      :Xem feed;
+      :Tạo bài viết;
+      :Đăng bài;
+      :Tương tác (Like/Comment);
+    fork again
+      :Thử thách;
+      :Chọn loại (Daily/Weekly/Monthly);
+      :Tham gia;
+      :Theo dõi tiến độ;
+    fork again
+      :Thiền định;
+      :Chọn thời gian;
+      :Bắt đầu thiền;
+      :Hoàn thành;
+    end fork
+    
+    :Xem thông báo;
+  }
+  
+  :Đăng xuất;
+  
+else (Không)
+  :Thông báo lỗi;
+  :Quay lại đăng nhập;
+endif
+
+stop
+
+@enduml

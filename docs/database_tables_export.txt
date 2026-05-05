@@ -1,0 +1,252 @@
+============================================================
+HEALTH TRACKER APP - DATABASE TABLES EXPORT
+============================================================
+Generated: 2026-05-06
+Total Tables: 27
+============================================================
+
+1. USERS
+   - id: UUID/VARCHAR(36) PRIMARY KEY
+   - email: VARCHAR(255) UNIQUE NOT NULL
+   - password: VARCHAR(255) NOT NULL
+   - name: VARCHAR(255) NOT NULL
+   - avatar: TEXT
+   - height: FLOAT
+   - weight: FLOAT
+   - age: INTEGER/INT
+   - gender: VARCHAR(50)
+   - created_at: TIMESTAMP/DATETIME
+   - updated_at: TIMESTAMP/DATETIME
+
+2. USER_PROFILES
+   - id: UUID/VARCHAR(36) PRIMARY KEY
+   - user_id: UUID/VARCHAR(36) NOT NULL UNIQUE -> users(id)
+   - bio: TEXT
+   - goals: TEXT
+   - daily_calorie_goal: INTEGER/INT DEFAULT 2000
+   - daily_water_goal: FLOAT DEFAULT 2000
+   - sleep_goal: FLOAT DEFAULT 8
+
+3. MEALS
+   - id: UUID/VARCHAR(36) PRIMARY KEY
+   - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+   - type: VARCHAR(50)/ENUM('Breakfast','Lunch','Dinner','Snack')
+   - date: DATE NOT NULL
+   - total_calories: INTEGER/INT DEFAULT 0
+   - created_at: TIMESTAMP/DATETIME
+
+4. FOODS
+   - id: UUID/VARCHAR(36) PRIMARY KEY
+   - name: VARCHAR(255) NOT NULL
+   - calories: INTEGER/INT NOT NULL
+   - protein: FLOAT
+   - carbs: FLOAT
+   - fat: FLOAT
+   - serving_size: FLOAT DEFAULT 100
+   - barcode: VARCHAR(100) UNIQUE
+
+5. MEAL_FOODS
+   - id: UUID/VARCHAR(36) PRIMARY KEY
+   - meal_id: UUID/VARCHAR(36) NOT NULL -> meals(id)
+   - food_id: UUID/VARCHAR(36) NOT NULL -> foods(id)
+   - quantity: FLOAT NOT NULL DEFAULT 1
+
+6. WATER_INTAKES
+   - id: UUID/VARCHAR(36) PRIMARY KEY
+   - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+   - amount: FLOAT NOT NULL
+   - date: DATE NOT NULL
+   - time: TIME NOT NULL
+   - created_at: TIMESTAMP/DATETIME
+
+7. WEIGHTS
+   - id: UUID/VARCHAR(36) PRIMARY KEY
+   - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+   - weight: FLOAT NOT NULL
+   - date: DATE NOT NULL
+   - created_at: TIMESTAMP/DATETIME
+
+8. SLEEPS
+   - id: UUID/VARCHAR(36) PRIMARY KEY
+   - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+   - sleep_time: TIME NOT NULL
+   - wake_time: TIME NOT NULL
+   - date: DATE NOT NULL
+   - total_hours: FLOAT
+   - created_at: TIMESTAMP/DATETIME
+
+9. HEART_RATES
+   - id: UUID/VARCHAR(36) PRIMARY KEY
+   - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+   - bpm: INTEGER/INT NOT NULL
+   - date: DATE NOT NULL
+   - time: TIME NOT NULL
+   - created_at: TIMESTAMP/DATETIME
+
+10. RECIPES
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - title: VARCHAR(255) NOT NULL
+    - image: TEXT
+    - calories: INTEGER/INT
+    - protein: FLOAT
+    - carbs: FLOAT
+    - fat: FLOAT
+    - servings: INTEGER/INT DEFAULT 1
+    - prep_time: INTEGER/INT
+    - cook_time: INTEGER/INT
+    - created_by: UUID/VARCHAR(36) -> users(id)
+    - created_at: TIMESTAMP/DATETIME
+
+11. RECIPE_INGREDIENTS
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - recipe_id: UUID/VARCHAR(36) NOT NULL -> recipes(id)
+    - food_id: UUID/VARCHAR(36) NOT NULL -> foods(id)
+    - quantity: FLOAT
+    - unit: VARCHAR(50)
+
+12. RECIPE_STEPS
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - recipe_id: UUID/VARCHAR(36) NOT NULL -> recipes(id)
+    - step_number: INTEGER/INT NOT NULL
+    - description: TEXT NOT NULL
+
+13. FAVORITE_RECIPES
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+    - recipe_id: UUID/VARCHAR(36) NOT NULL -> recipes(id)
+    - created_at: TIMESTAMP/DATETIME
+    - UNIQUE(user_id, recipe_id)
+
+14. WORKOUT_PLANS
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - title: VARCHAR(255) NOT NULL
+    - description: TEXT
+    - goal: VARCHAR(100)
+    - duration: INTEGER/INT
+    - difficulty: VARCHAR(50)
+    - created_at: TIMESTAMP/DATETIME
+
+15. WORKOUTS
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - plan_id: UUID/VARCHAR(36) NOT NULL -> workout_plans(id)
+    - name: VARCHAR(255) NOT NULL
+    - day_number: INTEGER/INT
+    - exercises: JSONB/JSON
+    - created_at: TIMESTAMP/DATETIME
+
+16. EXERCISES
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - name: VARCHAR(255) NOT NULL
+    - description: TEXT
+    - video_url: TEXT
+    - image: TEXT
+    - duration: INTEGER/INT
+    - reps: INTEGER/INT
+    - sets: INTEGER/INT
+
+17. USER_WORKOUTS
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+    - workout_id: UUID/VARCHAR(36) NOT NULL -> workouts(id)
+    - started_at: TIMESTAMP/DATETIME
+    - completed_at: TIMESTAMP/DATETIME
+    - status: VARCHAR(50)/ENUM('InProgress','Completed')
+
+18. POSTS
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+    - content: TEXT
+    - image: TEXT
+    - recipe_id: UUID/VARCHAR(36) -> recipes(id)
+    - likes_count: INTEGER/INT DEFAULT 0
+    - comments_count: INTEGER/INT DEFAULT 0
+    - created_at: TIMESTAMP/DATETIME
+
+19. LIKES
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - post_id: UUID/VARCHAR(36) NOT NULL -> posts(id)
+    - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+    - created_at: TIMESTAMP/DATETIME
+    - UNIQUE(post_id, user_id)
+
+20. COMMENTS
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - post_id: UUID/VARCHAR(36) NOT NULL -> posts(id)
+    - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+    - content: TEXT NOT NULL
+    - created_at: TIMESTAMP/DATETIME
+
+21. CONVERSATIONS
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - created_at: TIMESTAMP/DATETIME
+
+22. CONVERSATION_PARTICIPANTS
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - conversation_id: UUID/VARCHAR(36) NOT NULL -> conversations(id)
+    - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+    - UNIQUE(conversation_id, user_id)
+
+23. MESSAGES
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - conversation_id: UUID/VARCHAR(36) NOT NULL -> conversations(id)
+    - sender_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+    - content: TEXT
+    - image: TEXT
+    - created_at: TIMESTAMP/DATETIME
+
+24. CHALLENGES
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - title: VARCHAR(255) NOT NULL
+    - description: TEXT
+    - type: VARCHAR(50)/ENUM('Daily','Weekly','Monthly')
+    - goal: VARCHAR(255)
+    - points: INTEGER/INT DEFAULT 0
+    - start_date: DATE
+    - end_date: DATE
+
+25. USER_CHALLENGES
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+    - challenge_id: UUID/VARCHAR(36) NOT NULL -> challenges(id)
+    - progress: INTEGER/INT DEFAULT 0
+    - status: VARCHAR(50)/ENUM('Active','Completed','Failed')
+    - completed_at: TIMESTAMP/DATETIME
+    - UNIQUE(user_id, challenge_id)
+
+26. MEDITATION_SESSIONS
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+    - duration: INTEGER/INT NOT NULL
+    - completed_at: TIMESTAMP/DATETIME
+
+27. NOTIFICATIONS
+    - id: UUID/VARCHAR(36) PRIMARY KEY
+    - user_id: UUID/VARCHAR(36) NOT NULL -> users(id)
+    - title: VARCHAR(255) NOT NULL
+    - content: TEXT
+    - type: VARCHAR(50)
+    - is_read: BOOLEAN DEFAULT FALSE
+    - created_at: TIMESTAMP/DATETIME
+
+============================================================
+MODULES SUMMARY
+============================================================
+1. User & Authentication: users, user_profiles
+2. Diary - Nutrition: meals, foods, meal_foods
+3. Diary - Water: water_intakes
+4. Diary - Weight: weights
+5. Diary - Sleep: sleeps
+6. Diary - Heart Rate: heart_rates
+7. Recipes: recipes, recipe_ingredients, recipe_steps, favorite_recipes
+8. Workouts: workout_plans, workouts, exercises, user_workouts
+9. Community: posts, likes, comments
+10. Messages: conversations, conversation_participants, messages
+11. Challenges: challenges, user_challenges
+12. Meditation: meditation_sessions
+13. Notifications: notifications
+
+============================================================
+Full SQL schema files:
+- PostgreSQL: docs/create_tables.sql
+- MySQL: docs/create_tables_mysql.sql
+============================================================

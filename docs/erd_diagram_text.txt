@@ -1,0 +1,373 @@
+================================================================================
+                    BIỂU ĐỒ ERD - HEALTH TRACKER APP
+================================================================================
+
+═══════════════════════════════════════════════════════════════════════════════
+                              CÁC THỰC THỂ (ENTITIES)
+═══════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                  USER                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID        - Định danh người dùng                    │
+│     email           : String      - Email đăng nhập                        │
+│     password        : String      - Mật khẩu (đã mã hóa)                   │
+│     name            : String       - Tên người dùng                         │
+│     avatar          : String       - URL ảnh đại diện                       │
+│     height          : Float        - Chiều cao (cm)                         │
+│     weight          : Float        - Cân nặng (kg)                         │
+│     age             : Integer      - Tuổi                                   │
+│     gender          : String       - Giới tính                              │
+│     created_at      : DateTime     - Ngày tạo tài khoản                     │
+│     updated_at      : DateTime     - Ngày cập nhật                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                               USER_PROFILE                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  user_id         : UUID (User)                                           │
+│     bio             : String       - Tiểu sử                                │
+│     goals           : String       - Mục tiêu cá nhân                      │
+│     daily_calorie_goal  : Integer  - Mục tiêu calories/ngày               │
+│     daily_water_goal    : Float    - Mục tiêu nước/ngày (ml)              │
+│     sleep_goal      : Float        - Mục tiêu giờ ngủ/ngày                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                  MEAL                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  user_id         : UUID (User)                                           │
+│     type            : Enum        - Loại bữa ăn (Breakfast/Lunch/          │
+│                                   Dinner/Snack)                             │
+│     date            : Date         - Ngày                                   │
+│     total_calories  : Integer      - Tổng calories                        │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                  FOOD                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│     name            : String       - Tên thực phẩm                          │
+│     calories        : Integer      - Calories/100g                         │
+│     protein         : Float        - Protein (g)                          │
+│     carbs           : Float        - Carbs (g)                             │
+│     fat             : Float        - Fat (g)                               │
+│     serving_size    : Float        - Kích thước phục vụ (g)               │
+│     barcode         : String       - Mã vạch                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                               MEAL_FOOD                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  meal_id         : UUID (Meal)                                           │
+│ FK  food_id         : UUID (Food)                                            │
+│     quantity        : Float        - Số lượng (g)                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                               WATER_INTAKE                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  user_id         : UUID (User)                                           │
+│     amount          : Float        - Lượng nước (ml)                       │
+│     date            : Date         - Ngày                                   │
+│     time            : Time         - Giờ                                   │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                  WEIGHT                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  user_id         : UUID (User)                                           │
+│     weight          : Float        - Cân nặng (kg)                         │
+│     date            : Date         - Ngày                                   │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                  SLEEP                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  user_id         : UUID (User)                                           │
+│     sleep_time      : Time         - Giờ ngủ                               │
+│     wake_time       : Time         - Giờ thức dậy                          │
+│     date            : Date         - Ngày                                   │
+│     total_hours     : Float        - Tổng giờ ngủ                         │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                HEART_RATE                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  user_id         : UUID (User)                                           │
+│     bpm             : Integer      - Nhịp tim (bpm)                        │
+│     date            : Date         - Ngày                                   │
+│     time            : Time         - Giờ                                   │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                  RECIPE                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│     title           : String       - Tên món ăn                             │
+│     image           : String       - URL hình ảnh                          │
+│     calories        : Integer      - Calories                             │
+│     protein         : Float        - Protein (g)                          │
+│     carbs           : Float        - Carbs (g)                            │
+│     fat             : Float        - Fat (g)                              │
+│     servings        : Integer      - Số người ăn                          │
+│     prep_time       : Integer      - Thời gian chuẩn bị (phút)           │
+│     cook_time       : Integer      - Thời gian nấu (phút)                 │
+│ FK  created_by     : UUID (User)                                           │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            RECIPE_INGREDIENT                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  recipe_id       : UUID (Recipe)                                         │
+│ FK  food_id         : UUID (Food)                                            │
+│     quantity        : Float        - Số lượng                             │
+│     unit            : String       - Đơn vị                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                               RECIPE_STEP                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  recipe_id       : UUID (Recipe)                                         │
+│     step_number     : Integer      - Số bước                              │
+│     description     : Text          - Mô tả bước nấu                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              WORKOUT_PLAN                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│     title           : String       - Tên kế hoạch                          │
+│     description     : Text          - Mô tả                                │
+│     goal            : String       - Mục tiêu (giảm cân, tăng cơ...)      │
+│     duration        : Integer      - Số ngày                                │
+│     difficulty      : String       - Độ khó                                │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                  WORKOUT                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  plan_id         : UUID (WorkoutPlan)                                    │
+│     name            : String       - Tên bài tập                          │
+│     day_number      : Integer      - Ngày trong kế hoạch                   │
+│     exercises       : JSON         - Danh sách bài tập                     │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                 EXERCISE                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│     name            : String       - Tên bài tập                          │
+│     description     : Text          - Mô tả                                │
+│     video_url       : String       - URL video hướng dẫn                  │
+│     image           : String       - URL hình ảnh                         │
+│     duration        : Integer      - Thời gian (giây)                     │
+│     reps            : Integer      - Số lần lặp                           │
+│     sets            : Integer      - Số hiệp                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              USER_WORKOUT                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  user_id         : UUID (User)                                           │
+│ FK  workout_id      : UUID (Workout)                                        │
+│     started_at      : DateTime     - Bắt đầu tập                          │
+│     completed_at    : DateTime     - Hoàn thành                            │
+│     status          : Enum         - Trạng thái (InProgress, Completed)   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                   POST                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  user_id         : UUID (User)                                           │
+│     content         : Text          - Nội dung bài viết                    │
+│     image           : String       - URL hình ảnh                         │
+│ FK  recipe_id       : UUID (Recipe, nullable) - Chia sẻ recipe            │
+│     likes_count     : Integer      - Số lượt like                         │
+│     comments_count  : Integer      - Số lượt comment                       │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                   LIKE                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  post_id         : UUID (Post)                                           │
+│ FK  user_id         : UUID (User)                                           │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                  COMMENT                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  post_id         : UUID (Post)                                           │
+│ FK  user_id         : UUID (User)                                           │
+│     content         : Text          - Nội dung comment                    │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                               CONVERSATION                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          CONVERSATION_PARTICIPANT                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  conversation_id : UUID (Conversation)                                    │
+│ FK  user_id         : UUID (User)                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                  MESSAGE                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  conversation_id : UUID (Conversation)                                    │
+│ FK  sender_id       : UUID (User)                                           │
+│     content         : Text          - Nội dung tin nhắn                   │
+│     image           : String       - URL hình ảnh                          │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                CHALLENGE                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│     title           : String       - Tên thử thách                          │
+│     description     : Text          - Mô tả                                │
+│     type            : Enum         - Loại (Daily/Weekly/Monthly)           │
+│     goal            : String       - Mục tiêu thử thách                    │
+│     points          : Integer      - Điểm thưởng                           │
+│     start_date      : Date         - Ngày bắt đầu                         │
+│     end_date        : Date         - Ngày kết thúc                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              USER_CHALLENGE                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  user_id         : UUID (User)                                           │
+│ FK  challenge_id    : UUID (Challenge)                                       │
+│     progress        : Integer      - Tiến độ (%)                          │
+│     status          : Enum         - Trạng thái (Active/Completed/Failed)  │
+│     completed_at    : DateTime     - Ngày hoàn thành                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            MEDITATION_SESSION                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  user_id         : UUID (User)                                           │
+│     duration        : Integer      - Thời gian thiền (phút)                │
+│     completed_at    : DateTime     - Ngày hoàn thành                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                               NOTIFICATION                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ PK  id              : UUID                                                  │
+│ FK  user_id         : UUID (User)                                           │
+│     title           : String       - Tiêu đề                                │
+│     content         : Text          - Nội dung                            │
+│     type            : String       - Loại thông báo                        │
+│     is_read         : Boolean      - Đã đọc chưa                          │
+│     created_at      : DateTime     - Ngày tạo                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+                              MỐI QUAN HỆ (RELATIONSHIPS)
+═══════════════════════════════════════════════════════════════════════════════
+
+  USER ─────────┬───────── USER_PROFILE (1:1)
+                │
+                ├───────── MEAL (1:N)
+                │
+                ├───────── WATER_INTAKE (1:N)
+                │
+                ├───────── WEIGHT (1:N)
+                │
+                ├───────── SLEEP (1:N)
+                │
+                ├───────── HEART_RATE (1:N)
+                │
+                ├───────── POST (1:N)
+                │              │
+                │              ├─ LIKE (1:N)
+                │              └─ COMMENT (1:N)
+                │
+                ├───────── USER_WORKOUT (1:N)
+                │
+                ├───────── USER_CHALLENGE (1:N)
+                │
+                ├───────── MEDITATION_SESSION (1:N)
+                │
+                ├───────── NOTIFICATION (1:N)
+                │
+                ├───────── CONVERSATION (1:N)
+                │              │
+                │              └─ MESSAGE (1:N)
+                │
+                └───────── RECIPE (1:N)
+                           │
+                           ├─ RECIPE_INGREDIENT (1:N)
+                           │      └─ FOOD (N:1)
+                           └─ RECIPE_STEP (1:N)
+
+  WORKOUT_PLAN ─────── WORKOUT (1:N)
+                       │
+                       ├─ EXERCISE (N:M)
+                       └─ USER_WORKOUT (1:N)
+
+  CHALLENGE ────────── USER_CHALLENGE (1:N)
+
+═══════════════════════════════════════════════════════════════════════════════
+                              TÓM TẮT THỐNG KÊ
+═══════════════════════════════════════════════════════════════════════════════
+
+  ╔═══════════════════════════════════════════════════════════════════════════╗
+  ║ Tổng số Entities: 23                                                       ║
+  ║ Tổng số Relationships: 20+                                                 ║
+  ╠═══════════════════════════════════════════════════════════════════════════╣
+  ║                                                                           ║
+  ║ Module              │ Số Entities │ Entities                              ║
+  ╠═══════════════════════════════════════════════════════════════════════════╣
+  ║ Authentication      │      1      │ User, UserProfile                    ║
+  ║ Diary               │      6      │ Meal, Food, MealFood, WaterIntake,    ║
+  ║                     │             │ Weight, Sleep, HeartRate             ║
+  ║ Recipes             │      4      │ Recipe, RecipeIngredient,            ║
+  ║                     │             │ RecipeStep, Food                     ║
+  ║ Workouts            │      4      │ WorkoutPlan, Workout, Exercise,      ║
+  ║                     │             │ UserWorkout                          ║
+  ║ Community           │      3      │ Post, Like, Comment                  ║
+  ║ Messages            │      3      │ Conversation, ConversationParticipant║
+  ║                     │             │ Message                              ║
+  ║ Challenges          │      2      │ Challenge, UserChallenge             ║
+  ║ Meditation          │      1      │ MeditationSession                    ║
+  ║ Notification        │      1      │ Notification                        ║
+  ╚═══════════════════════════════════════════════════════════════════════════╝
+
+================================================================================

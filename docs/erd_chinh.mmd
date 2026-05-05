@@ -1,0 +1,258 @@
+@startuml HealthTracker_ERD_Chinh
+
+skinparam rectangleBackgroundColor #FFFFFF
+skinparam rectangleBorderColor #333333
+skinparam entityBackgroundColor #E3F2FD
+skinparam entityBorderColor #1565C0
+skinparam entityFontColor #1565C0
+skinparam packageBackgroundColor #F5F5F5
+hide circle
+hide methods
+
+package "1. NHẬT KÝ SỨC KHỎE (Diary)" #E8F5E9 {
+  entity "meals" as meals {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    type : String
+    date : Date
+    total_calories : Integer
+  }
+
+  entity "foods" as foods {
+    * id : String (PK)
+    --
+    name : String
+    calories : Integer
+    protein : Float
+    carbs : Float
+    fat : Float
+    barcode : String
+  }
+
+  entity "meal_foods" as meal_foods {
+    * id : String (PK)
+    * meal_id : String (FK)
+    * food_id : String (FK)
+    --
+    quantity : Float
+  }
+
+  entity "water_intakes" as water {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    amount : Float
+    date : Date
+    time : Time
+  }
+
+  entity "weights" as weights {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    weight : Float
+    date : Date
+  }
+
+  entity "sleeps" as sleeps {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    sleep_time : Time
+    wake_time : Time
+    date : Date
+    total_hours : Float
+  }
+
+  entity "heart_rates" as heart_rates {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    bpm : Integer
+    date : Date
+    time : Time
+  }
+}
+
+package "2. CÔNG THỨC NẤU ĂN (Recipes)" #FFF3E0 {
+  entity "recipes" as recipes {
+    * id : String (PK)
+    * created_by : String (FK)
+    --
+    title : String
+    image : String
+    calories : Integer
+    protein : Float
+    carbs : Float
+    fat : Float
+    servings : Integer
+    prep_time : Integer
+    cook_time : Integer
+  }
+
+  entity "recipe_ingredients" as recipe_ing {
+    * id : String (PK)
+    * recipe_id : String (FK)
+    * food_id : String (FK)
+    --
+    quantity : Float
+    unit : String
+  }
+
+  entity "recipe_steps" as recipe_steps {
+    * id : String (PK)
+    * recipe_id : String (FK)
+    --
+    step_number : Integer
+    description : String
+  }
+
+  entity "favorite_recipes" as fav_recipes {
+    * id : String (PK)
+    * user_id : String (FK)
+    * recipe_id : String (FK)
+  }
+}
+
+package "3. KẾ HOẠCH TẬP (Plans)" #E1F5FE {
+  entity "workout_plans" as plans {
+    * id : String (PK)
+    --
+    title : String
+    description : String
+    goal : String
+    duration : Integer
+    difficulty : String
+  }
+
+  entity "workouts" as workouts {
+    * id : String (PK)
+    * plan_id : String (FK)
+    --
+    name : String
+    day_number : Integer
+    exercises : JSON
+  }
+
+  entity "exercises" as exercises {
+    * id : String (PK)
+    --
+    name : String
+    description : String
+    video_url : String
+    image : String
+    duration : Integer
+    reps : Integer
+    sets : Integer
+  }
+
+  entity "user_workouts" as user_workouts {
+    * id : String (PK)
+    * user_id : String (FK)
+    * workout_id : String (FK)
+    --
+    started_at : DateTime
+    completed_at : DateTime
+    status : String
+  }
+}
+
+package "4. CỘNG ĐỒNG (Community)" #FCE4EC {
+  entity "posts" as posts {
+    * id : String (PK)
+    * user_id : String (FK)
+    * recipe_id : String (FK)
+    --
+    content : String
+    image : String
+    likes_count : Integer
+    comments_count : Integer
+    created_at : DateTime
+  }
+
+  entity "likes" as likes {
+    * id : String (PK)
+    * post_id : String (FK)
+    * user_id : String (FK)
+  }
+
+  entity "comments" as comments {
+    * id : String (PK)
+    * post_id : String (FK)
+    * user_id : String (FK)
+    --
+    content : String
+    created_at : DateTime
+  }
+}
+
+package "5. THỬ THÁCH (Challenges)" #F3E5F5 {
+  entity "challenges" as challenges {
+    * id : String (PK)
+    --
+    title : String
+    description : String
+    type : String
+    goal : String
+    points : Integer
+    start_date : Date
+    end_date : Date
+  }
+
+  entity "user_challenges" as user_challenges {
+    * id : String (PK)
+    * user_id : String (FK)
+    * challenge_id : String (FK)
+    --
+    progress : Integer
+    status : String
+    completed_at : DateTime
+  }
+}
+
+package "6. THIỀN ĐỊNH (Meditation)" #FFF8E1 {
+  entity "meditation_sessions" as meditation {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    duration : Integer
+    completed_at : DateTime
+  }
+}
+
+' Relationships
+users ||--o{ meals
+users ||--o{ water
+users ||--o{ weights
+users ||--o{ sleeps
+users ||--o{ heart_rates
+users ||--o{ fav_recipes
+users ||--o{ posts
+users ||--o{ likes
+users ||--o{ comments
+users ||--o{ user_workouts
+users ||--o{ user_challenges
+users ||--o{ meditation
+users ||--|| recipes
+
+meals }o--o{ meal_foods
+meal_foods }o--|| foods
+meal_foods }o--|| meals
+
+recipes }o--o{ recipe_ing
+recipe_ing }o--|| foods
+recipes }o--o{ recipe_steps
+recipes }o--o{ fav_recipes
+
+plans ||--o{ workouts
+workouts }o--o{ exercises
+workouts }o--o{ user_workouts
+
+posts ||--o{ likes
+posts ||--o{ comments
+posts }o--o{ recipes
+
+challenges }o--o{ user_challenges
+
+@enduml

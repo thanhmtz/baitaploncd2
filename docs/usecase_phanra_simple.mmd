@@ -1,0 +1,186 @@
+@startuml HealthTracker_UseCase_PhanRa_Simple
+
+top to bottom direction
+
+skinparam usecaseBorderStyle rounded
+skinparam usecaseBackgroundColor #E8F5E9
+skinparam usecaseBorderColor #2E7D32
+skinparam usecaseFontSize 11
+skinparam actorFontSize 12
+
+actor "Người dùng" as User
+
+usecase "HEALTH TRACKER" as App #1565C0
+
+usecase "1. QUẢN LÝ TÀI KHOẢN" as Account
+  usecase "• Đăng nhập (Email/Google/Facebook)" as A1
+  usecase "• Đăng ký tài khoản" as A2
+  usecase "• Đăng xuất" as A3
+  usecase "• Quên mật khẩu" as A4
+  usecase "• Xem/Chỉnh sửa profile" as A5
+  usecase "• Cập nhật thông tin cá nhân" as A6
+  usecase "• Cài đặt ứng dụng" as A7
+  usecase "• Chế độ tối/sáng" as A8
+  usecase "• Quản lý thông báo" as A9
+
+usecase "2. NHẬT KÝ SỨC KHỎE" as Diary
+  usecase "• Xem tổng quan diary" as D1
+  usecase "• Theo dõi calories" as D2
+  usecase "• Thêm bữa ăn (Breakfast/Lunch/Dinner/Snack)" as D3
+  usecase "• Quét barcode thực phẩm" as D4
+  usecase "• Tìm kiếm thực phẩm" as D5
+  usecase "• Xem chi tiết thực phẩm" as D6
+  usecase "• Đặt mục tiêu dinh dưỡng" as D7
+  usecase "• Theo dõi nước" as D8
+  usecase "• Thêm lượng nước" as D9
+  usecase "• Theo dõi cân nặng" as D10
+  usecase "• Thêm cân nặng mới" as D11
+  usecase "• Xem lịch sử cân nặng" as D12
+  usecase "• Theo dõi giấc ngủ" as D13
+  usecase "• Ghi nhận giấc ngủ" as D14
+  usecase "• Đo nhịp tim" as D15
+  usecase "• Xem lịch sử nhịp tim" as D16
+  usecase "• Xem thống kê (ngày/tuần/tháng)" as D17
+
+usecase "3. CÔNG THỨC NẤU ĂN" as Recipes
+  usecase "• Xem danh sách recipe" as R1
+  usecase "• Tìm kiếm recipe" as R2
+  usecase "• Lọc theo mục tiêu" as R3
+  usecase "• Lọc theo loại món" as R4
+  usecase "• Xem chi tiết recipe" as R5
+  usecase "• Xem nguyên liệu" as R6
+  usecase "• Xem cách nấu" as R7
+  usecase "• Thêm recipe vào bữa ăn" as R8
+  usecase "• Lưu recipe yêu thích" as R9
+  usecase "• Chia sẻ recipe" as R10
+
+usecase "4. KẾ HOẠCH TẬP" as Plans
+  usecase "• Xem danh sách kế hoạch" as P1
+  usecase "• Xem chi tiết kế hoạch" as P2
+  usecase "• Lọc kế hoạch theo mục tiêu" as P3
+  usecase "• Xem bài tập (workout)" as P4
+  usecase "• Xem chi tiết exercise" as P5
+  usecase "• Xem video hướng dẫn" as P6
+  usecase "• Bắt đầu tập luyện" as P7
+
+usecase "5. CỘNG ĐỒNG" as Community
+  usecase "• Xem bài viết trong feed" as C1
+  usecase "• Tạo bài viết mới" as C2
+  usecase "• Đăng ảnh/video" as C3
+  usecase "• Viết nội dung" as C4
+  usecase "• Chia sẻ recipe" as C5
+  usecase "• Like bài viết" as C6
+  usecase "• Comment bài viết" as C7
+  usecase "• Xem danh sách comments" as C8
+  usecase "• Share bài viết" as C9
+
+usecase "6. NHẮN TIN" as Messages
+  usecase "• Xem danh sách hội thoại" as M1
+  usecase "• Xem tin nhắn" as M2
+  usecase "• Nhắn tin text" as M3
+  usecase "• Gửi ảnh" as M4
+  usecase "• Gửi sticker" as M5
+
+usecase "7. THỬ THÁCH & THIỀN" as Together
+  usecase "• Xem thử thách hàng ngày" as T1
+  usecase "• Xem thử thách hàng tuần" as T2
+  usecase "• Xem thử thách hàng tháng" as T3
+  usecase "• Tham gia thử thách" as T4
+  usecase "• Theo dõi tiến độ" as T5
+  usecase "• Thiền định" as T6
+  usecase "• Chọn thời gian thiền" as T7
+  usecase "• Nghe nhạc thiền" as T8
+  usecase "• Xem lịch sử thiền" as T9
+
+usecase "8. THÔNG BÁO" as Notification
+  usecase "• Xem thông báo" as N1
+  usecase "• Xóa thông báo" as N2
+
+' Relationships
+User --> App
+App - Account
+App - Diary
+App - Recipes
+App - Plans
+App - Community
+App - Messages
+App - Together
+App - Notification
+
+Account - A1
+Account - A2
+Account - A3
+Account - A4
+Account - A5
+Account - A6
+Account - A7
+Account - A8
+Account - A9
+
+Diary - D1
+Diary - D2
+Diary - D3
+Diary - D4
+Diary - D5
+Diary - D6
+Diary - D7
+Diary - D8
+Diary - D9
+Diary - D10
+Diary - D11
+Diary - D12
+Diary - D13
+Diary - D14
+Diary - D15
+Diary - D16
+Diary - D17
+
+Recipes - R1
+Recipes - R2
+Recipes - R3
+Recipes - R4
+Recipes - R5
+Recipes - R6
+Recipes - R7
+Recipes - R8
+Recipes - R9
+Recipes - R10
+
+Plans - P1
+Plans - P2
+Plans - P3
+Plans - P4
+Plans - P5
+Plans - P6
+Plans - P7
+
+Community - C1
+Community - C2
+Community - C3
+Community - C4
+Community - C5
+Community - C6
+Community - C7
+Community - C8
+Community - C9
+
+Messages - M1
+Messages - M2
+Messages - M3
+Messages - M4
+Messages - M5
+
+Together - T1
+Together - T2
+Together - T3
+Together - T4
+Together - T5
+Together - T6
+Together - T7
+Together - T8
+Together - T9
+
+Notification - N1
+Notification - N2
+
+@enduml

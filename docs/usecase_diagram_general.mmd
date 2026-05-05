@@ -1,0 +1,94 @@
+@startuml HealthTracker_UseCase_TongQuat
+
+left to right direction
+
+skinparam usecaseBorderStyle rounded
+skinparam usecaseBorderThickness 2
+skinparam usecaseBackgroundColor #E3F2FD
+skinparam usecaseBorderColor #1565C0
+skinparam actorBackgroundColor #1565C0
+skinparam actorFontColor #FFFFFF
+skinparam actorFontSize 14
+skinparam usecaseFontSize 11
+skinparam maxMessageSize 100
+
+actor "Người dùng" as User
+
+package "1. NHẬT KÝ SỨC KHỎE" as PK1 {
+  usecase "UC1\nDinh dưỡng" as UC_Nutrition
+  usecase "UC2\nNước" as UC_Water
+  usecase "UC3\nCân nặng" as UC_Weight
+  usecase "UC4\nGiấc ngủ" as UC_Sleep
+  usecase "UC5\nNhịp tim" as UC_Heart
+  usecase "UC6\nThống kê" as UC_Stats
+}
+
+package "2. CÔNG THỨC NẤU ĂN" as PK2 {
+  usecase "UC7\nTìm kiếm" as UC_SearchR
+  usecase "UC8\nChi tiết" as UC_DetailR
+  usecase "UC9\nLọc theo mục tiêu" as UC_FilterR
+}
+
+package "3. KẾ HOẠCH TẬP" as PK3 {
+  usecase "UC10\nKế hoạch" as UC_Plan
+  usecase "UC11\nBài tập" as UC_Exercise
+}
+
+package "4. CỘNG ĐỒNG" as PK4 {
+  usecase "UC12\nFeed" as UC_Feed
+  usecase "UC13\nĐăng bài" as UC_Post
+  usecase "UC14\nTương tác" as UC_Interact
+}
+
+package "5. THỬ THÁCH" as PK5 {
+  usecase "UC15\nDaily" as UC_Daily
+  usecase "UC16\nWeekly" as UC_Weekly
+  usecase "UC17\nMonthly" as UC_Monthly
+}
+
+package "6. THIỀN ĐỊNH" as PK6 {
+  usecase "UC18\nThiền định" as UC_Meditate
+}
+
+' === USER CONNECTIONS ===
+User -up-> UC_Nutrition
+User -up-> UC_Water
+User -up-> UC_Weight
+User -up-> UC_Sleep
+User -up-> UC_Heart
+User -up-> UC_Stats
+User --> UC_SearchR
+User --> UC_DetailR
+User --> UC_FilterR
+User --> UC_Plan
+User --> UC_Exercise
+User --> UC_Feed
+User --> UC_Post
+User --> UC_Interact
+User --> UC_Daily
+User --> UC_Weekly
+User --> UC_Monthly
+User --> UC_Meditate
+
+' === INCLUDE RELATIONSHIPS ===
+UC_SearchR -[#2E7D32]-> UC_DetailR : <<include>>
+UC_FilterR -[#2E7D32]-> UC_DetailR : <<include>>
+UC_Plan -[#2E7D32]-> UC_Exercise : <<include>>
+UC_Feed -[#2E7D32]-> UC_Post : <<include>>
+UC_Feed -[#2E7D32]-> UC_Interact : <<include>>
+
+' === EXTEND RELATIONSHIPS ===
+UC_Nutrition .[#E53935].> UC_Stats : <<extend>>
+UC_Water .[#E53935].> UC_Stats : <<extend>>
+UC_Weight .[#E53935].> UC_Stats : <<extend>>
+UC_Sleep .[#E53935].> UC_Stats : <<extend>>
+UC_Heart .[#E53935].> UC_Stats : <<extend>>
+
+UC_DetailR .[#E53935].> UC_Nutrition : <<extend>>
+UC_Exercise .[#E53935].> UC_Nutrition : <<extend>>
+
+UC_Daily .[#E53935].> UC_Weekly : <<extend>>
+UC_Weekly .[#E53935].> UC_Monthly : <<extend>>
+UC_Daily .[#E53935].> UC_Meditate : <<extend>>
+
+@enduml

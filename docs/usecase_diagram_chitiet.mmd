@@ -1,0 +1,113 @@
+@startuml HealthTracker_UseCase_ChiTiet
+
+left to right direction
+
+actor "Người dùng" as User
+actor "External APIs\n(Spoonacular, FDC,\nOpen Food Facts)" as API
+
+rectangle "Health Tracker App" {
+
+  package "1. Xác thực" as Auth {
+    usecase "UC1: Đăng nhập Email" as UC_LoginEmail
+    usecase "UC2: Đăng nhập Google" as UC_LoginGoogle
+    usecase "UC3: Đăng nhập Facebook" as UC_LoginFB
+    usecase "UC4: Đăng ký tài khoản" as UC_Register
+    usecase "UC5: Quên mật khẩu" as UC_ForgotPass
+    usecase "UC6: Đăng xuất" as UC_Logout
+  }
+
+  package "2. Onboarding" as Onboarding {
+    usecase "UC7: Xem giới thiệu app" as UC_Onboarding
+    usecase "UC8: Nhập thông tin cá nhân\n(chiều cao, cân nặng, tuổi, giới tính)" as UC_SetupProfile
+  }
+
+  package "3. Nhật ký sức khỏe (Diary)" as Diary {
+    usecase "UC9: Xem tổng quan diary" as UC_DiaryOverview
+    usecase "UC10: Theo dõi calories" as UC_Calories
+    usecase "UC11: Thêm bữa ăn\n(Breakfast, Lunch, Dinner, Snack)" as UC_AddMeal
+    usecase "UC12: Quét barcode thực phẩm" as UC_ScanBarcode
+    usecase "UC13: Tìm kiếm thực phẩm" as UC_SearchFood
+    usecase "UC14: Xem chi tiết thực phẩm" as UC_FoodDetail
+    usecase "UC15: Theo dõi nước" as UC_TrackWater
+    usecase "UC16: Thêm lượng nước" as UC_AddWater
+    usecase "UC17: Theo dõi cân nặng" as UC_TrackWeight
+    usecase "UC18: Thêm cân nặng mới" as UC_AddWeight
+    usecase "UC19: Xem lịch sử cân nặng" as UC_WeightHistory
+    usecase "UC20: Theo dõi giấc ngủ" as UC_TrackSleep
+    usecase "UC21: Ghi nhận giấc ngủ" as UC_AddSleep
+    usecase "UC22: Đo nhịp tim" as UC_MeasureBPM
+    usecase "UC23: Xem thống kê sức khỏe" as UC_HealthStats
+    usecase "UC24: Đặt mục tiêu" as UC_SetGoal
+  }
+
+  package "4. Công thức nấu ăn (Recipes)" as Recipes {
+    usecase "UC25: Xem danh sách recipe" as UC_RecipeList
+    usecase "UC26: Tìm kiếm recipe" as UC_SearchRecipe
+    usecase "UC27: Lọc theo mục tiêu\n(giảm cân, tăng cơ...)" as UC_FilterRecipe
+    usecase "UC28: Xem chi tiết recipe" as UC_RecipeDetail
+    usecase "UC29: Xem nguyên liệu" as UC_RecipeIngredients
+    usecase "UC30: Xem cách nấu" as UC_RecipeSteps
+  }
+
+  package "5. Kế hoạch tập luyện (Plans)" as Plans {
+    usecase "UC31: Xem kế hoạch tập" as UC_PlanList
+    usecase "UC32: Xem chi tiết kế hoạch" as UC_PlanDetail
+    usecase "UC33: Xem bài tập (workout)" as UC_WorkoutDetail
+    usecase "UC34: Xem chi tiết exercise" as UC_ExerciseDetail
+  }
+
+  package "6. Cộng đồng (Home/Feed)" as Community {
+    usecase "UC35: Xem bài viết" as UC_ViewPosts
+    usecase "UC36: Tạo bài viết mới" as UC_CreatePost
+    usecase "UC37: Đăng ảnh/video" as UC_UploadMedia
+    usecase "UC38: Like bài viết" as UC_LikePost
+    usecase "UC39: Comment bài viết" as UC_CommentPost
+    usecase "UC40: Xem comments" as UC_ViewComments
+  }
+
+  package "7. Nhắn tin (Messages)" as Messages {
+    usecase "UC41: Xem danh sách hội thoại" as UC_ConversationList
+    usecase "UC42: Nhắn tin" as UC_SendMessage
+    usecase "UC43: Xem tin nhắn" as UC_ViewMessages
+  }
+
+  package "8. Cùng nhau (Together)" as Together {
+    usecase "UC44: Xem thử thách" as UC_Challenges
+    usecase "UC45: Thử thách hàng ngày" as UC_DailyChallenge
+    usecase "UC46: Thử thách hàng tuần" as UC_WeeklyChallenge
+    usecase "UC47: Thử thách hàng tháng" as UC_MonthlyChallenge
+    usecase "UC48: Thiền định" as UC_Meditation
+  }
+
+  package "9. Profile" as Profile {
+    usecase "UC49: Xem profile" as UC_ViewProfile
+    usecase "UC50: Chỉnh sửa profile" as UC_EditProfile
+  }
+
+  package "10. Cài đặt (Settings)" as Settings {
+    usecase "UC51: Cài đặt ứng dụng" as UC_AppSettings
+    usecase "UC52: Quản lý thông báo" as UC_NotificationSettings
+    usecase "UC53: Chế độ tối/sáng" as UC_Theme
+  }
+
+  package "11. Thông báo" as Notification {
+    usecase "UC54: Xem thông báo" as UC_ViewNotification
+  }
+}
+
+User --> Auth
+User --> Onboarding
+User --> Diary
+User --> Recipes
+User --> Plans
+User --> Community
+User --> Messages
+User --> Together
+User --> Profile
+User --> Settings
+User --> Notification
+
+Diary --> API : Tìm kiếm thực phẩm
+Recipes --> API : Lấy recipe
+
+@enduml

@@ -1,0 +1,277 @@
+@startuml HealthTracker_ERD_Full
+
+skinparam entityBackgroundColor #E3F2FD
+skinparam entityBorderColor #1565C0
+skinparam entityFontColor #1565C0
+skinparam rectangleBackgroundColor #FFFFFF
+skinparam packageBackgroundColor #F5F5F5
+hide circle
+hide methods
+
+package "1. USER & AUTH" #E8F5E9 {
+  entity "users" as users {
+    * uid : String (PK)
+    --
+    email : String
+    username : String
+    photoUrl : String
+    bio : String
+    sex : Integer
+    isDarkMode : Boolean
+    bookmarkedRecipes : List
+    followers : List
+    following : List
+  }
+}
+
+package "2. DIARY - NUTRITION" #FFF3E0 {
+  entity "meals" as meals {
+    * id : int (PK)
+    * user_id : String (FK)
+    --
+    title : String
+    foods : List<Food>
+  }
+
+  entity "foods" as foods {
+    * id : String (PK)
+    --
+    name : String
+    calories : double
+    protein : double
+    carbs : double
+    fat : double
+    description : String
+    imageUrl : String
+    servingSize : double
+    servingSizeUnit : String
+    nutrients : List
+  }
+}
+
+package "3. DIARY - WATER" #E1F5FE {
+  entity "water_intakes" as water {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    amount : double
+    date : Date
+    time : String
+  }
+}
+
+package "4. DIARY - WEIGHT" #F3E5F5 {
+  entity "weights" as weights {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    weight : double
+    date : Date
+  }
+}
+
+package "5. DIARY - SLEEP" #FCE4EC {
+  entity "sleeps" as sleeps {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    sleep_time : String
+    wake_time : String
+    date : Date
+    total_hours : double
+  }
+}
+
+package "6. DIARY - HEART RATE" #FFEBEE {
+  entity "heart_rates" as heart_rates {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    bpm : int
+    date : Date
+    time : String
+  }
+}
+
+package "7. RECIPES (API)" #E8F5E9 {
+  entity "recipes" as recipes {
+    * id : int (PK)
+    --
+    title : String
+    author : String
+    description : String
+    cookingTime : int
+    servings : int
+    imageUrl : String
+    ingredients : List
+    preparation : List
+  }
+}
+
+package "8. WORKOUTS" #FFF8E1 {
+  entity "workouts" as workouts {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    title : String
+    exercises : List
+    completed_at : DateTime
+    status : String
+  }
+
+  entity "exercises" as exercises {
+    * id : String (PK)
+    --
+    name : String
+    description : String
+    video_url : String
+    image : String
+    duration : int
+    reps : int
+    sets : int
+  }
+}
+
+package "9. COMMUNITY" #ECEFF1 {
+  entity "posts" as posts {
+    * postId : String (PK)
+    * uid : String (FK)
+    * recipe_id : int (FK)
+    --
+    description : String
+    username : String
+    postUrl : String
+    profImage : String
+    likes : Map
+    datePublished : DateTime
+  }
+
+  entity "comments" as comments {
+    * id : String (PK)
+    * postId : String (FK)
+    * uid : String (FK)
+    --
+    username : String
+    text : String
+    datePublished : DateTime
+  }
+}
+
+package "10. CHALLENGES" #E0F2F1 {
+  entity "challenges" as challenges {
+    * id : String (PK)
+    --
+    title : String
+    description : String
+    type : String
+    goal : String
+    points : int
+    start_date : Date
+    end_date : Date
+  }
+
+  entity "user_challenges" as user_challenges {
+    * id : String (PK)
+    * user_id : String (FK)
+    * challenge_id : String (FK)
+    --
+    progress : int
+    status : String
+    completed_at : DateTime
+  }
+}
+
+package "11. MEDITATION" #F3E5F5 {
+  entity "meditation_sessions" as meditation {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    duration : int
+    completed_at : DateTime
+  }
+}
+
+package "12. NOTIFICATIONS" #FFECB3 {
+  entity "notifications" as notifications {
+    * id : String (PK)
+    * user_id : String (FK)
+    --
+    title : String
+    body : String
+    type : String
+    is_read : Boolean
+    created_at : DateTime
+  }
+}
+
+' ===================== MỐI QUAN HỆ =====================
+
+' User relationships (1:N)
+users -[hidden]- water
+users -[hidden]- weights
+users -[hidden]- sleeps
+users -[hidden]- heart_rates
+users -[hidden]- workouts
+users -[hidden]- posts
+users -[hidden]- comments
+users -[hidden]- user_challenges
+users -[hidden]- meditation
+users -[hidden]- notifications
+
+' 1. User → Diary (1:N)
+users ||--o{ meals : "ghi nhận"
+users ||--o{ water : "ghi nhận"
+users ||--o{ weights : "ghi nhận"
+users ||--o{ sleeps : "ghi nhận"
+users ||--o{ heart_rates : "ghi nhận"
+
+' 2. Meals → Foods (N:N - embedded)
+meals .[#FF5722].> foods : "chứa foods[]"
+
+' 3. User → Workouts (1:N)
+users ||--o{ workouts : "thực hiện"
+
+' 4. User → Posts (1:N)
+users ||--o{ posts : "đăng bài"
+
+' 5. Posts → Comments (1:N)
+posts ||--o{ comments : "có"
+
+' 6. User → Comments (1:N)
+users ||--o{ comments : "viết"
+
+' 7. Posts → Recipes (N:1 - chia sẻ)
+posts .[#2196F3].> recipes : "chia sẻ recipe"
+
+' 8. User → Recipes (1:N - bookmarked)
+users .[#9C27B0].> recipes : "lưu yêu thích"
+
+' 9. User → Challenges (1:N - tham gia)
+users ||--o{ challenges : "xem"
+users ||--o{ user_challenges : "tham gia"
+
+' 10. Challenges → User_challenges (1:N)
+challenges ||--o{ user_challenges : "có"
+
+' 11. User → Meditation (1:N)
+users ||--o{ meditation : "thiền tập"
+
+' 12. User → Notifications (1:N)
+users ||--o{ notifications : "nhận"
+
+' ===================== CHÚ THÍCH =====================
+
+note as N1
+  <b>Mối quan hệ:</b>
+  
+  ───── : 1:N (One to Many)
+  ..>   : N:1 hoặc Embed
+  .>    : Reference
+  
+  <b>Màu sắc:</b>
+  🔴 Nâu   : Embed trong Meals
+  🔵 Xanh dương : Reference (chia sẻ)
+  💜 Tím   : Bookmark
+end note
+
+@enduml

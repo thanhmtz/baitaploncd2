@@ -1,0 +1,48 @@
+@startuml Activity_Recipes
+
+title Biểu đồ hoạt động - Công thức nấu ăn (Recipes)
+
+start
+:Mở ứng dụng;
+:Đăng nhập;
+:Vào màn hình Recipes;
+
+:Nhập từ khóa tìm kiếm;
+
+if (Có từ khóa?) then (Có)
+  :Tìm kiếm theo tên/nguyên liệu;
+else (Không)
+  :Xem danh sách recipe đề xuất;
+endif
+
+:Lọc theo mục tiêu\n(Giảm cân/Tăng cơ/Duy trì);
+
+:Chọn recipe;
+
+:Xem chi tiết recipe;
+
+:Chọn hành động;
+
+if (Chọn Thêm vào bữa ăn?) then (Có)
+  :Chọn bữa ăn;
+  :Xác nhận;
+  :Thêm vào Diary;
+else (Không)
+endif
+
+if (Chọn Lưu yêu thích?) then (Có)
+  :Lưu vào danh sách yêu thích;
+else (Không)
+endif
+
+if (Chọn Chia sẻ?) then (Có)
+  :Chia sẻ lên Community;
+else (Không)
+endif
+
+:Xem nguyên liệu;
+:Xem cách nấu;
+
+stop
+
+@enduml

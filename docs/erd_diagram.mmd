@@ -1,0 +1,295 @@
+@startuml HealthTracker_ERD
+
+!theme plain
+skinparam entityBackgroundColor #E3F2FD
+skinparam entityBorderColor #1565C0
+skinparam entityFontColor #1565C0
+skinparam relationshipBorderColor #333333
+skinparam relationshipFontColor #333333
+
+hide circle
+hide methods
+
+entity "User" as user {
+  * id : UUID (PK)
+  * email : String
+  * password : String
+  * name : String
+  * avatar : String
+  * height : Float
+  * weight : Float
+  * age : Integer
+  * gender : String
+  * created_at : DateTime
+  * updated_at : DateTime
+}
+
+entity "UserProfile" as user_profile {
+  * id : UUID (PK)
+  * user_id : UUID (FK)
+  * bio : String
+  * goals : String
+  * daily_calorie_goal : Integer
+  * daily_water_goal : Float
+  * sleep_goal : Float
+}
+
+entity "Meal" as meal {
+  * id : UUID (PK)
+  * user_id : UUID (FK)
+  * type : Enum (Breakfast, Lunch, Dinner, Snack)
+  * date : Date
+  * total_calories : Integer
+  * created_at : DateTime
+}
+
+entity "Food" as food {
+  * id : UUID (PK)
+  * name : String
+  * calories : Integer
+  * protein : Float
+  * carbs : Float
+  * fat : Float
+  * serving_size : Float
+  * barcode : String
+}
+
+entity "MealFood" as meal_food {
+  * id : UUID (PK)
+  * meal_id : UUID (FK)
+  * food_id : UUID (FK)
+  * quantity : Float
+}
+
+entity "WaterIntake" as water {
+  * id : UUID (PK)
+  * user_id : UUID (FK)
+  * amount : Float (ml)
+  * date : Date
+  * time : Time
+  * created_at : DateTime
+}
+
+entity "Weight" as weight {
+  * id : UUID (PK)
+  * user_id : UUID (FK)
+  * weight : Float (kg)
+  * date : Date
+  * created_at : DateTime
+}
+
+entity "Sleep" as sleep {
+  * id : UUID (PK)
+  * user_id : UUID (FK)
+  * sleep_time : Time
+  * wake_time : Time
+  * date : Date
+  * total_hours : Float
+  * created_at : DateTime
+}
+
+entity "HeartRate" as heart_rate {
+  * id : UUID (PK)
+  * user_id : UUID (FK)
+  * bpm : Integer
+  * date : Date
+  * time : Time
+  * created_at : DateTime
+}
+
+entity "Recipe" as recipe {
+  * id : UUID (PK)
+  * title : String
+  * image : String
+  * calories : Integer
+  * protein : Float
+  * carbs : Float
+  * fat : Float
+  * servings : Integer
+  * prep_time : Integer
+  * cook_time : Integer
+  * created_by : UUID (FK)
+  * created_at : DateTime
+}
+
+entity "RecipeIngredient" as recipe_ingredient {
+  * id : UUID (PK)
+  * recipe_id : UUID (FK)
+  * food_id : UUID (FK)
+  * quantity : Float
+  * unit : String
+}
+
+entity "RecipeStep" as recipe_step {
+  * id : UUID (PK)
+  * recipe_id : UUID (FK)
+  * step_number : Integer
+  * description : String
+}
+
+entity "WorkoutPlan" as workout_plan {
+  * id : UUID (PK)
+  * title : String
+  * description : String
+  * goal : String
+  * duration : Integer (days)
+  * difficulty : String
+  * created_at : DateTime
+}
+
+entity "Workout" as workout {
+  * id : UUID (PK)
+  * plan_id : UUID (FK)
+  * name : String
+  * day_number : Integer
+  * exercises : JSON
+  * created_at : DateTime
+}
+
+entity "Exercise" as exercise {
+  * id : UUID (PK)
+  * name : String
+  * description : String
+  * video_url : String
+  * image : String
+  * duration : Integer
+  * reps : Integer
+  * sets : Integer
+}
+
+entity "UserWorkout" as user_workout {
+  * id : UUID (PK)
+  * user_id : UUID (FK)
+  * workout_id : UUID (FK)
+  * started_at : DateTime
+  * completed_at : DateTime
+  * status : Enum (InProgress, Completed)
+}
+
+entity "Post" as post {
+  * id : UUID (PK)
+  * user_id : UUID (FK)
+  * content : Text
+  * image : String
+  * recipe_id : UUID (FK, nullable)
+  * likes_count : Integer
+  * comments_count : Integer
+  * created_at : DateTime
+}
+
+entity "Like" as like {
+  * id : UUID (PK)
+  * post_id : UUID (FK)
+  * user_id : UUID (FK)
+  * created_at : DateTime
+}
+
+entity "Comment" as comment {
+  * id : UUID (PK)
+  * post_id : UUID (FK)
+  * user_id : UUID (FK)
+  * content : Text
+  * created_at : DateTime
+}
+
+entity "Conversation" as conversation {
+  * id : UUID (PK)
+  * created_at : DateTime
+}
+
+entity "ConversationParticipant" as conv_participant {
+  * id : UUID (PK)
+  * conversation_id : UUID (FK)
+  * user_id : UUID (FK)
+}
+
+entity "Message" as message {
+  * id : UUID (PK)
+  * conversation_id : UUID (FK)
+  * sender_id : UUID (FK)
+  * content : Text
+  * image : String
+  * created_at : DateTime
+}
+
+entity "Challenge" as challenge {
+  * id : UUID (PK)
+  * title : String
+  * description : Text
+  * type : Enum (Daily, Weekly, Monthly)
+  * goal : String
+  * points : Integer
+  * start_date : Date
+  * end_date : Date
+}
+
+entity "UserChallenge" as user_challenge {
+  * id : UUID (PK)
+  * user_id : UUID (FK)
+  * challenge_id : UUID (FK)
+  * progress : Integer
+  * status : Enum (Active, Completed, Failed)
+  * completed_at : DateTime
+}
+
+entity "MeditationSession" as meditation {
+  * id : UUID (PK)
+  * user_id : UUID (FK)
+  * duration : Integer (minutes)
+  * completed_at : DateTime
+}
+
+entity "Notification" as notification {
+  * id : UUID (PK)
+  * user_id : UUID (FK)
+  * title : String
+  * content : Text
+  * type : String
+  * is_read : Boolean
+  * created_at : DateTime
+}
+
+' Relationships
+user ||--|| user_profile
+user ||--o{ meal
+user ||--o{ water
+user ||--o{ weight
+user ||--o{ sleep
+user ||--o{ heart_rate
+user ||--o{ user_workout
+user ||--o{ post
+user ||--o{ like
+user ||--o{ comment
+user ||--o{ user_challenge
+user ||--o{ meditation
+user ||--o{ notification
+user ||--o{ conversation
+user ||--o{ conv_participant
+user ||--o{ message
+
+meal }o--o{ meal_food
+meal_food }o--|| food
+meal_food }o--|| meal
+
+recipe }o--o{ recipe_ingredient
+recipe_ingredient }o--|| food
+recipe }o--o{ recipe_step
+
+workout_plan ||--o{ workout
+workout }o--o{ exercise
+workout }o--o{ user_workout
+user_workout }o--|| user
+user_workout }o--|| workout
+
+post ||--o{ like
+post ||--o{ comment
+
+conversation ||--o{ conv_participant
+conversation ||--o{ message
+conv_participant }o--|| user
+message }o--|| user
+
+challenge ||--o{ user_challenge
+user_challenge }o--|| user
+
+@enduml

@@ -1,0 +1,394 @@
+================================================================================
+                    BIỂU ĐỒ ERD - HEALTH TRACKER APP
+                  (Firebase Firestore - NoSQL)
+================================================================================
+
+═══════════════════════════════════════════════════════════════════════════════════
+                              SƠ ĐỒ MỐI QUAN HỆ
+═══════════════════════════════════════════════════════════════════════════════════
+
+    ╔════════════════════════════════════════════════════════════════════════════╗
+    ║                              USERS (uid)                                     ║
+    ║  PK: uid                                                                       ║
+    ║  email, username, photoUrl, bio, sex, isDarkMode                            ║
+    ║  bookmarkedRecipes[], followers[], following[]                                 ║
+    ╚════════════════════════════════════════════════════════════════════════════╝
+                                      │
+      ═══════════════════════════════╪══════════════════════════════════════════
+                  │                   │                   │
+                  ▼                   ▼                   ▼
+    ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
+    │      MEALS        │  │   WATER_INTAKES   │  │     WEIGHTS       │
+    ├───────────────────┤  ├───────────────────┤  ├───────────────────┤
+    │ PK: id (int)      │  │ PK: id (String)   │  │ PK: id (String)   │
+    │ FK: user_id      │  │ FK: user_id      │  │ FK: user_id      │
+    │   title          │  │   amount         │  │   weight         │
+    │   foods[] (EMBED)│  │   date           │  │   date           │
+    └────────┬──────────┘  └────────┬──────────┘  └────────┬──────────┘
+             │                      │                      │
+             ▼                      │                      │
+    ┌───────────────────┐            │                      │
+    │      FOODS        │            │                      │
+    ├───────────────────┤            │                      │
+    │ PK: id (String)   │            │                      │
+    │   name           │            │                      │
+    │   calories       │            │                      │
+    │   protein        │            │                      │
+    │   carbs          │            │                      │
+    │   fat            │            │                      │
+    └───────────────────┘            │                      │
+                                     │                      │
+    ┌───────────────────┐            │                      │
+    │     SLEEPS        │            │                      │
+    ├───────────────────┤            │                      │
+    │ PK: id (String)   │            │                      │
+    │ FK: user_id      │            │                      │
+    │   sleep_time     │            │                      │
+    │   wake_time      │            │                      │
+    │   total_hours    │            │                      │
+    └────────┬──────────┘            │                      │
+             │                      │                      │
+             ▼                      ▼                      ▼
+    ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
+    │   HEART_RATES     │  │    WORKOUTS      │  │      POSTS        │
+    ├───────────────────┤  ├───────────────────┤  ├───────────────────┤
+    │ PK: id (String)   │  │ PK: id (String)   │  │ PK: postId        │
+    │ FK: user_id      │  │ FK: user_id      │  │ FK: uid           │
+    │   bpm            │  │   name           │  │ FK: recipe_id     │
+    │   date           │  │   level          │  │   description     │
+    │   time           │  │   exercises[]    │  │   postUrl         │
+    └────────┬──────────┘  │   (EMBED)        │  │   likes{}         │
+             │          └────────┬──────────┘  └────────┬──────────┘
+             │                   │                      │
+             ▼                   ▼                      ▼
+    ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
+    │    EXERCISES      │  │    COMMENTS       │  │   RECIPES         │
+    │  (trong workouts) │  ├───────────────────┤  ├───────────────────┤
+    ├───────────────────┤  │ PK: id (String)   │  │ PK: id (int)      │
+    │ PK: id            │  │ FK: postId        │  │   title           │
+    │   name           │  │ FK: uid           │  │   author          │
+    │   description     │  │   text            │  │   ingredients[]   │
+    │   image          │  │   datePublished   │  │   preparation[]   │
+    │   duration        │  └───────────────────┘  └────────┬──────────┘
+    │   reps                                                            │
+    │   sets                                                            │
+    └──────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+    ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐
+    │    CHALLENGES     │  │    MEDITATION     │  │  NOTIFICATIONS    │
+    ├───────────────────┤  ├───────────────────┤  ├───────────────────┤
+    │ PK: id (String)   │  │ PK: id (String)   │  │ PK: id (String)   │
+    │   title          │  │ FK: user_id      │  │ FK: user_id      │
+    │   type           │  │   duration       │  │   title          │
+    │   goal           │  │   completed_at   │  │   body           │
+    │   points         │  └───────────────────┘  │   type            │
+    │   start_date     │                          │   is_read         │
+    │   end_date      │                          └───────────────────┘
+    └────────┬──────────┘
+             │
+             ▼
+    ┌───────────────────┐
+    │  USER_CHALLENGES  │
+    ├───────────────────┤
+    │ PK: id (String)   │
+    │ FK: user_id      │
+    │ FK: challenge_id │
+    │   progress       │
+    │   status         │
+    │   completed_at   │
+    └───────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+                            CHI TIẾT CÁC ENTITY
+═══════════════════════════════════════════════════════════════════════════════════
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  1. USERS                                                                    ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ uid                │ String   │ ID người dùng (Firebase Auth)               ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ email              │ String   │ Email đăng nhập                             ║
+║     │ username          │ String   │ Tên người dùng                              ║
+║     │ photoUrl          │ String   │ URL ảnh đại diện                            ║
+║     │ bio               │ String   │ Tiểu sử                                     ║
+║     │ sex               │ Integer  │ Giới tính (1=Nam, 2=Nữ)                    ║
+║     │ isDarkMode        │ Boolean  │ Chế độ tối/sáng                             ║
+║     │ bookmarkedRecipes │ List     │ DS recipe yêu thích (Reference)              ║
+║     │ followers         │ List     │ DS người theo dõi                           ║
+║     │ following         │ List     │ DS người đang theo                         ║
+║     │ created_at        │ Timestamp│ Ngày tạo tài khoản                         ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  2. MEALS                                                                    ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ int     │ ID bữa ăn (tự tăng)                         ║
+║  FK │ user_id             │ String  │ Tham chiếu → USERS.uid                     ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ title               │ String  │ Tên bữa ăn                                  ║
+║     │ foods[]            │ List    │ EMBED: Danh sách thực phẩm                  ║
+║     │   ├─ id            │ String  │   ID thực phẩm                              ║
+║     │   ├─ name          │ String  │   Tên thực phẩm                             ║
+║     │   ├─ calories      │ double  │   Calories                                  ║
+║     │   ├─ protein       │ double  │   Protein                                    ║
+║     │   ├─ carbs         │ double  │   Carbs                                      ║
+║     │   ├─ fat           │ double  │   Fat                                        ║
+║     │   └─ servingSize   │ double  │   Kích thước phục vụ                        ║
+║     │ created_at         │ Timestamp│ Ngày tạo                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  3. FOODS                                                                     ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ String  │ ID (fdcId từ USDA API)                     ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ name               │ String  │ Tên thực phẩm                               ║
+║     │ calories           │ double  │ Calories                                    ║
+║     │ protein            │ double  │ Protein (g)                                 ║
+║     │ carbs              │ double  │ Carbs (g)                                   ║
+║     │ fat                │ double  │ Fat (g)                                     ║
+║     │ description         │ String  │ Mô tả                                       ║
+║     │ imageUrl           │ String  │ URL hình ảnh                                ║
+║     │ servingSize        │ double  │ Kích thước phục vụ mặc định                 ║
+║     │ servingSizeUnit    │ String  │ Đơn vị (g, ml, oz)                          ║
+║     │ nutrients          │ List    │ Danh sách chất dinh dưỡng chi tiết         ║
+║     │ barcode            │ String  │ Mã vạch                                     ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  4. WATER_INTAKES                                                              ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ String  │ ID (UUID)                                   ║
+║  FK │ user_id             │ String  │ Tham chiếu → USERS.uid                     ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ amount              │ double  │ Lượng nước (ml)                            ║
+║     │ date                │ String  │ Ngày (yyyy-MM-dd)                          ║
+║     │ time                │ String  │ Giờ (HH:mm)                                ║
+║     │ created_at          │ Timestamp│ Ngày tạo                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  5. WEIGHTS                                                                   ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ String  │ ID (UUID)                                   ║
+║  FK │ user_id             │ String  │ Tham chiếu → USERS.uid                     ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ weight              │ double  │ Cân nặng (kg)                               ║
+║     │ date                │ String  │ Ngày (yyyy-MM-dd)                          ║
+║     │ created_at          │ Timestamp│ Ngày tạo                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  6. SLEEPS                                                                    ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ String  │ ID (UUID)                                   ║
+║  FK │ user_id             │ String  │ Tham chiếu → USERS.uid                     ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ sleep_time          │ String  │ Giờ ngủ (HH:mm)                            ║
+║     │ wake_time           │ String  │ Giờ thức dậy (HH:mm)                       ║
+║     │ date                │ String  │ Ngày (yyyy-MM-dd)                          ║
+║     │ total_hours         │ double  │ Tổng giờ ngủ                               ║
+║     │ created_at          │ Timestamp│ Ngày tạo                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  7. HEART_RATES                                                               ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ String  │ ID (UUID)                                   ║
+║  FK │ user_id             │ String  │ Tham chiếu → USERS.uid                     ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ bpm                 │ Integer │ Nhịp tim (beats per minute)                ║
+║     │ date                │ String  │ Ngày (yyyy-MM-dd)                          ║
+║     │ time                │ String  │ Giờ đo (HH:mm)                             ║
+║     │ created_at          │ Timestamp│ Ngày tạo                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  8. RECIPES                                                                   ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ int     │ ID (từ Spoonacular API)                    ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ title              │ String  │ Tên món ăn                                  ║
+║     │ author             │ String  │ Tác giả/Nguồn                              ║
+║     │ description        │ String  │ Mô tả                                       ║
+║     │ cookingTime        │ int     │ Thời gian nấu (phút)                       ║
+║     │ servings           │ int     │ Số người ăn                                 ║
+║     │ imageUrl           │ String  │ URL hình ảnh                                ║
+║     │ ingredients        │ List    │ Danh sách nguyên liệu                       ║
+║     │ preparation        │ List    │ Các bước nấu                                ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  9. WORKOUTS                                                                  ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ String  │ ID (UUID)                                   ║
+║  FK │ user_id             │ String  │ Tham chiếu → USERS.uid                     ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ name               │ String  │ Tên bài tập                                 ║
+║     │ level              │ String  │ Cấp độ (Beginner/Intermediate/Advanced)     ║
+║     │ imgUrl             │ String  │ URL hình ảnh                                ║
+║     │ burnedCalories    │ int     │ Calories đốt cháy                           ║
+║     │ time               │ int     │ Thời gian (phút)                           ║
+║     │ exercises[]        │ List    │ EMBED: Danh sách bài tập                    ║
+║     │   ├─ id            │ String  │   ID bài tập                                ║
+║     │   ├─ name          │ String  │   Tên bài tập                              ║
+║     │   ├─ description   │ String  │   Mô tà                                     ║
+║     │   ├─ image         │ String  │   URL hình ảnh                             ║
+║     │   ├─ video_url     │ String  │   URL video hướng dẫn                       ║
+║     │   ├─ duration      │ int     │   Thời gian (giây)                          ║
+║     │   ├─ reps          │ int     │   Số lần lặp                                ║
+║     │   └─ sets          │ int     │   Số hiệp                                   ║
+║     │ status             │ String  │ Trạng thái (InProgress/Completed)           ║
+║     │ completed_at       │ Timestamp│ Ngày hoàn thành                            ║
+║     │ created_at         │ Timestamp│ Ngày tạo                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  10. POSTS                                                                    ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ postId              │ String  │ ID bài viết (UUID)                          ║
+║  FK │ uid                 │ String  │ Tham chiếu → USERS.uid                     ║
+║  FK │ recipe_id           │ int     │ Tham chiếu → RECIPES.id (nullable)          ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ description         │ String  │ Nội dung bài viết                          ║
+║     │ username           │ String  │ Tên người đăng                             ║
+║     │ postUrl            │ String  │ URL ảnh/video                              ║
+║     │ profImage          │ String  │ URL ảnh đại diện                           ║
+║     │ likes              │ Map     │ DS user đã like {uid: true}                ║
+║     │ datePublished      │ Timestamp│ Ngày đăng                                  ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  11. COMMENTS                                                                 ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ String  │ ID (UUID)                                   ║
+║  FK │ postId             │ String  │ Tham chiếu → POSTS.postId                   ║
+║  FK │ uid                 │ String  │ Tham chiếu → USERS.uid                     ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ username           │ String  │ Tên người comment                           ║
+║     │ text               │ String  │ Nội dung comment                           ║
+║     │ datePublished      │ Timestamp│ Ngày comment                               ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  12. CHALLENGES                                                               ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ String  │ ID (UUID)                                   ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ title              │ String  │ Tên thử thách                              ║
+║     │ description        │ String  │ Mô tả                                       ║
+║     │ type               │ String  │ Loại (Daily/Weekly/Monthly)               ║
+║     │ goal               │ String  │ Mục tiêu                                   ║
+║     │ points             │ Integer │ Điểm thưởng                                ║
+║     │ start_date         │ Date    │ Ngày bắt đầu                               ║
+║     │ end_date           │ Date    │ Ngày kết thúc                              ║
+║     │ participants       │ List    │ DS user tham gia                           ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  13. USER_CHALLENGES                                                          ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ String  │ ID (UUID)                                   ║
+║  FK │ user_id             │ String  │ Tham chiếu → USERS.uid                     ║
+║  FK │ challenge_id        │ String  │ Tham chiếu → CHALLENGES.id                 ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ progress           │ Integer │ Tiến độ (%)                                ║
+║     │ status             │ String  │ Trạng thái (Active/Completed/Failed)       ║
+║     │ completed_at        │ Timestamp│ Ngày hoàn thành                            ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  14. MEDITATION_SESSIONS                                                      ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ String  │ ID (UUID)                                   ║
+║  FK │ user_id             │ String  │ Tham chiếu → USERS.uid                     ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ duration            │ Integer │ Thời gian thiền (phút)                     ║
+║     │ completed_at        │ Timestamp│ Ngày hoàn thành                            ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  15. NOTIFICATIONS                                                             ║
+╠═══════════════════════════════════════════════════════════════════════════════════╣
+║  PK │ id                  │ String  │ ID (UUID)                                   ║
+║  FK │ user_id             │ String  │ Tham chiếu → USERS.uid                     ║
+║  ───┼────────────────────┼──────────┼──────────────────────────────────────────────║
+║     │ title              │ String  │ Tiêu đề thông báo                           ║
+║     │ body               │ String  │ Nội dung thông báo                          ║
+║     │ type               │ String  │ Loại (like/comment/challenge/reminder)     ║
+║     │ is_read            │ Boolean │ Đã đọc chưa                                ║
+║     │ created_at          │ Timestamp│ Ngày tạo                                   ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+                          MỐI QUAN HỆ GIỮA CÁC ENTITY
+═══════════════════════════════════════════════════════════════════════════════════
+
+╔═══════════════════════════════════════════════════════════════════════════════════╗
+║  CARDINALITY NOTATION:                                                         ║
+║    (1:N) = One to Many    │    (N:1) = Many to One    │    (N:N) = Many to Many  ║
+║    EMBED = Dữ liệu lồng nhau trong document                                     ║
+╚═══════════════════════════════════════════════════════════════════════════════════╝
+
+  USERS ───────────────────────────────────────────────────────────────────────────────
+   │
+   ├─► (1:N) ── MEALS ──► (EMBED) FOODS      : User ghi nhận bữa ăn chứa foods
+   │
+   ├─► (1:N) ── WATER_INTAKES                : User ghi nhận lần uống nước
+   │
+   ├─► (1:N) ── WEIGHTS                     : User ghi nhận cân nặng
+   │
+   ├─► (1:N) ── SLEEPS                      : User ghi nhận giấc ngủ
+   │
+   ├─► (1:N) ── HEART_RATES                 : User đo nhịp tim
+   │
+   ├─► (1:N) ── WORKOUTS ──► (EMBED) EXERCISES : User tập luyện, workout chứa exercises
+   │
+   ├─► (1:N) ── POSTS ──► (1:N) COMMENTS    : User đăng bài, bài viết có comments
+   │       │
+   │       └─► (N:1) ── RECIPES             : Bài viết chia sẻ recipe (reference)
+   │
+   ├─► (1:N) ── COMMENTS                    : User viết comments
+   │
+   ├─► (1:N) ── USER_CHALLENGES ──► (N:1) CHALLENGES : User tham gia challenge
+   │
+   ├─► (1:N) ── MEDITATION_SESSIONS         : User thiền tập
+   │
+   ├─► (1:N) ── NOTIFICATIONS               : User nhận thông báo
+   │
+   └─► (N:N) ── RECIPES                     : User lưu recipe yêu thích (bookmark)
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+                                  BẢNG TÓM TẮT
+═══════════════════════════════════════════════════════════════════════════════════
+
+  ╔═══════════════════╦═══════╦══════════════════════════════════════════════════════╗
+  ║ Collection        ║ Fields║ Loại                                                 ║
+  ╠═══════════════════╬═══════╬══════════════════════════════════════════════════════╣
+  ║ 1. users          ║  11   ║ Auth & Profile                                       ║
+  ║ 2. meals          ║   4   ║ Diary - Nutrition (EMBED foods)                    ║
+  ║ 3. foods          ║  11   ║ Reference từ API (FDC/USDA)                         ║
+  ║ 4. water_intakes  ║   5   ║ Diary - Water                                       ║
+  ║ 5. weights        ║   4   ║ Diary - Weight                                       ║
+  ║ 6. sleeps         ║   6   ║ Diary - Sleep                                        ║
+  ║ 7. heart_rates    ║   5   ║ Diary - Heart Rate                                   ║
+  ║ 8. recipes        ║   9   ║ Reference từ API (Spoonacular)                       ║
+  ║ 9. workouts       ║  10   ║ Plans (EMBED exercises)                             ║
+  ║ 10. posts         ║   9   ║ Community                                            ║
+  ║ 11. comments      ║   6   ║ Community                                            ║
+  ║ 12. challenges    ║   8   ║ Challenges                                           ║
+  ║ 13. user_challenges║   6   ║ Challenges                                           ║
+  ║ 14. meditation    ║   4   ║ Meditation                                           ║
+  ║ 15. notifications ║   7   ║ Notifications                                        ║
+  ╠═══════════════════╬═══════╩══════════════════════════════════════════════════════╣
+  ║ TỔNG CỘNG        ║  90   ║                                                        ║
+  ╚═══════════════════╩══════════════════════════════════════════════════════════════╝
+
+  ▸ PK: Primary Key    ▸ FK: Foreign Key    ▸ EMBED: Dữ liệu lồng nhau (NoSQL)
+  ▸ Reference: Tham chiếu    ▸ List: Mảng    ░ Map: Dictionary {key: value}
+
+================================================================================

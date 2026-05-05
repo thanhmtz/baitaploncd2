@@ -1,0 +1,78 @@
+@startuml HealthTracker_Diary_Swimlane
+
+!theme plain
+hide footbox
+
+participant "User" as User #E8F5E9
+participant "App" as App #BBDEFB
+participant "Firebase" as DB #FFECB3
+participant "API" as API #FFCDD2
+
+title Biểu đồ hoạt động - Nhật ký sức khỏe (Diary)
+
+== Login ==
+
+User -> App: 1. Mở ứng dụng
+App -> User: 2. Hiển thị màn hình Login
+User -> App: 3. Nhập thông tin đăng nhập
+App -> DB: 4. Xác thực
+DB -> App: 5. Kết quả xác thực
+alt Thành công
+    App -> User: 6. Vào Home Screen
+else Thất bại
+    App -> User: 6. Hiển thị lỗi đăng nhập
+end
+
+== Diary - Dinh dưỡng ==
+
+User -> App: 7. Chọn tab Diary
+App -> User: 8. Hiển thị màn hình Diary
+User -> App: 9. Chọn "Dinh dưỡng"
+App -> User: 10. Hiển thị danh sách bữa ăn
+User -> App: 11. Chọn bữa ăn (Breakfast/Lunch/Dinner/Snack)
+User -> App: 12. Nhập thực phẩm (tìm kiếm hoặc quét barcode)
+
+alt Tìm kiếm
+    App -> API: 13. Gọi API tìm kiếm thực phẩm
+    API -> App: 14. Trả về kết quả
+else Quét barcode
+    App -> App: 15. Quét barcode
+    App -> API: 16. Gọi API lấy thông tin
+    API -> App: 17. Trả về thông tin
+end
+
+User -> App: 18. Chọn thực phẩm
+User -> App: 19. Nhập số lượng
+User -> App: 20. Nhấn nút "Lưu"
+App -> DB: 21. Lưu dữ liệu bữa ăn
+DB -> App: 22. Xác nhận lưu thành công
+App -> User: 23. Cập nhật calories đã tiêu thụ
+
+== Diary - Nước ==
+
+User -> App: 24. Chọn "Nước"
+App -> User: 25. Hiển thị lượng nước hiện tại
+User -> App: 26. Nhập lượng nước
+User -> App: 27. Nhấn nút "Thêm"
+App -> DB: 28. Cập nhật tổng lượng nước
+DB -> App: 29. Xác nhận
+App -> User: 30. Hiển thị tổng mới
+
+== Diary - Cân nặng ==
+
+User -> App: 31. Chọn "Cân nặng"
+App -> User: 32. Hiển thị biểu đồ cân nặng
+User -> App: 33. Nhập cân nặng mới
+User -> App: 34. Nhấn nút "Lưu"
+App -> DB: 35. Lưu cân nặng mới
+DB -> App: 36. Xác nhận
+App -> User: 37. Cập nhật biểu đồ
+
+== Diary - Thống kê ==
+
+User -> App: 38. Chọn "Thống kê"
+App -> DB: 39. Lấy dữ liệu tổng hợp
+DB -> App: 40. Trả về dữ liệu
+App -> User: 41. Hiển thị biểu đồ thống kê
+
+@enduml

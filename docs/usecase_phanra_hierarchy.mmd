@@ -1,0 +1,199 @@
+@startuml HealthTracker_UseCase_PhanRa_Hierarchy
+
+top to bottom direction
+
+skinparam handwritten false
+skinparam usecaseBorderStyle rounded
+skinparam usecaseBackgroundColor #FFFDE7
+skinparam usecaseBorderColor #F9A825
+skinparam usecaseFontSize 10
+
+actor "Người dùng" as User
+
+usecase "Health Tracker" as App
+
+usecase "1. Quản lý tài khoản" as Account
+  usecase "  1.1 Đăng nhập/Đăng ký" as Auth
+    usecase "    • Email" as Auth1
+    usecase "    • Google" as Auth2
+    usecase "    • Facebook" as Auth3
+  usecase "  1.2 Quản lý Profile" as Profile
+    usecase "    • Xem profile" as P1
+    usecase "    • Chỉnh sửa profile" as P2
+    usecase "    • Cập nhật thông tin" as P3
+  usecase "  1.3 Cài đặt" as Settings
+    usecase "    • Cài đặt ứng dụng" as S1
+    usecase "    • Chế độ tối/sáng" as S2
+    usecase "    • Quản lý thông báo" as S3
+
+usecase "2. Nhật ký sức khỏe" as Diary
+  usecase "  2.1 Dinh dưỡng" as Nutrition
+    usecase "    • Xem tổng quan" as N1
+    usecase "    • Thêm bữa ăn" as N2
+    usecase "    • Quét barcode" as N3
+    usecase "    • Tìm kiếm thực phẩm" as N4
+    usecase "    • Đặt mục tiêu" as N5
+  usecase "  2.2 Nước" as Water
+    usecase "    • Theo dõi nước" as W1
+    usecase "    • Thêm lượng nước" as W2
+  usecase "  2.3 Cân nặng" as Weight
+    usecase "    • Theo dõi cân nặng" as Wt1
+    usecase "    • Thêm cân nặng" as Wt2
+    usecase "    • Xem lịch sử" as Wt3
+  usecase "  2.4 Giấc ngủ" as Sleep
+    usecase "    • Theo dõi giấc ngủ" as Sl1
+    usecase "    • Ghi nhận giấc ngủ" as Sl2
+  usecase "  2.5 Nhịp tim" as Heart
+    usecase "    • Đo nhịp tim" as H1
+    usecase "    • Xem lịch sử" as H2
+  usecase "  2.6 Thống kê" as Stats
+
+usecase "3. Công thức nấu ăn" as Recipes
+  usecase "  3.1 Tìm kiếm & Lọc" as R_Search
+    usecase "    • Tìm kiếm" as R1
+    usecase "    • Lọc theo mục tiêu" as R2
+    usecase "    • Lọc theo loại món" as R3
+  usecase "  3.2 Chi tiết recipe" as R_Detail
+    usecase "    • Xem chi tiết" as R4
+    usecase "    • Xem nguyên liệu" as R5
+    usecase "    • Xem cách nấu" as R6
+    usecase "    • Thêm vào bữa ăn" as R7
+    usecase "    • Lưu yêu thích" as R8
+    usecase "    • Chia sẻ" as R9
+
+usecase "4. Kế hoạch tập" as Plans
+  usecase "  4.1 Kế hoạch" as Plan
+    usecase "    • Xem danh sách" as Pl1
+    usecase "    • Xem chi tiết" as Pl2
+    usecase "    • Lọc theo mục tiêu" as Pl3
+  usecase "  4.2 Bài tập" as Exercise
+    usecase "    • Xem bài tập" as Ex1
+    usecase "    • Xem chi tiết exercise" as Ex2
+    usecase "    • Xem video hướng dẫn" as Ex3
+    usecase "    • Bắt đầu tập" as Ex4
+
+usecase "5. Cộng đồng" as Community
+  usecase "  5.1 Feed" as Feed
+    usecase "    • Xem bài viết" as F1
+  usecase "  5.2 Đăng bài" as Post
+    usecase "    • Tạo bài viết" as Po1
+    usecase "    • Đăng ảnh/video" as Po2
+    usecase "    • Chia sẻ recipe" as Po3
+  usecase "  5.3 Tương tác" as Interact
+    usecase "    • Like" as I1
+    usecase "    • Comment" as I2
+    usecase "    • Share" as I3
+
+usecase "6. Nhắn tin" as Messages
+  usecase "  6.1 Hội thoại" as Conv
+    usecase "    • Xem danh sách" as C1
+    usecase "    • Xem tin nhắn" as C2
+  usecase "  6.2 Nhắn tin" as Msg
+    usecase "    • Gửi text" as M1
+    usecase "    • Gửi ảnh" as M2
+
+usecase "7. Thử thách & Thiền" as Together
+  usecase "  7.1 Thử thách" as Challenge
+    usecase "    • Thử thách hàng ngày" as Ch1
+    usecase "    • Thử thách hàng tuần" as Ch2
+    usecase "    • Thử thách hàng tháng" as Ch3
+    usecase "    • Tham gia thử thách" as Ch4
+    usecase "    • Theo dõi tiến độ" as Ch5
+  usecase "  7.2 Thiền" as Meditation
+    usecase "    • Thiền định" as Md1
+    usecase "    • Chọn thời gian" as Md2
+    usecase "    • Nghe nhạc thiền" as Md3
+
+usecase "8. Thông báo" as Notification
+  usecase "  • Xem thông báo" as Ntf1
+  usecase "  • Xóa thông báo" as Ntf2
+
+' Decomposition
+App -1- Account
+App -2- Diary
+App -3- Recipes
+App -4- Plans
+App -5- Community
+App -6- Messages
+App -7- Together
+App -8- Notification
+
+User --> App
+
+' Account decomposition
+Auth - Auth1
+Auth - Auth2
+Auth - Auth3
+Profile - P1
+Profile - P2
+Profile - P3
+Settings - S1
+Settings - S2
+Settings - S3
+
+' Diary decomposition
+Nutrition - N1
+Nutrition - N2
+Nutrition - N3
+Nutrition - N4
+Nutrition - N5
+Water - W1
+Water - W2
+Weight - Wt1
+Weight - Wt2
+Weight - Wt3
+Sleep - Sl1
+Sleep - Sl2
+Heart - H1
+Heart - H2
+
+' Recipes decomposition
+R_Search - R1
+R_Search - R2
+R_Search - R3
+R_Detail - R4
+R_Detail - R5
+R_Detail - R6
+R_Detail - R7
+R_Detail - R8
+R_Detail - R9
+
+' Plans decomposition
+Plan - Pl1
+Plan - Pl2
+Plan - Pl3
+Exercise - Ex1
+Exercise - Ex2
+Exercise - Ex3
+Exercise - Ex4
+
+' Community decomposition
+Feed - F1
+Post - Po1
+Post - Po2
+Post - Po3
+Interact - I1
+Interact - I2
+Interact - I3
+
+' Messages decomposition
+Conv - C1
+Conv - C2
+Msg - M1
+Msg - M2
+
+' Together decomposition
+Challenge - Ch1
+Challenge - Ch2
+Challenge - Ch3
+Challenge - Ch4
+Challenge - Ch5
+Meditation - Md1
+Meditation - Md2
+Meditation - Md3
+
+' Notification decomposition
+Notification - Ntf1
+Notification - Ntf2
+
+@enduml

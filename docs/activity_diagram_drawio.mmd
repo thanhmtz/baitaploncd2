@@ -1,0 +1,70 @@
+@startuml HealthTracker_Activity_DrawIO
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam activityBackgroundColor #FFFFFF
+skinparam activityBorderColor #333333
+skinparam activityStartColor #4CAF50
+skinparam activityEndColor #F44336
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #F9A825
+skinparam arrowColor #333333
+skinparam rectangleBorderColor #1565C0
+skinparam rectangleBackgroundColor #E3F2FD
+skinparam rectangleFontColor #1565C0
+skinparam usebackgroundcolor true
+skinparam shadowing false
+
+|User|
+start
+:Open App;
+:Vào màn hình Login;
+
+|Authentication|
+if (Login successful?) then (Yes)
+  :Authenticate User;
+  :Get User Data;
+  
+|System|
+:Vào Home Screen;
+
+|User|
+:Select Feature;
+
+|Business Logic|
+switch (Selected Feature)
+case ( Diary )
+  :Track Health Data;
+  :Input Data (Calories/Water/Weight/Sleep/Heart);
+case ( Recipes )
+  :Search Recipes;
+  :View Recipe Details;
+  :Add to Meal;
+case ( Plans )
+  :View Workout Plans;
+  :View Exercises;
+  :Start Workout;
+case ( Community )
+  :View Feed;
+  :Create Post;
+  :Like/Comment;
+case ( Challenges )
+  :View Challenges;
+  :Join Challenge;
+  :Track Progress;
+case ( Meditation )
+  :Start Meditation;
+  :Track Session;
+endswitch
+
+:System|
+:Save Data;
+:Update UI;
+
+|User|
+:View Results;
+:Receive Notifications;
+
+stop
+
+@enduml

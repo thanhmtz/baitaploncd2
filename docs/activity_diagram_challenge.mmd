@@ -1,0 +1,48 @@
+@startuml Activity_Challenge
+
+title Biểu đồ hoạt động - Thử thách & Thiền định
+
+start
+:Mở ứng dụng;
+:Đăng nhập;
+:Vào màn hình Together;
+
+:Chọn loại;
+
+if (Chọn Thử thách?) then (Có)
+  :Chọn loại thử thách;
+  
+  if (Daily) then
+    :Xem danh sách daily challenge;
+  else (Weekly)
+    :Xem danh sách weekly challenge;
+  else (Monthly)
+    :Xem danh sách monthly challenge;
+  endif
+  
+  :Chọn thử thách;
+  :Xem chi tiết thử thách;
+  :Yêu cầu của thử thách;
+  
+  :Tham gia thử thách;
+  
+  :Thực hiện nhiệm vụ;
+  :Cập nhật tiến độ;
+  
+  :Hoàn thành thử thách;
+  :Nhận phần thưởng;
+  
+else (Thiền định)
+  :Chọn thời gian thiền\n(5/10/15/20 phút);
+  :Chọn nhạc thiền (tùy chọn);
+  :Bắt đầu thiền;
+  
+  :Đếm ngược thời gian;
+  :Kết thúc thiền;
+  :Xem thời gian thiền;
+  :Lưu vào lịch sử;
+endif
+
+stop
+
+@enduml

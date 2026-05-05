@@ -1,0 +1,371 @@
+================================================================================
+                  CẤU TRÚC CƠ SỞ DỮ LIỆU - HEALTH TRACKER APP
+                      (Firebase Firestore - NoSQL)
+================================================================================
+
+================================================================================
+                         1. COLLECTION: USERS
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ uid                │ String          │ ID người dùng (Primary Key)        │
+│ email              │ String          │ Email đăng nhập                     │
+│ username           │ String          │ Tên người dùng                      │
+│ photoUrl           │ String          │ URL ảnh đại diện                    │
+│ bio                │ String          │ Tiểu sử                             │
+│ sex                │ Integer         │ Giới tính (1=Nam, 2=Nữ)            │
+│ isDarkMode         │ Boolean         │ Chế độ tối/sáng                     │
+│ bookmarkedRecipes  │ List<String>    │ Danh sách recipe yêu thích          │
+│ followers          │ List<String>    │ Danh sách người theo dõi            │
+│ following          │ List<String>    │ Danh sách người đang theo          │
+│ created_at         │ Timestamp       │ Ngày tạo tài khoản                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Ví dụ:
+{
+  "uid": "abc123xyz",
+  "email": "user@example.com",
+  "username": "John Doe",
+  "photoUrl": "https://...",
+  "bio": "Yêu thích tập thể dục",
+  "sex": 1,
+  "isDarkMode": false,
+  "bookmarkedRecipes": ["recipe1", "recipe2"],
+  "followers": ["user1", "user2"],
+  "following": ["user3"],
+  "created_at": "2024-01-01T00:00:00Z"
+}
+
+
+================================================================================
+                         2. COLLECTION: MEALS
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ int             │ ID bữa ăn (PK)                      │
+│ user_id            │ String          │ ID người dùng (FK)                  │
+│ title              │ String          │ Tên bữa ăn (Breakfast/Lunch/       │
+│                     │                 │ Dinner/Snack)                      │
+│ foods              │ List<Map>       │ Danh sách thực phẩm (EMBED)         │
+│   └─ id            │ String          │   ID thực phẩm                      │
+│   └─ name          │ String          │   Tên thực phẩm                     │
+│   └─ calories      │ double          │   Calories                          │
+│   └─ carbs         │ double          │   Carbs                             │
+│   └─ protein       │ double          │   Protein                           │
+│   └─ fat           │ double          │   Fat                               │
+│   └─ servingSize   │ double          │   Kích thước phục vụ                │
+│ created_at         │ Timestamp       │ Ngày tạo                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         3. COLLECTION: FOODS (từ API - FDC/USDA)
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ String          │ ID (fdcId) - PK                     │
+│ name               │ String          │ Tên thực phẩm                       │
+│ calories           │ double          │ Calories                            │
+│ protein            │ double          │ Protein (g)                        │
+│ carbs              │ double          │ Carbs (g)                          │
+│ fat                │ double          │ Fat (g)                             │
+│ description        │ String          │ Mô tả                               │
+│ imageUrl           │ String          │ URL hình ảnh                        │
+│ servingSize        │ double          │ Kích thước phục vụ (g)             │
+│ servingSizeUnit    │ String          │ Đơn vị (g, ml, oz...)              │
+│ nutrients          │ List<Map>       │ Danh sách chất dinh dưỡng          │
+│ barcode            │ String          │ Mã vạch (barcode)                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         4. COLLECTION: WATER_INTAKES
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ String          │ ID - PK                             │
+│ user_id            │ String          │ ID người dùng - FK                  │
+│ amount             │ double          │ Lượng nước (ml)                    │
+│ date               │ String          │ Ngày (yyyy-MM-dd)                   │
+│ time               │ String          │ Giờ (HH:mm)                         │
+│ created_at         │ Timestamp       │ Ngày tạo                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         5. COLLECTION: WEIGHTS
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ String          │ ID - PK                             │
+│ user_id            │ String          │ ID người dùng - FK                  │
+│ weight             │ double          │ Cân nặng (kg)                       │
+│ date               │ String          │ Ngày (yyyy-MM-dd)                   │
+│ created_at         │ Timestamp       │ Ngày tạo                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         6. COLLECTION: SLEEPS
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ String          │ ID - PK                             │
+│ user_id            │ String          │ ID người dùng - FK                  │
+│ sleep_time         │ String          │ Giờ ngủ (HH:mm)                     │
+│ wake_time          │ String          │ Giờ thức dậy (HH:mm)                │
+│ date               │ String          │ Ngày (yyyy-MM-dd)                   │
+│ total_hours        │ double          │ Tổng giờ ngủ                        │
+│ created_at         │ Timestamp       │ Ngày tạo                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         7. COLLECTION: HEART_RATES
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ String          │ ID - PK                             │
+│ user_id            │ String          │ ID người dùng - FK                  │
+│ bpm                │ int             │ Nhịp tim (beats per minute)        │
+│ date               │ String          │ Ngày (yyyy-MM-dd)                   │
+│ time               │ String          │ Giờ đo (HH:mm)                      │
+│ created_at         │ Timestamp       │ Ngày tạo                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         8. COLLECTION: RECIPES (từ API - Spoonacular)
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ int             │ ID - PK (từ API)                    │
+│ title              │ String          │ Tên món ăn                          │
+│ author             │ String          │ Tác giả/Nguồn                       │
+│ description        │ String          │ Mô tả                               │
+│ cookingTime        │ int             │ Thời gian nấu (phút)                │
+│ servings           │ int             │ Số người ăn                        │
+│ imageUrl           │ String          │ URL hình ảnh                        │
+│ ingredients        │ List<Map>       │ Danh sách nguyên liệu              │
+│   └─ id            │ String          │   ID nguyên liệu                    │
+│   └─ name          │ String          │   Tên nguyên liệu                   │
+│   └─ amount        │ double          │   Số lượng                          │
+│   └─ unit          │ String          │   Đơn vị                            │
+│ preparation        │ List<Map>       │ Các bước nấu                       │
+│   └─ step          │ int             │   Số bước                           │
+│   └─ description   │ String          │   Mô tả bước nấu                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         9. COLLECTION: WORKOUTS
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ String          │ ID - PK                             │
+│ user_id            │ String          │ ID người dùng - FK                  │
+│ name               │ String          │ Tên bài tập                         │
+│ level              │ String          │ Cấp độ (Beginner/Intermediate/      │
+│                     │                 │ Advanced)                           │
+│ imgUrl             │ String          │ URL hình ảnh                        │
+│ burnedCalories     │ int             │ Calories đốt cháy                   │
+│ time               │ int             │ Thời gian (phút)                   │
+│ exercises          │ List<Map>       │ Danh sách bài tập (EMBED)           │
+│   └─ id            │ String          │   ID bài tập                        │
+│   └─ name          │ String          │   Tên bài tập                       │
+│   └─ description   │ String          │   Mô tả                             │
+│   └─ image         │ String          │   URL hình ảnh                      │
+│   └─ duration      │ int             │   Thời gian (giây)                 │
+│   └─ reps          │ int             │   Số lần lặp                        │
+│   └─ sets          │ int             │   Số hiệp                           │
+│ status             │ String          │ Trạng thái (InProgress/Completed)   │
+│ completed_at       │ Timestamp       │ Ngày hoàn thành                    │
+│ created_at         │ Timestamp       │ Ngày tạo                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         10. COLLECTION: POSTS
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ postId             │ String          │ ID bài viết - PK                    │
+│ uid                │ String          │ ID người đăng - FK                  │
+│ description        │ String          │ Nội dung bài viết                  │
+│ username           │ String          │ Tên người đăng                     │
+│ postUrl            │ String          │ URL ảnh/video                       │
+│ profImage          │ String          │ URL ảnh đại diện                    │
+│ recipe_id          │ int             │ ID recipe chia sẻ (nullable)        │
+│ likes              │ Map<String,bool>│ Danh sách user đã like              │
+│ datePublished      │ Timestamp       │ Ngày đăng                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         11. COLLECTION: COMMENTS
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ String          │ ID - PK                             │
+│ postId             │ String          │ ID bài viết - FK                    │
+│ uid                │ String          │ ID người comment - FK               │
+│ username           │ String          │ Tên người comment                  │
+│ text               │ String          │ Nội dung comment                   │
+│ datePublished      │ Timestamp       │ Ngày comment                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         12. COLLECTION: CHALLENGES
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ String          │ ID - PK                             │
+│ title              │ String          │ Tên thử thách                       │
+│ description        │ String          │ Mô tả                               │
+│ type               │ String          │ Loại (Daily/Weekly/Monthly)         │
+│ goal               │ String          │ Mục tiêu                            │
+│ points             │ int             │ Điểm thưởng                         │
+│ start_date         │ Date            │ Ngày bắt đầu                        │
+│ end_date           │ Date            │ Ngày kết thúc                       │
+│ participants       │ List<String>    │ Danh sách user tham gia            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         13. COLLECTION: USER_CHALLENGES
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ String          │ ID - PK                             │
+│ user_id            │ String          │ ID người dùng - FK                  │
+│ challenge_id       │ String          │ ID challenge - FK                   │
+│ progress           │ int             │ Tiến độ (%)                         │
+│ status             │ String          │ Trạng thái (Active/Completed/        │
+│                     │                 │ Failed)                             │
+│ completed_at       │ Timestamp       │ Ngày hoàn thành                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         14. COLLECTION: MEDITATION_SESSIONS
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ String          │ ID - PK                             │
+│ user_id            │ String          │ ID người dùng - FK                  │
+│ duration           │ int             │ Thời gian thiền (phút)              │
+│ completed_at       │ Timestamp       │ Ngày hoàn thành                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         15. COLLECTION: NOTIFICATIONS
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tên field          │ Kiểu dữ liệu   │ Mô tả                               │
+├─────────────────────┼─────────────────┼─────────────────────────────────────┤
+│ id                 │ String          │ ID - PK                             │
+│ user_id            │ String          │ ID người dùng - FK                  │
+│ title              │ String          │ Tiêu đề thông báo                   │
+│ body               │ String          │ Nội dung thông báo                  │
+│ type               │ String          │ Loại (like/comment/challenge/        │
+│                     │                 │ reminder...)                       │
+│ is_read            │ Boolean         │ Đã đọc chưa                         │
+│ created_at         │ Timestamp       │ Ngày tạo                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+================================================================================
+                         TÓM TẮT CẤU TRÚC CƠ SỞ DỮ LIỆU
+================================================================================
+
+  ╔═══════════════════════════════════════════════════════════════════════════╗
+  ║  Tổng số Collections: 15                                                    ║
+  ╠═══════════════════════════════════════════════════════════════════════════╣
+  ║                                                                           ║
+  ║  ╔════════════════╦═════════════════════════════════════════════════════╗  ║
+  ║  ║ Collection    ║  Số Fields    ║  Loại                                ║  ║
+  ║  ╠════════════════╬════════════════╬═════════════════════════════════════╣  ║
+  ║  ║ users         ║      11       ║  Auth + Profile                      ║  ║
+  ║  ║ meals         ║       4       ║  Diary - Nutrition (embed foods)    ║  ║
+  ║  ║ foods         ║      11       ║  Reference (từ API)                 ║  ║
+  ║  ║ water_intakes ║       5       ║  Diary - Water                      ║  ║
+  ║  ║ weights        ║       4       ║  Diary - Weight                     ║  ║
+  ║  ║ sleeps         ║       6       ║  Diary - Sleep                      ║  ║
+  ║  ║ heart_rates    ║       5       ║  Diary - Heart Rate                ║  ║
+  ║  ║ recipes        ║       9       ║  Reference (từ API Spoonacular)    ║  ║
+  ║  ║ workouts       ║      10       ║  Plans (embed exercises)           ║  ║
+  ║  ║ posts          ║       9       ║  Community                          ║  ║
+  ║  ║ comments       ║       6       ║  Community                          ║  ║
+  ║  ║ challenges     ║       8       ║  Challenges                         ║  ║
+  ║  ║ user_challenges║       6       ║  Challenges                         ║  ║
+  ║  ║ meditation     ║       4       ║  Meditation                         ║  ║
+  ║  ║ notifications  ║       7       ║  Notifications                      ║  ║
+  ║  ╚════════════════╩════════════════╩═════════════════════════════════════╝  ║
+  ║                                                                           ║
+  ║  Ghi chú:                                                                 ║
+  ║  • PK: Primary Key                                                         ║
+  ║  • FK: Foreign Key                                                        ║
+  ║  • Embed: Dữ liệu lồng nhau trong document                                ║
+  ║  • Reference: Tham chiếu đến collection khác                             ║
+  ║  • API: Dữ liệu lấy từ API bên ngoài (FDC, Spoonacular)                  ║
+  ║                                                                           ║
+  ╚═══════════════════════════════════════════════════════════════════════════╝
+
+================================================================================
+                         MỐI QUAN HỆ GIỮA CÁC COLLECTION
+================================================================================
+
+  USERS (uid)
+       │
+       ├─► MEALS (user_id)              : 1:N
+       ├─► WATER_INTAKES (user_id)      : 1:N
+       ├─► WEIGHTS (user_id)            : 1:N
+       ├─► SLEEPS (user_id)             : 1:N
+       ├─► HEART_RATES (user_id)        : 1:N
+       ├─► WORKOUTS (user_id)           : 1:N
+       ├─► POSTS (uid)                  : 1:N
+       │      │
+       │      └─► COMMENTS (postId, uid) : 1:N
+       │
+       ├─► USER_CHALLENGES (user_id)    : 1:N
+       │      └─► CHALLENGES (challenge_id)
+       │
+       ├─► MEDITATION_SESSIONS (user_id): 1:N
+       └─► NOTIFICATIONS (user_id)      : 1:N
+
+  POSTS (recipe_id) ──► RECIPES (id)  : N:1 (chia sẻ recipe)
+
+  USERS (bookmarkedRecipes) ──► RECIPES (id) : N:N (lưu yêu thích)
+
+================================================================================

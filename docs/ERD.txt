@@ -1,0 +1,167 @@
+============================================================
+HEALTH TRACKER - ERD DIAGRAM
+============================================================
+
+ENTITY RELATIONSHIP DIAGRAM
+============================
+
+[USERS] (1) ────────────< (∞) [DIARY]
+                                    users/{uid}/diary/{date}
+
+[USERS] (1) ────────────< (∞) [POSTS]
+                                    posts (uid field)
+
+[POSTS] (1) ────────────< (∞) [COMMENTS]
+                                    posts/{postId}/comments
+
+[USERS] (1) ────────────< (∞) [HEALTH_DATA]
+                                    users/{uid}/health_data/records
+
+[USERS] (1) ────────────< (∞) [STEPS]
+                                    steps
+
+[USERS] <──followers/following──> [USERS] (Self-referencing)
+
+[POSTS] <────────likes[]──────── [USERS] (Many-to-Many via array)
+
+
+ENTITIES & ATTRIBUTES
+=====================
+
+1. USERS
+   - uid (PK)
+   - username
+   - email
+   - photoUrl
+   - bio
+   - sex
+   - isDarkMode
+   - bookmarkedRecipes[]
+   - followers[] → USERS
+   - following[] → USERS
+
+2. DIARY (Subcollection of USERS)
+   - date (PK: d-M-y)
+   - totalCalories
+   - totalProtein
+   - totalCarbs
+   - totalFat
+   - water
+   - weight[]: {hour, minute, weight, bodyFat, notes}
+   - breakfast: {calories, protein, fat, carbs, foods[]}
+   - lunch: {calories, protein, fat, carbs, foods[]}
+   - dinner: {calories, protein, fat, carbs, foods[]}
+   - snack: {calories, protein, fat, carbs, foods[]}
+
+3. POSTS
+   - postId (PK)
+   - uid → USERS
+   - username
+   - description
+   - likes[] → USERS
+   - postUrl
+   - profImage
+   - datePublished
+
+4. COMMENTS (Subcollection of POSTS)
+   - commentId (PK)
+   - uid → USERS
+   - name
+   - profilePic
+   - text
+   - datePublished
+
+5. HEALTH_DATA / RECORDS (Subcollection of USERS)
+   - recordId (PK)
+   - Heart rate / BPM data
+   - Timestamp
+
+6. STEPS (Root Collection)
+   - Step count data per user
+   - Date-based records
+
+
+RELATIONSHIPS
+==============
+
+| From      | To         | Type        | Implementation    |
+|-----------|------------|-------------|-------------------|
+| USERS     | DIARY      | 1 : ∞       | Subcollection     |
+| USERS     | POSTS      | 1 : ∞       | Root + uid field  |
+| POSTS     | COMMENTS   | 1 : ∞       | Subcollection     |
+| USERS     | HEALTH_DATA| 1 : ∞       | Subcollection     |
+| USERS     | STEPS      | 1 : ∞       | Root collection   |
+| USERS     | USERS      | ∞ : ∞       | followers[] array |
+| POSTS     | USERS      | ∞ : ∞       | likes[] array     |
+
+
+MERMAID DIAGRAM (Copy to https://mermaid.live)
+===============================================
+
+erDiagram
+    USERS ||--o{ DIARY : "has many"
+    USERS ||--o{ POSTS : "creates"
+    POSTS ||--o{ COMMENTS : "has many"
+    USERS ||--o{ HEALTH_DATA : "has many"
+    USERS ||--o{ STEPS : "tracks"
+    USERS }o--o{ USERS : "follows"
+    POSTS }o--o{ USERS : "liked by"
+
+    USERS {
+        string uid PK
+        string username
+        string email
+        string photoUrl
+        string bio
+        int sex
+        boolean isDarkMode
+        array bookmarkedRecipes
+        array followers
+        array following
+    }
+
+    DIARY {
+        string date PK
+        float totalCalories
+        float totalProtein
+        float totalCarbs
+        float totalFat
+        int water
+        array weight
+        object breakfast
+        object lunch
+        object dinner
+        object snack
+    }
+
+    POSTS {
+        string postId PK
+        string uid FK
+        string username
+        string description
+        array likes
+        string postUrl
+        string profImage
+        timestamp datePublished
+    }
+
+    COMMENTS {
+        string commentId PK
+        string uid FK
+        string name
+        string profilePic
+        string text
+        timestamp datePublished
+    }
+
+    HEALTH_DATA {
+        string recordId PK
+        int bpm
+        timestamp timestamp
+    }
+
+    STEPS {
+        string uid FK
+        int steps
+        date date
+    }

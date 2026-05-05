@@ -1,0 +1,197 @@
+@startuml HealthTracker_PhanRa_ChucNang
+
+top to bottom direction
+
+skinparam usecaseBorderStyle rounded
+skinparam usecaseBorderThickness 1.5
+skinparam usecaseBackgroundColor #E8F5E9
+skinparam usecaseBorderColor #2E7D32
+skinparam usecaseFontSize 10
+skinparam actorFontSize 12
+skinparam maxMessageSize 80
+
+actor "Người dùng" as User #1565C0
+
+' Level 1: System
+usecase "HEALTH TRACKER" as System #1976D2
+
+' Level 2: Main Functions
+usecase "1. NHẬT KÝ SỨC KHỎE" as Diary #4CAF50
+usecase "2. CÔNG THỨC NẤU ĂN" as Recipes #4CAF50
+usecase "3. KẾ HOẠCH TẬP" as Plans #4CAF50
+usecase "4. CỘNG ĐỒNG" as Community #4CAF50
+usecase "5. THỬ THÁCH" as Challenges #4CAF50
+usecase "6. THIỀN ĐỊNH" as Meditation #4CAF50
+
+' Level 3: Sub-functions - Diary
+usecase "UC1: Dinh dưỡng" as D_Nutrition
+usecase "  • Thêm bữa ăn" as D_AddMeal
+usecase "  • Quét barcode" as D_Scan
+usecase "  • Tìm kiếm thực phẩm" as D_SearchFood
+usecase "  • Đặt mục tiêu" as D_Goal
+usecase "UC2: Nước" as D_Water
+usecase "  • Thêm lượng nước" as D_AddWater
+usecase "UC3: Cân nặng" as D_Weight
+usecase "  • Thêm cân nặng" as D_AddWeight
+usecase "  • Xem lịch sử" as D_WeightHistory
+usecase "UC4: Giấc ngủ" as D_Sleep
+usecase "  • Ghi nhận giấc ngủ" as D_AddSleep
+usecase "UC5: Nhịp tim" as D_Heart
+usecase "  • Đo nhịp tim" as D_MeasureBPM
+usecase "  • Xem lịch sử" as D_HeartHistory
+usecase "UC6: Thống kê" as D_Stats
+usecase "  • Xem theo ngày" as D_StatsDay
+usecase "  • Xem theo tuần" as D_StatsWeek
+usecase "  • Xem theo tháng" as D_StatsMonth
+
+' Level 3: Sub-functions - Recipes
+usecase "UC7: Tìm kiếm" as R_Search
+usecase "  • Tìm theo tên" as R_SearchName
+usecase "  • Tìm theo nguyên liệu" as R_SearchIng
+usecase "UC8: Chi tiết" as R_Detail
+usecase "  • Xem nguyên liệu" as R_Ingredients
+usecase "  • Xem cách nấu" as R_Steps
+usecase "  • Thêm vào bữa ăn" as R_AddMeal
+usecase "  • Lưu yêu thích" as R_Favorite
+usecase "  • Chia sẻ" as R_Share
+usecase "UC9: Lọc theo mục tiêu" as R_Filter
+usecase "  • Giảm cân" as R_FilterLoss
+usecase "  • Tăng cơ" as R_FilterMuscle
+usecase "  • Duy trì" as R_FilterMaintain
+
+' Level 3: Sub-functions - Plans
+usecase "UC10: Kế hoạch" as P_Plan
+usecase "  • Xem danh sách" as P_PlanList
+usecase "  • Xem chi tiết" as P_PlanDetail
+usecase "  • Lọc theo mục tiêu" as P_PlanFilter
+usecase "UC11: Bài tập" as P_Exercise
+usecase "  • Xem bài tập" as P_ExerciseView
+usecase "  • Xem video hướng dẫn" as P_Video
+usecase "  • Bắt đầu tập" as P_Start
+usecase "  • Ghi nhận tiến độ" as P_Progress
+
+' Level 3: Sub-functions - Community
+usecase "UC12: Feed" as C_Feed
+usecase "  • Xem bài viết" as C_ViewPost
+usecase "  • Làm mới feed" as C_Refresh
+usecase "UC13: Đăng bài" as C_Post
+usecase "  • Tạo bài viết" as C_CreatePost
+usecase "  • Đăng ảnh/video" as C_UploadMedia
+usecase "  • Chia sẻ recipe" as C_ShareRecipe
+usecase "UC14: Tương tác" as C_Interact
+usecase "  • Like" as C_Like
+usecase "  • Comment" as C_Comment
+usecase "  • Share" as C_Share
+
+' Level 3: Sub-functions - Challenges
+usecase "UC15: Daily" as Ch_Daily
+usecase "  • Xem chi tiết" as Ch_DailyDetail
+usecase "  • Tham gia" as Ch_DailyJoin
+usecase "  • Theo dõi tiến độ" as Ch_DailyProgress
+usecase "UC16: Weekly" as Ch_Weekly
+usecase "UC17: Monthly" as Ch_Monthly
+
+' Level 3: Sub-functions - Meditation
+usecase "UC18: Thiền định" as M_Meditate
+usecase "  • Chọn thời gian" as M_Time
+usecase "  • Nghe nhạc thiền" as M_Music
+usecase "  • Xem lịch sử" as M_History
+
+' ===== RELATIONSHIPS =====
+
+' System decomposition
+User --> System
+System - Diary
+System - Recipes
+System - Plans
+System - Community
+System - Challenges
+System - Meditation
+
+' Diary decomposition
+Diary - D_Nutrition
+Diary - D_Water
+Diary - D_Weight
+Diary - D_Sleep
+Diary - D_Heart
+Diary - D_Stats
+
+D_Nutrition - D_AddMeal
+D_Nutrition - D_Scan
+D_Nutrition - D_SearchFood
+D_Nutrition - D_Goal
+
+D_Water - D_AddWater
+D_Weight - D_AddWeight
+D_Weight - D_WeightHistory
+D_Sleep - D_AddSleep
+D_Heart - D_MeasureBPM
+D_Heart - D_HeartHistory
+D_Stats - D_StatsDay
+D_Stats - D_StatsWeek
+D_Stats - D_StatsMonth
+
+' Recipes decomposition
+Recipes - R_Search
+Recipes - R_Detail
+Recipes - R_Filter
+
+R_Search - R_SearchName
+R_Search - R_SearchIng
+
+R_Detail - R_Ingredients
+R_Detail - R_Steps
+R_Detail - R_AddMeal
+R_Detail - R_Favorite
+R_Detail - R_Share
+
+R_Filter - R_FilterLoss
+R_Filter - R_FilterMuscle
+R_Filter - R_FilterMaintain
+
+' Plans decomposition
+Plans - P_Plan
+Plans - P_Exercise
+
+P_Plan - P_PlanList
+P_Plan - P_PlanDetail
+P_Plan - P_PlanFilter
+
+P_Exercise - P_ExerciseView
+P_Exercise - P_Video
+P_Exercise - P_Start
+P_Exercise - P_Progress
+
+' Community decomposition
+Community - C_Feed
+Community - C_Post
+Community - C_Interact
+
+C_Feed - C_ViewPost
+C_Feed - C_Refresh
+
+C_Post - C_CreatePost
+C_Post - C_UploadMedia
+C_Post - C_ShareRecipe
+
+C_Interact - C_Like
+C_Interact - C_Comment
+C_Interact - C_Share
+
+' Challenges decomposition
+Challenges - Ch_Daily
+Challenges - Ch_Weekly
+Challenges - Ch_Monthly
+
+Ch_Daily - Ch_DailyDetail
+Ch_Daily - Ch_DailyJoin
+Ch_Daily - Ch_DailyProgress
+
+' Meditation decomposition
+Meditation - M_Meditate
+
+M_Meditate - M_Time
+M_Meditate - M_Music
+M_Meditate - M_History
+
+@enduml

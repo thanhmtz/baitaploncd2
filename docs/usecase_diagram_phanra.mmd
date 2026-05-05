@@ -1,0 +1,200 @@
+@startuml HealthTracker_UseCase_PhanRa
+
+left to right direction
+
+skinparam handwritten false
+skinparam packageStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam usecaseBorderStyle rounded
+skinparam usecaseBorderThickness 1.5
+skinparam usecaseFontSize 10
+
+actor "Người dùng" as User
+
+package "QUẢN LÝ TÀI KHOẢN" {
+  usecase "Đăng nhập Email" as UC1a
+  usecase "Đăng nhập Google" as UC1b
+  usecase "Đăng nhập Facebook" as UC1c
+  usecase "Đăng ký tài khoản" as UC1d
+  usecase "Quên mật khẩu" as UC1e
+  usecase "Đăng xuất" as UC1f
+  
+  usecase "Xem profile" as UC2a
+  usecase "Chỉnh sửa profile" as UC2b
+  usecase "Cập nhật thông tin\n(chiều cao, cân nặng, tuổi, giới tính)" as UC2c
+  
+  usecase "Cài đặt ứng dụng" as UC3a
+  usecase "Chế độ tối/sáng" as UC3b
+  usecase "Quản lý thông báo" as UC3c
+}
+
+package "NHẬT KÝ SỨC KHỎE (Diary)" {
+  usecase "Xem tổng quan diary" as UC5a
+  usecase "Theo dõi calories" as UC5b
+  usecase "Thêm bữa ăn\n(Breakfast, Lunch, Dinner, Snack)" as UC5c
+  usecase "Quét barcode thực phẩm" as UC5d
+  usecase "Tìm kiếm thực phẩm" as UC5e
+  usecase "Xem chi tiết thực phẩm" as UC5f
+  usecase "Đặt mục tiêu dinh dưỡng" as UC5g
+  
+  usecase "Theo dõi nước" as UC6a
+  usecase "Thêm lượng nước" as UC6b
+  
+  usecase "Theo dõi cân nặng" as UC7a
+  usecase "Thêm cân nặng mới" as UC7b
+  usecase "Xem lịch sử cân nặng" as UC7c
+  
+  usecase "Theo dõi giấc ngủ" as UC8a
+  usecase "Ghi nhận giấc ngủ" as UC8b
+  
+  usecase "Đo nhịp tim" as UC9a
+  usecase "Xem lịch sử nhịp tim" as UC9b
+  
+  usecase "Xem thống kê\n(ngày, tuần, tháng)" as UC10a
+}
+
+package "CÔNG THỨC NẤU ĂN (Recipes)" {
+  usecase "Xem danh sách recipe" as UC11a
+  usecase "Tìm kiếm recipe" as UC11b
+  usecase "Lọc theo mục tiêu\n(giảm cân, tăng cơ...)" as UC11c
+  usecase "Lọc theo loại món\n(sáng, trưa, tối)" as UC11d
+  
+  usecase "Xem chi tiết recipe" as UC12a
+  usecase "Xem nguyên liệu" as UC12b
+  usecase "Xem cách nấu" as UC12c
+  usecase "Thêm recipe vào bữa ăn" as UC12d
+  usecase "Lưu recipe yêu thích" as UC12e
+  usecase "Chia sẻ recipe" as UC12f
+}
+
+package "KẾ HOẠCH TẬP (Plans)" {
+  usecase "Xem danh sách kế hoạch" as UC14a
+  usecase "Xem chi tiết kế hoạch" as UC14b
+  usecase "Lọc kế hoạch theo mục tiêu" as UC14c
+  
+  usecase "Xem bài tập (workout)" as UC15a
+  usecase "Xem chi tiết exercise" as UC15b
+  usecase "Xem video hướng dẫn" as UC15c
+  usecase "Bắt đầu tập luyện" as UC15d
+}
+
+package "CỘNG ĐỒNG (Home/Feed)" {
+  usecase "Xem bài viết trong feed" as UC16a
+  usecase "Tạo bài viết mới" as UC17a
+  usecase "Đăng ảnh/video" as UC17b
+  usecase "Viết nội dung" as UC17c
+  usecase "Chia sẻ recipe" as UC17d
+  
+  usecase "Like bài viết" as UC18a
+  usecase "Comment bài viết" as UC18b
+  usecase "Xem danh sách comments" as UC18c
+  usecase "Share bài viết" as UC18d
+}
+
+package "NHẮN TIN (Messages)" {
+  usecase "Xem danh sách hội thoại" as UC19a
+  usecase "Xem tin nhắn" as UC19b
+  usecase "Nhắn tin text" as UC20a
+  usecase "Gửi ảnh" as UC20b
+  usecase "Gửi sticker" as UC20c
+}
+
+package "THỬ THÁCH & THIỀN (Together)" {
+  usecase "Xem thử thách hàng ngày" as UC21a
+  usecase "Xem thử thách hàng tuần" as UC21b
+  usecase "Xem thử thách hàng tháng" as UC21c
+  usecase "Tham gia thử thách" as UC21d
+  usecase "Theo dõi tiến độ" as UC21e
+  
+  usecase "Thiền định" as UC22a
+  usecase "Chọn thời gian thiền" as UC22b
+  usecase "Nghe nhạc thiền" as UC22c
+  usecase "Xem lịch sử thiền" as UC22d
+}
+
+package "THÔNG BÁO" {
+  usecase "Xem thông báo" as UC23a
+  usecase "Xóa thông báo" as UC23b
+}
+
+' Actor to Use Cases
+User -- UC1a
+User -- UC1b
+User -- UC1c
+User -- UC1d
+User -- UC1e
+User -- UC1f
+User -- UC2a
+User -- UC2b
+User -- UC2c
+User -- UC3a
+User -- UC3b
+User -- UC3c
+
+User -- UC5a
+User -- UC5b
+User -- UC5c
+User -- UC5d
+User -- UC5e
+User -- UC5f
+User -- UC5g
+User -- UC6a
+User -- UC6b
+User -- UC7a
+User -- UC7b
+User -- UC7c
+User -- UC8a
+User -- UC8b
+User -- UC9a
+User -- UC9b
+User -- UC10a
+
+User -- UC11a
+User -- UC11b
+User -- UC11c
+User -- UC11d
+User -- UC12a
+User -- UC12b
+User -- UC12c
+User -- UC12d
+User -- UC12e
+User -- UC12f
+
+User -- UC14a
+User -- UC14b
+User -- UC14c
+User -- UC15a
+User -- UC15b
+User -- UC15c
+User -- UC15d
+
+User -- UC16a
+User -- UC17a
+User -- UC17b
+User -- UC17c
+User -- UC17d
+User -- UC18a
+User -- UC18b
+User -- UC18c
+User -- UC18d
+
+User -- UC19a
+User -- UC19b
+User -- UC20a
+User -- UC20b
+User -- UC20c
+
+User -- UC21a
+User -- UC21b
+User -- UC21c
+User -- UC21d
+User -- UC21e
+User -- UC22a
+User -- UC22b
+User -- UC22c
+User -- UC22d
+
+User -- UC23a
+User -- UC23b
+
+@enduml

@@ -1,0 +1,100 @@
+@startuml Activity_Diary_DrawIO
+
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam activityBackgroundColor #FFFFFF
+skinparam activityBorderColor #666666
+skinparam activityStartColor #4CAF50
+skinparam activityEndColor #F44336
+skinparam activityDiamondBackgroundColor #FFF3E0
+skinparam activityDiamondBorderColor #FF9800
+skinparam arrowColor #333333
+skinparam actorBackgroundColor #E8F5E9
+skinparam actorBorderColor #2E7D32
+
+|User| start
+:Open App;
+|Và o màn hình Login;
+|Mobile|
+:Nhập email/password;
+:Nhấn Đăng nhập;
+|Auth|
+if (Thông tin đúng?) then (Yes)
+  :Xác thực thành công;
+  :Lấy thông tin user;
+  :Chuyển đến Home;
+else (No)
+  :Hiển thị lỗi;
+  :Quay lại màn hình Login;
+endif
+
+|User|
+:Chọn tab Diary;
+
+|Diary Module|
+:Hiển thị màn hình Diary;
+|User|
+:Chọn loại theo dõi;
+|Diary Module|
+if (Dinh dưỡng?) then (Yes)
+  |User|
+  :Chọn bữa ăn;
+  :Nhập thực phẩm;
+  |System|
+  :Tìm kiếm API;
+  :Hiển thị kết quả;
+  |User|
+  :Chọn thực phẩm;
+  :Nhập số lượng;
+  :Nhấn Lưu;
+  |System|
+  :Lưu vào Database;
+  :Cập nhật UI;
+else (No)
+endif
+
+if (Nước?) then (Yes)
+  |User|
+  :Nhập lượng nước;
+  :Nhấn Thêm;
+  |System|
+  :Cập nhật tổng lượng nước;
+else (No)
+endif
+
+if (Cân nặng?) then (Yes)
+  |User|
+  :Nhập cân nặng mới;
+  :Nhấn Lưu;
+  |System|
+  :Lưu vào Database;
+  :Cập nhật biểu đồ;
+else (No)
+endif
+
+if (Giấc ngủ?) then (Yes)
+  |User|
+  :Nhập giờ ngủ/thức dậy;
+  :Nhấn Lưu;
+  |System|
+  :Tính tổng giờ ngủ;
+  :Lưu vào Database;
+else (No)
+endif
+
+if (Nhịp tim?) then (Yes)
+  |System|
+  :Kích hoạt sensor;
+  |User|
+  :Đo nhịp tim;
+  |System|
+  :Hiển thị kết quả;
+  :Lưu vào Database;
+else (No)
+endif
+
+|User|
+:Xem thống kê;
+|User| stop
+
+@enduml

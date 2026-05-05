@@ -1,0 +1,82 @@
+@startuml HealthTracker_UseCase_TongQuat_v2
+
+left to right direction
+
+skinparam packageStyle rectangle
+skinparam componentStyle uml2
+
+actor "Người dùng" as User
+
+package "Quản lý tài khoản" {
+  (Đăng nhập/đăng ký) as A1
+  (Profile) as A2
+  (Cài đặt) as A3
+  (Thông báo) as A4
+}
+
+package "Diary" {
+  (Dinh dưỡng) as D1
+  (Nước) as D2
+  (Cân nặng) as D3
+  (Giấc ngủ) as D4
+  (Nhịp tim) as D5
+  (Thống kê) as D6
+}
+
+package "Recipes" {
+  (Tìm kiếm) as R1
+  (Chi tiết) as R2
+  (Lọc) as R3
+}
+
+package "Workouts" {
+  (Kế hoạch) as W1
+  (Bài tập) as W2
+}
+
+package "Community" {
+  (Feed) as C1
+  (Đăng bài) as C2
+  (Like/Comment) as C3
+}
+
+package "Messages" {
+  (Hội thoại) as M1
+  (Nhắn tin) as M2
+}
+
+package "Together" {
+  (Thử thách) as T1
+  (Thiền) as T2
+}
+
+User -> A1
+User -> A2
+User -> A3
+User -> A4
+
+User -> D1
+User -> D2
+User -> D3
+User -> D4
+User -> D5
+User -> D6
+
+User -> R1
+User -> R2
+User -> R3
+
+User -> W1
+User -> W2
+
+User -> C1
+User -> C2
+User -> C3
+
+User -> M1
+User -> M2
+
+User -> T1
+User -> T2
+
+@enduml

@@ -1,0 +1,129 @@
+@startuml
+left to right direction
+
+actor User as "Người dùng"
+actor "External APIs" as API
+
+package "Authentication" {
+  usecase "Đăng nhập Email" as UC01
+  usecase "Đăng nhập Google" as UC02
+  usecase "Đăng nhập Facebook" as UC03
+  usecase "Đăng ký tài khoản" as UC04
+  usecase "Quên mật khẩu" as UC05
+  usecase "Đăng xuất" as UC06
+}
+
+package "Onboarding" {
+  usecase "Xem onboarding" as UC07
+  usecase "Nhập thông tin cá nhân" as UC08
+}
+
+package "Diary Management" {
+  usecase "Theo dõi Calories" as UC09
+  usecase "Thêm bữa ăn" as UC10
+  usecase "Quét barcode" as UC11
+  usecase "Tìm kiếm thực phẩm" as UC12
+  usecase "Theo dõi nước" as UC13
+  usecase "Thêm nước" as UC14
+  usecase "Theo dõi cân nặng" as UC15
+  usecase "Thêm cân nặng" as UC16
+  usecase "Theo dõi giấc ngủ" as UC17
+  usecase "Ghi nhận giấc ngủ" as UC18
+  usecase "Đo nhịp tim" as UC19
+  usecase "Xem thống kê" as UC20
+}
+
+package "Recipe Management" {
+  usecase "Xem danh sách recipe" as UC21
+  usecase "Tìm kiếm recipe" as UC22
+  usecase "Xem chi tiết recipe" as UC23
+}
+
+package "Workout & Plans" {
+  usecase "Xem kế hoạch tập" as UC25
+  usecase "Xem chi tiết bài tập" as UC26
+  usecase "Xem chi tiết exercise" as UC27
+}
+
+package "Community" {
+  usecase "Xem feed" as UC28
+  usecase "Tạo bài viết" as UC29
+  usecase "Like bài viết" as UC30
+  usecase "Comment bài viết" as UC31
+}
+
+package "Social" {
+  usecase "Nhắn tin" as UC33
+  usecase "Xem cuộc trò chuyện" as UC34
+}
+
+package "Challenges" {
+  usecase "Thử thách hàng ngày" as UC35
+  usecase "Thử thách hàng tuần" as UC36
+  usecase "Thử thách hàng tháng" as UC37
+}
+
+package "Meditation" {
+  usecase "Thiền định" as UC38
+}
+
+package "Profile" {
+  usecase "Xem profile" as UC39
+  usecase "Chỉnh sửa profile" as UC40
+}
+
+package "Settings" {
+  usecase "Cài đặt ứng dụng" as UC41
+  usecase "Quản lý thông báo" as UC42
+}
+
+package "Notifications" {
+  usecase "Xem thông báo" as UC43
+}
+
+User --> UC01
+User --> UC02
+User --> UC03
+User --> UC04
+User --> UC05
+User --> UC06
+User --> UC07
+User --> UC08
+User --> UC09
+User --> UC10
+User --> UC11
+User --> UC12
+User --> UC13
+User --> UC14
+User --> UC15
+User --> UC16
+User --> UC17
+User --> UC18
+User --> UC19
+User --> UC20
+User --> UC21
+User --> UC22
+User --> UC23
+User --> UC25
+User --> UC26
+User --> UC27
+User --> UC28
+User --> UC29
+User --> UC30
+User --> UC31
+User --> UC33
+User --> UC34
+User --> UC35
+User --> UC36
+User --> UC37
+User --> UC38
+User --> UC39
+User --> UC40
+User --> UC41
+User --> UC42
+User --> UC43
+
+UC12 --> API
+UC21 --> API
+
+@enduml
