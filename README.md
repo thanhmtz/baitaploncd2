@@ -1,52 +1,100 @@
-# <center> <img align="center" src="./assets/images/app_logo.png" height="36"/> Health Tracker <center/>
+# Health Tracker App
 
+## Gioi thieu
 
-A mobile application with the goal of helping people track their fitness progress, encourage a healthier lifestyle using gamification, and connect fitness enthusiasts from around the world.
+Health Tracker la ung dung di dong giup nguoi dung:
+✓ Theo doi suc khoe hang ngay
+✓ Cai thien loi song thong qua gamification
+✓ Ket noi cong dong fitness
 
-![App screenshots](./screenshots/group.png)
+---
 
+## Tinh nang chinh
 
-# Core Features 
-- a diary for tracking daily activity, weight, calories, nutrition, water, heart rate ...etc
-- healthy recipes based on your fitness goals with nutrition details and cooking steps.
-- workouts and diet plans.
-- daily, weekly, and monthly challenges.
-- a community feed.
+### Nhat ky suc khoe
 
-- ## Additional Features
-- Firebase authentication (Email, Google, Facebook)
-- Firebase Firestore & Cloud Storage integration
-- API integration (Spoonacular, FDC, Open Food Facts... etc)
-- Heart rate sensor
-- Barcode scanner
+✓ Theo doi:
+✓ Calories
+✓ Bua an
+✓ Dinh duong
+✓ Luong nuoc
+✓ Can nang
+✓ Nhip tim
+✓ Thong ke theo ngay / tuan / thang
 
-# Built with 
- - <img align="center" src="https://img.icons8.com/color/48/000000/flutter.png" height="30"/> Flutter 
- - <img align="center" src="https://img.icons8.com/color/48/000000/firebase.png" height="30"/> Firebase
+### Che do an va cong thuc
 
-# screenshots 
-![App screenshots](./screenshots/ss1.png)
-![App screenshots](./screenshots/dark.png)
-![App screenshots](./screenshots/light.png)
+✓ Goi y mon an theo muc tieu
+✓ Hien thi:
+✓ Calories
+✓ Thanh phan dinh duong
+✓ Cach nau
 
-## Getting Started
-Step-1 Download or clone this repository -
+### Luyen tap
 
-    git clone https://github.com/anisdhia/health_tracker.git
+✓ Danh sach bai tap
+✓ Ke hoach tap luyen
 
-Step-2 Open the root directory and type this command -
+### Thu thach
 
-    flutter pub get
+✓ Thu thach ngay / tuan / thang
+✓ He thong diem
 
-Step-3 Run the app -
+### Cong dong
 
-    flutter run
+✓ Feed chia se
+✓ Ket noi nguoi dung
 
-// note: make sure you add your own api keys in `lib/data/repositories/api_keys.dart` file
+---
 
-## Required Tools
-- Android Studio
-- Visual Studio Code (Optional)
-- Flutter
-- Dart
-- Firebase
+## Tinh nang nang cao
+
+✓ Dang nhap Email, Google, Facebook
+✓ Firebase Authentication, Firestore, Cloud Storage
+✓ Tich hop API (Spoonacular, FDC, Open Food Facts)
+✓ Do nhip tim
+✓ Quet ma vach
+
+---
+
+## Cong nghe su dung
+
+✓ Flutter
+✓ Dart
+✓ Firebase
+
+---
+
+## Huong dan cai dat
+
+### Buoc 1 Clone project
+
+git clone https://github.com/anisdhia/health_tracker.git
+
+### Buoc 2 Mo thu muc
+
+cd health_tracker
+
+### Buoc 3 Cai thu vien
+
+flutter pub get
+
+### Buoc 4 Them API key
+
+Mo file:
+lib/data/repositories/api_keys.dart
+
+---
+
+### Buoc 5 Cau hinh Firebase
+
+✓ Tao project Firebase
+✓ Them app Android hoac iOS
+✓ Tai file google-services.json va GoogleService-Info.plist
+✓ Dat vao dung thu muc
+
+---
+
+### Buoc 6 Chay app
+
+flutter run
