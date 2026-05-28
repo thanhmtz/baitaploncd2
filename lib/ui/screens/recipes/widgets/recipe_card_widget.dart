@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:health_tracker/data/models/recipe_model.dart';
 import 'package:health_tracker/data/repositories/firestore.dart';
 import 'package:health_tracker/ui/screens/recipes/recipe_details_screen.dart';
@@ -96,51 +98,20 @@ class _RecipeCardState extends State<RecipeCard> {
                 ),
               ),
             ),
-            Positioned(
+Positioned(
                 top: 20,
                 right: 40,
                 child: InkWell(
-                    onTap: () {
-                      FireStoreCrud().bookmarkRecipe(
+                    onTap: () async {
+                      await FireStoreCrud().bookmarkRecipe(
                         widget.recipe.id.toString(),
                       );
-                      // saved = !saved;
                     },
                     child: const Icon(
                       Icons.bookmark_add_outlined,
-                      // color: Colors.white,
                       size: 38,
-                    )
-                    // StreamBuilder<Object>(
-                    //     stream: FirebaseFirestore.instance
-                    //         .collection('users')
-                    //         .doc(FirebaseAuth.instance.currentUser!.uid)
-                    //         .snapshots(),
-                    //     builder: (context, AsyncSnapshot snapshot) {
-                    //       if (snapshot.connectionState ==
-                    //           ConnectionState.waiting) {
-                    //         return const Icon(
-                    //           Icons.bookmark_add_outlined,
-                    //           color: Colors.white,
-                    //           size: 38,
-                    //         );
-                    //       } else if (snapshot.data!
-                    //           .data()['bookmarkedRecipes']
-                    //           .contains(widget.recipe.id)) {
-                    //         return const Icon(
-                    //           Icons.bookmark,
-                    //           color: Colors.white,
-                    //           size: 38,
-                    //         );
-                    //       } else {
-                    //         return const Icon(
-                    //           Icons.bookmark_add_outlined,
-                    //           color: Colors.white,
-                    //           size: 38,
-                    //         );
-                    //       }
-                    //     }),
-                    ))
+                    ),
+                ))
           ],
         ),
         const SizedBox(

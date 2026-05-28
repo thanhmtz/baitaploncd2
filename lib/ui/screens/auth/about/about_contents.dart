@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:health_tracker/ui/screens/auth/about/widgets/gender_picker_widget.dart';
 import 'package:horizontal_picker/horizontal_picker.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -12,14 +13,14 @@ class AboutContents {
   AboutContents({required this.title, required this.body, required this.desc});
 }
 
-List<AboutContents> contents = [
+List<AboutContents> getAboutContents(AppLocalizations l10n) => [
   AboutContents(
-      title: "Tell us about yourself!",
-      desc: "To give you a better experience we need\n to know your gender",
-      body: const GenderPicker()),
+      title: l10n.aboutTitle1,
+      desc: l10n.aboutDesc1,
+      body: GenderPicker(onChanged: (_) {})),
   AboutContents(
-    title: "How old are you?",
-    desc: "This helps us create your personalized plan",
+    title: l10n.aboutTitle2,
+    desc: l10n.aboutDesc2,
     body: NumberPicker(
       selectedTextStyle: const TextStyle(color: Colors.red, fontSize: 32, fontWeight: FontWeight.bold),
       minValue: 0,
@@ -29,8 +30,8 @@ List<AboutContents> contents = [
     ),
   ),
   AboutContents(
-    title: "What's your weight?",
-    desc: "You can always change this later",
+    title: l10n.aboutTitle3,
+    desc: l10n.aboutDesc3,
     body: HorizontalPicker(
       initialPosition: InitialPosition.start,
       minValue: 0,

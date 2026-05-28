@@ -11,6 +11,11 @@ class APIKeys {
 
   // 3. Open Food Facts (miễn phí, không cần key)
   // Đã có sẵn trong off_api.dart
+
+  // 4. Google Gemini API (miễn phí, không cần thẻ tín dụng)
+  // Lấy key tại: https://aistudio.google.com/app/apikey
+  // Model sử dụng: gemini-2.0-flash (free tier: 15 RPM, 1500 RPD)
+  static const String gemini = 'AIzaSyDXHwmEVsas3RFWBOEBCPQxMakqLmtmBfs';
 }
 
 class APIConfig {

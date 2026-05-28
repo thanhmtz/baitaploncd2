@@ -1,93 +1,168 @@
-// import 'package:animated_theme_switcher/animated_theme_switcher.dart';
-// import 'package:flutter/material.dart';
-// import 'package:health_tracker/models/user.dart';
-// import 'package:health_tracker/utils/user_preferences.dart';
-// import 'package:health_tracker/widgets/appbar_widget.dart';
-// import 'package:health_tracker/widgets/button_widget.dart';
-// import 'package:health_tracker/widgets/profile_widget.dart';
-// import 'package:health_tracker/widgets/textfield_widget.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:path_provider/path_provider.dart';
-// import 'package:path/path.dart';
-// import 'dart:io';
+import 'dart:typed_data';
 
-// class EditProfileScreen extends StatefulWidget {
-//   const EditProfileScreen({ Key? key }) : super(key: key);
+import 'package:flutter/material.dart';
+import 'package:health_tracker/data/repositories/firestore.dart';
+import 'package:health_tracker/shared/services/user_provider.dart';
+import 'package:health_tracker/shared/utilities/utils.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
-//   @override
-//   State<EditProfileScreen> createState() => _EditProfileScreenState();
-// }
+class EditProfileScreen extends StatefulWidget {
+  const EditProfileScreen({Key? key}) : super(key: key);
 
-// class _EditProfileScreenState extends State<EditProfileScreen> {
-//   late User user;
+  @override
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
+}
 
-//   @override
-//   void initState() {
-//     super.initState();
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  late TextEditingController _usernameController;
+  late TextEditingController _bioController;
+  Uint8List? _file;
+  bool isLoading = false;
+  String? _currentPhotoUrl;
 
-//     user = UserPreferences.getUser();
-//   }
+  @override
+  void initState() {
+    super.initState();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final user = userProvider.getUser;
+    _usernameController = TextEditingController(text: user.username);
+    _bioController = TextEditingController(text: user.bio);
+    _currentPhotoUrl = user.photoUrl;
+  }
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return ThemeSwitchingArea(
-//       child: Builder(
-//         builder: (context) {
-//           return Scaffold (
-//             appBar: buildAppBar(context),
-//             body: ListView(
-//               padding: const EdgeInsets.symmetric(horizontal: 32),
-//               physics: const BouncingScrollPhysics(),
-//               children: [
-//                 ProfileWidget(
-//                   imagePath: user.imagePath,
-//                   isEdit: true,
-//                   onClicked: () async {
-//                     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _bioController.dispose();
+    super.dispose();
+  }
 
-//                     if (image == null) return;
+  Future<void> _pickImage() async {
+    Uint8List file = await pickImage(ImageSource.gallery);
+    setState(() {
+      _file = file;
+    });
+  }
 
-//                     final directory = await getApplicationDocumentsDirectory();
-//                     final name = basename(image.path);
-//                     final imageFile = File('${directory.path}/$name');
-//                     final newImage = 
-//                         await File(image.path).copy(imageFile.path);
-//                     setState(() => user = user.copy(imagePath: newImage.path));
-//                   },
+  Future<void> _saveProfile() async {
+    if (_usernameController.text.trim().isEmpty) {
+      showSnackBar(context, 'Username cannot be empty');
+      return;
+    }
 
-//                 ),
-//                 const SizedBox(height: 24,),
-//                 TextFieldWidget(
-//                   label: 'Full Name',
-//                   text: user.name,
-//                   onChanged: (name) => user = user.copy(name: name),
-//                 ),
-//                 const SizedBox(height: 24,),
-//                 TextFieldWidget(
-//                   label: 'Email',
-//                   text: user.email,
-//                   onChanged: (email) => user = user.copy(email: email),
-//                 ),
-//                 const SizedBox(height: 24,),
-//                 TextFieldWidget(
-//                   label: 'About',
-//                   text: user.about,
-//                   maxLines: 5,
-//                   onChanged: (about) => user = user.copy(about: about),
-//                 ),
-//                 const SizedBox(height: 24,),
-//                 ButtonWidget(
-//                   text: 'Save',
-//                   onClicked: () {
-//                     UserPreferences.setUser(user);
-//                     Navigator.of(context).pop();
-//                   }
-//                 ),
-//               ],
-//             )
-//           );
-//         }
-//       ),
-//     );
-//   }
-// }
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final uid = userProvider.getUser.uid;
+
+      await FireStoreCrud().updateUserProfile(
+        uid: uid,
+        username: _usernameController.text.trim(),
+        bio: _bioController.text.trim(),
+        newPhoto: _file,
+      );
+
+      // Refresh user data
+      await userProvider.refreshUser();
+
+      if (mounted) {
+        showSnackBar(context, 'Profile updated!');
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        showSnackBar(context, 'Error: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Edit Profile'),
+        actions: [
+          TextButton(
+            onPressed: isLoading ? null : _saveProfile,
+            child: isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Save'),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            // Avatar
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: _file != null
+                      ? MemoryImage(_file!) as ImageProvider
+                      : NetworkImage(_currentPhotoUrl ?? ''),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30),
+            // Username
+            TextField(
+              controller: _usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.person),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Bio
+            TextField(
+              controller: _bioController,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Bio',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.info_outline),
+                hintText: 'Tell us about yourself',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

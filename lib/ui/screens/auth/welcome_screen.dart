@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:health_tracker/ui/screens/auth/login_screen.dart';
 import 'package:health_tracker/ui/screens/auth/onboarding/onboarding_screen.dart';
 import 'package:health_tracker/shared/styles/themes.dart';
@@ -11,6 +12,7 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -29,7 +31,7 @@ class WelcomeScreen extends StatelessWidget {
                 height: 4.h,
               ),
               Text(
-                'Hello !',
+                l10n.hello,
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
                     fontSize: 20.sp,
                     letterSpacing: 3,
@@ -39,7 +41,7 @@ class WelcomeScreen extends StatelessWidget {
                 height: 2.h,
               ),
               Text(
-                'Welcome to Health Tracker\n Get started !',
+                l10n.welcomeToHealthTracker,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       letterSpacing: 3,
@@ -53,7 +55,7 @@ class WelcomeScreen extends StatelessWidget {
               ButtonWidget(
                 color: MyThemes.primary,
                 width: 80.w,
-                title: 'LOGIN',
+                title: l10n.login.toUpperCase(),
                 func: () {
                   Navigator.push(
                       context,
@@ -67,7 +69,7 @@ class WelcomeScreen extends StatelessWidget {
               ButtonWidget(
                 color: MyThemes.primary,
                 width: 80.w,
-                title: 'CREATE ACCOUNT',
+                title: l10n.createAccount.toUpperCase(),
                 func: () {
                   Navigator.push(
                       context,

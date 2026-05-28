@@ -175,6 +175,7 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:health_tracker/ui/screens/auth/about/about_screen.dart';
 import 'package:health_tracker/ui/screens/auth/onboarding/size_config.dart';
 import 'package:health_tracker/ui/screens/auth/onboarding/onboarding_contents.dart';
@@ -209,6 +210,8 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final onboardingList = getOnboardingContents(l10n);
     SizeConfig().init(context);
     double width = SizeConfig.screenW!;
     double height = SizeConfig.screenH!;
@@ -225,41 +228,41 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
               child: PageView.builder(
                 controller: _controller,
                 onPageChanged: (value) => setState(() => _currentPage = value),
-                itemCount: contents.length,
+                itemCount: onboardingList.length,
                 itemBuilder: (context, i) {
                   return Padding(
                     padding: const EdgeInsets.all(40.0),
-                    child: Column(
+                    child: SingleChildScrollView(
+                      child: Column(
                       children: [
                         Image.asset(
-                          contents[i].image,
-                          height: SizeConfig.blockV! * 35,
+                          onboardingList[i].image,
+                          height: SizeConfig.blockV! * 30,
                         ),
                         SizedBox(
-                          height: (height >= 840) ? 60 : 30,
+                          height: (height >= 840) ? 40 : 20,
                         ),
                         Text(
-                          contents[i].title,
+                          onboardingList[i].title,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontFamily: "Mulish",
-                            fontWeight: FontWeight.w600,
-                            fontSize: (width <= 550) ? 30 : 35,
+                            fontWeight: FontWeight.w700,
+                            fontSize: (width <= 550) ? 24 : 28,
                           ),
                         ),
                         const SizedBox(
-                          height: 15,
+                          height: 10,
                         ),
                         Text(
-                          contents[i].desc,
+                          onboardingList[i].desc,
                           style: TextStyle(
-                            fontFamily: "Mulish",
-                            fontWeight: FontWeight.w300,
-                            fontSize: (width <= 550) ? 17 : 25,
+                            fontWeight: FontWeight.w400,
+                            fontSize: (width <= 550) ? 14 : 17,
                           ),
                           textAlign: TextAlign.center,
                         )
                       ],
+                    ),
                     ),
                   );
                 },
@@ -273,11 +276,11 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
-                      contents.length,
+                      onboardingList.length,
                       (int index) => _buildDots(index: index),
                     ),
                   ),
-                  _currentPage + 1 == contents.length
+                  _currentPage + 1 == onboardingList.length
                       ? Padding(
                           padding: const EdgeInsets.all(30),
                           child: ElevatedButton(
@@ -297,7 +300,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                               textStyle:
                                   TextStyle(fontSize: (width <= 550) ? 13 : 17),
                             ),
-                            child: const Text("START NOW"),
+                            child: Text(l10n.startNow),
                           ),
                         )
                       : Padding(
@@ -316,9 +319,9 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                     fontSize: (width <= 550) ? 13 : 17,
                                   ),
                                 ),
-                                child: const Text(
-                                  "SKIP",
-                                  style: TextStyle(color: Colors.black),
+                                child: Text(
+                                  l10n.skip,
+                                  style: const TextStyle(color: Colors.black),
                                 ),
                               ),
                               ElevatedButton(
@@ -342,7 +345,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
                                   textStyle: TextStyle(
                                       fontSize: (width <= 550) ? 13 : 17),
                                 ),
-                                child: const Text("NEXT"),
+                                child: Text(l10n.next),
                               ),
                             ],
                           ),

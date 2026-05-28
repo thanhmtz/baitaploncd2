@@ -1,3 +1,4 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OnboardingContents {
   final String title;
@@ -8,22 +9,20 @@ class OnboardingContents {
       {required this.title, required this.image, required this.desc});
 }
 
-List<OnboardingContents> contents = [
+List<OnboardingContents> getOnboardingContents(AppLocalizations l10n) => [
   OnboardingContents(
-    title: "Track Your progress and stay fit",
+    title: l10n.onboardingTitle1,
     image: "assets/illustrations/Fitness tracker-amico_red.png",
-    desc: "Remember to keep track of your fitness journey accomplishments.",
+    desc: l10n.onboardingDesc1,
   ),
   OnboardingContents(
-    title: "Join our awesome community!",
+    title: l10n.onboardingTitle2,
     image: "assets/illustrations/Coaches-amico_red.png",
-    desc:
-        "Connect and share your knowledge with fitness enthusiasts from around the world!.",
+    desc: l10n.onboardingDesc2,
   ),
   OnboardingContents(
-    title: "Action is the key to all success",
+    title: l10n.onboardingTitle3,
     image: "assets/illustrations/Timeline-amico_red.png",
-    desc:
-        "Let us help you achieve your fitness goals with our challenges, plans and healthy recipes!.",
+    desc: l10n.onboardingDesc3,
   ),
 ];

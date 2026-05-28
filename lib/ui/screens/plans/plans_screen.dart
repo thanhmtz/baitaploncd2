@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:health_tracker/data/models/workout_model.dart';
 import 'package:health_tracker/ui/screens/plans/widgets/workouts_card_widget.dart';
 import 'package:health_tracker/shared/services/workouts_json.dart';
 import 'package:tab_indicator_styler/tab_indicator_styler.dart';
-// import 'package:firebase_storage/firebase_storage.dart';
 
 class PlansScreen extends StatefulWidget {
   const PlansScreen({Key? key}) : super(key: key);
@@ -17,12 +17,13 @@ class _WorkoutScreenState extends State<PlansScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-        // appBar: AppBar(
-        //   elevation: 0,
-        //   title: const Text('Workouts'),
-        //   centerTitle: true,
-        // ),
+        appBar: AppBar(
+          elevation: 0,
+          title: Text(l10n.plans),
+          centerTitle: true,
+        ),
         body: DefaultTabController(
             length: 2,
             initialIndex: 0,
@@ -31,7 +32,7 @@ class _WorkoutScreenState extends State<PlansScreen> {
                 TabBar(
                   isScrollable: true,
                   labelColor:
-                      Theme.of(context).tabBarTheme.labelColor, //Colors.black,
+                      Theme.of(context).tabBarTheme.labelColor,
                   indicator: DotIndicator(
                     color: Colors.red,
                     distanceFromCenter: 16,
@@ -42,13 +43,9 @@ class _WorkoutScreenState extends State<PlansScreen> {
                       Theme.of(context).tabBarTheme.unselectedLabelColor,
                   labelPadding: const EdgeInsets.symmetric(horizontal: 60),
 
-                  tabs: const [
-                    Tab(
-                      text: "WORKOUTS",
-                    ),
-                    Tab(
-                      text: "Saved",
-                    )
+                  tabs: [
+                    Tab(text: l10n.workouts),
+                    Tab(text: l10n.saved),
                   ],
                 ),
                 Expanded(

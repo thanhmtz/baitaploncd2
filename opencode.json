@@ -1,0 +1,42 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "beeknoee": {
+      "api": "openai-compatible",
+      "name": "Beeknoee",
+      "options": {
+        "baseURL": "https://platform.beeknoee.com/api/v1",
+        "apiKey": "{env:sk-bee-1f2b61cfc3b7415794bfed3f40921b6b}"
+      },
+      "models": {
+        "deepseek-chat": {
+          "name": "DeepSeek V3.2"
+        },
+        "deepseek-reasoner": {
+          "name": "DeepSeek R1"
+        },
+        "gpt-5": {
+          "name": "GPT-5"
+        },
+        "gpt-5-mini": {
+          "name": "GPT-5 Mini"
+        },
+        "claude-sonnet-4-6": {
+          "name": "Claude Sonnet 4.6"
+        },
+        "claude-opus-4-6": {
+          "name": "Claude Opus 4.6"
+        },
+        "gemini-3-flash": {
+          "name": "Gemini 3 Flash"
+        },
+        "gemini-3.1-pro-high": {
+          "name": "Gemini 3.1 Pro High"
+        },
+        "glm-4.7-flash": {
+          "name": "GLM-4.7 Flash (FREE)"
+        }
+      }
+    }
+  }
+}

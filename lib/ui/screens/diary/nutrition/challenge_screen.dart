@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +25,90 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   Map<String, dynamic> _data = {};
   List<Map<String, dynamic>> _weekData = [];
   bool _isLoading = true;
+  
+  StreamSubscription<DocumentSnapshot>? _userSubscription;
+  StreamSubscription<DocumentSnapshot>? _diarySubscription;
 
   @override
   void initState() {
     super.initState();
-    _loadData().then((_) => _autoClaimRewards());
+    _setupRealtimeListeners();
+  }
+
+  void _setupRealtimeListeners() {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      _loadData();
+      return;
+    }
+
+    final dateStr = DateFormat('d-M-y').format(widget.date);
+    
+    _userSubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .listen((doc) {
+      if (doc.exists) {
+        final newData = Map<String, dynamic>.from(doc.data()!);
+        final oldCoins = _data['coins'] ?? 0;
+        _data.addAll(newData);
+        final newCoins = _data['coins'] ?? 0;
+        
+        if (newCoins > oldCoins) {
+          debugPrint('Coins updated: $oldCoins -> $newCoins');
+        }
+        
+        if (mounted) setState(() {});
+      }
+    }, onError: (e) {
+      debugPrint('User stream error: $e');
+    });
+    
+    _diarySubscription = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('diary')
+        .doc(dateStr)
+        .snapshots()
+        .listen((doc) {
+      if (doc.exists) {
+        final diaryData = Map<String, dynamic>.from(doc.data()!);
+        _data.addAll(diaryData);
+        
+        final startOfWeek = widget.date.subtract(Duration(days: widget.date.weekday - DateTime.monday));
+        _loadWeekData(startOfWeek).then((_) {
+          if (mounted) {
+            setState(() {});
+            _autoClaimRewards();
+          }
+        });
+      }
+    }, onError: (e) {
+      debugPrint('Diary stream error: $e');
+    });
+
+    _loadData();
+  }
+  
+  Future<void> _loadWeekData(DateTime startOfWeek) async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+      final diaryRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('diary');
+      final weekDocs = await Future.wait(
+        List.generate(7, (index) {
+          final day = startOfWeek.add(Duration(days: index));
+          final dayStr = DateFormat('d-M-y').format(day);
+          return diaryRef.doc(dayStr).get();
+        }),
+      );
+      _weekData = weekDocs.where((doc) => doc.exists).map((doc) => Map<String, dynamic>.from(doc.data()!)).toList();
+    } catch (e) {
+      debugPrint('Error loading week data: $e');
+    }
   }
 
   double _toDouble(dynamic value) {
@@ -37,18 +118,9 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
     return 0;
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadDiaryData() async {
     try {
       final uid = FirebaseAuth.instance.currentUser!.uid;
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      if (userDoc.exists) {
-        _data = Map<String, dynamic>.from(userDoc.data()!);
-      }
-      
-      if (!_data.containsKey('coins') && !_data.containsKey('challengeCoins')) {
-        _data['coins'] = 0;
-      }
-      
       final diaryRef = FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
@@ -70,11 +142,30 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
       );
       _weekData = weekDocs.where((doc) => doc.exists).map((doc) => Map<String, dynamic>.from(doc.data()!)).toList();
     } catch (e) {
+      debugPrint('Error loading diary data: $e');
+    }
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        _data = Map<String, dynamic>.from(userDoc.data()!);
+      }
+      
+      if (!_data.containsKey('coins') && !_data.containsKey('challengeCoins')) {
+        _data['coins'] = 0;
+      }
+      
+      await _loadDiaryData();
+    } catch (e) {
       debugPrint('Error loading challenge data: $e');
     }
 
     if (mounted) {
       setState(() => _isLoading = false);
+      _autoClaimRewards();
     }
   }
 
@@ -221,6 +312,13 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   }
 
   @override
+  void dispose() {
+    _userSubscription?.cancel();
+    _diarySubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgColor = Theme.of(context).scaffoldBackgroundColor;
@@ -357,7 +455,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                         Expanded(
                           child: Text(task.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: textColor, fontSize: 23, fontWeight: FontWeight.w900, height: 1.1)),
                         ),
-                        if (task.reward != null)
+                        if (task.reward != null && !isCompleted)
                           TweenAnimationBuilder<double>(
                             tween: Tween(begin: 0, end: isCompleted ? 1.0 : 0.0),
                             duration: const Duration(milliseconds: 300),

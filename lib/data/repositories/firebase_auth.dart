@@ -28,14 +28,10 @@ class FirebaseAuthRepo implements UserRepository {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        throw 'Wrong password provided for that user.';
-      }
+    } on FirebaseAuthException {
+      rethrow;
     } catch (e) {
-      throw e.toString();
+      throw Exception(e.toString());
     }
   }
 
@@ -65,6 +61,10 @@ class FirebaseAuthRepo implements UserRepository {
         followers: [],
         following: [],
         isDarkMode: true,
+        createdAt: DateTime.now(),
+        goalCalories: 2000,
+        dailyStreak: 0,
+        totalStars: 0,
       );
 
       await _firestore
@@ -72,17 +72,27 @@ class FirebaseAuthRepo implements UserRepository {
           .doc(cred.user!.uid)
           .set(user.toJson());
 
-      // res = 'success';
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        throw 'The password provided is too weak.';
-      } else if (e.code == 'email-already-in-use') {
-        throw 'The account already exists for that email.';
-      } else {
-        throw 'Please check your email address.';
-      }
+      await _firestore
+          .collection('users')
+          .doc(cred.user!.uid)
+          .collection('tree_data')
+          .doc('main')
+          .set({
+        'treeLevel': 1,
+        'totalXp': 0,
+        'currentXp': 0,
+        'treeStage': 'Seed',
+        'streakDays': 0,
+        'todayXp': 0,
+        'dataDate': DateTime.now().toIso8601String().substring(0, 10),
+        'lastActiveDate': '',
+        'todayActivities': [],
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } on FirebaseAuthException {
+      rethrow;
     } catch (e) {
-      throw Exception('oops,Something wrong happend!');
+      throw Exception(e.toString());
     }
   }
 
@@ -107,6 +117,7 @@ class FirebaseAuthRepo implements UserRepository {
   @override
   logout() async {
     try {
+      await GoogleSignIn().signOut();
       await _firebaseAuth.signOut();
     } catch (e) {
       throw Exception(e.toString());

@@ -7,13 +7,13 @@ class ButtonWidget extends StatelessWidget {
       required this.color,
       required this.width,
       required this.title,
-      required this.func})
+      this.func})
       : super(key: key);
 
   final Color color;
   final double width;
   final String title;
-  final Function() func;
+  final void Function()? func;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class ButtonWidget extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 0.1.h),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(200),
-        color: color,
+        color: func == null ? color.withOpacity(0.5) : color,
       ),
       child: MaterialButton(
         onPressed: func,

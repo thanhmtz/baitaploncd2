@@ -41,9 +41,13 @@
 			<string>UIInterfaceOrientationLandscapeLeft</string>
 			<string>UIInterfaceOrientationLandscapeRight</string>
 		</array>
-		<key>UIViewControllerBasedStatusBarAppearance</key>
-		<false/>
-		<key>UIStatusBarHidden</key>
-		<false/>
-	</dict>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>UIStatusBarHidden</key>
+	<false/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+</dict>
 </plist>

@@ -1,31 +1,47 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:typed_data';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
 class FireStorage {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  static const String _cloudName = 'dkmmyda3e';
+  static const String _uploadPreset = 'tahnmt';
 
-  // adding image to firebase storage
   Future<String> uploadImageToStorage(String childName, Uint8List file, bool isPost) async {
-    // creating location to our firebase storage
+    final String id = const Uuid().v1();
     
-    Reference ref =
-        _storage.ref().child(childName).child(_auth.currentUser!.uid);
-    if(isPost) {
-      String id = const Uuid().v1();
-      ref = ref.child(id);
+    try {
+      final uri = Uri.parse('https://api.cloudinary.com/v1_1/$_cloudName/image/upload');
+      
+      final request = http.MultipartRequest('POST', uri);
+      request.fields['upload_preset'] = _uploadPreset;
+      request.fields['public_id'] = '$childName/$id';
+      request.files.add(http.MultipartFile.fromBytes(
+        'file',
+        file,
+        filename: '$id.jpg',
+      ));
+      
+      log('Uploading to Cloudinary: $uri');
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      
+      log('Response: ${response.statusCode} - ${response.body}');
+      
+      final responseData = jsonDecode(response.body);
+      
+      if (responseData['secure_url'] != null) {
+        return responseData['secure_url'] as String;
+      } else if (responseData['error'] != null) {
+        throw Exception('Error: ${responseData['error']['message']}');
+      } else {
+        throw Exception('Failed: ${responseData.toString()}');
+      }
+    } catch (e) {
+      log('Upload error: $e');
+      rethrow;
     }
-
-    // putting in uint8list format -> Upload task like a future but not future
-    UploadTask uploadTask = ref.putData(
-      file
-    );
-
-    TaskSnapshot snapshot = await uploadTask;
-    String downloadUrl = await snapshot.ref.getDownloadURL();
-    return downloadUrl;
   }
 }

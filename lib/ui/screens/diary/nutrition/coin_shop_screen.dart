@@ -107,13 +107,6 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
         setState(() {
           _selectedAvatar = avatarId;
         });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Đã đổi avatar!'),
-            backgroundColor: greenColor,
-          ),
-        );
       }
     } catch (e) {
       debugPrint('Error selecting avatar: $e');
@@ -125,12 +118,7 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
     final price = avatar['price'] as int;
 
     if (_coins < price) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Không đủ coin!'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showCoinToast('Không đủ Coin!');
       return;
     }
 
@@ -152,13 +140,7 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
             _unlockedAvatars.add(avatarId);
           }
         });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Đã mua ${avatar["name"]}!'),
-            backgroundColor: greenColor,
-          ),
-        );
+          _showSuccessToast('Đã mua ${avatar["name"]}!');
       }
     } catch (e) {
       debugPrint('Error buying avatar: $e');
@@ -179,11 +161,13 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
 
   Widget _buildMascot(
     Map<String, dynamic> avatar, {
-    double width = 145,
+    double width = 150,
   }) {
+    const double mascotRatio = 170 / 210;
+
     return SizedBox(
       width: width,
-      height: width * 0.82,
+      height: width * mascotRatio,
       child: CustomPaint(
         painter: avatar['painter'] as CustomPainter,
       ),
@@ -321,13 +305,17 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
         ),
         child: Column(
           children: [
-            const SizedBox(height: 24),
+            const SizedBox(height: 18),
             Expanded(
-              child: Center(
-                child: _buildMascot(avatar, width: 145),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: _buildMascot(avatar, width: 150),
+                ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
               avatar['name'],
               textAlign: TextAlign.center,
@@ -338,7 +326,7 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
                 fontWeight: FontWeight.w900,
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
             if (isFree)
               const Text(
                 'Miễn phí',
@@ -373,7 +361,7 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
                   ),
                 ],
               ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 18),
           ],
         ),
       ),
@@ -474,6 +462,284 @@ class _CoinShopScreenState extends State<CoinShopScreen> {
       },
     );
   }
+ void _showCoinToast(String text) {
+  final overlay = Overlay.of(context);
+
+  late OverlayEntry overlayEntry;
+
+  overlayEntry = OverlayEntry(
+    builder: (context) {
+      return TweenAnimationBuilder<double>(
+        duration: const Duration(milliseconds: 450),
+        tween: Tween(begin: -120, end: 40),
+        curve: Curves.easeOutBack,
+        builder: (context, value, child) {
+          return Positioned(
+            top: value,
+            left: 0,
+            right: 0,
+            child: Material(
+              color: Colors.transparent,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.88),
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.18),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFFE76B5B),
+                            width: 2,
+                          ),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '!',
+                            style: TextStyle(
+                              color: Color(0xFFE76B5B),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        text,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+
+  overlay.insert(overlayEntry);
+
+  Future.delayed(const Duration(seconds: 2), () {
+    overlayEntry.remove();
+  });
+}
+ void _showSuccessToast(String text) {
+  final overlay = Overlay.of(context);
+
+  late OverlayEntry overlayEntry;
+
+  overlayEntry = OverlayEntry(
+    builder: (context) {
+      return TweenAnimationBuilder<double>(
+        duration: const Duration(milliseconds: 450),
+        tween: Tween(begin: -120, end: 40),
+        curve: Curves.easeOutBack,
+        builder: (context, value, child) {
+          return Positioned(
+            top: value,
+            left: 0,
+            right: 0,
+            child: Material(
+              color: Colors.transparent,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.88),
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.18),
+                        blurRadius: 18,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF58B40B),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 15,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        text,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+
+  overlay.insert(overlayEntry);
+
+  Future.delayed(const Duration(seconds: 2), () {
+    overlayEntry.remove();
+  });
+}
+}
+
+class _AvatarKit {
+  static Paint stroke([double width = 4.2]) {
+    return Paint()
+      ..color = const Color(0xFF242424)
+      ..strokeWidth = width
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+  }
+
+  static Paint fill(Color color) {
+    return Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+  }
+
+  static Paint gradient(Rect rect, List<Color> colors) {
+    return Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: colors,
+      ).createShader(rect)
+      ..style = PaintingStyle.fill;
+  }
+
+  static void ground(Canvas canvas, Color color) {
+    canvas.drawOval(
+      const Rect.fromLTWH(42, 151, 126, 17),
+      fill(color.withOpacity(0.28)),
+    );
+  }
+
+  static void path(Canvas canvas, Path path, Paint paint, Paint stroke) {
+    canvas.drawPath(path, paint);
+    canvas.drawPath(path, stroke);
+  }
+
+  static void oval(Canvas canvas, Rect rect, Paint paint, Paint stroke) {
+    canvas.drawOval(rect, paint);
+    canvas.drawOval(rect, stroke);
+  }
+
+  static void circle(Canvas canvas, Offset center, double radius, Paint paint, Paint stroke) {
+    canvas.drawCircle(center, radius, paint);
+    canvas.drawCircle(center, radius, stroke);
+  }
+
+  static void eye(Canvas canvas, Offset center, {double r = 7}) {
+    final black = fill(const Color(0xFF202124));
+    final white = fill(Colors.white);
+
+    canvas.drawCircle(center, r, black);
+    canvas.drawCircle(Offset(center.dx - r * 0.35, center.dy - r * 0.38), r * 0.28, white);
+    canvas.drawCircle(Offset(center.dx + r * 0.25, center.dy + r * 0.22), r * 0.15, white);
+  }
+
+  static void smile(Canvas canvas, Offset start, Offset control, Offset end) {
+    final p = Path()
+      ..moveTo(start.dx, start.dy)
+      ..quadraticBezierTo(control.dx, control.dy, end.dx, end.dy);
+
+    canvas.drawPath(p, stroke(3.4));
+  }
+
+  static void blush(Canvas canvas, Offset center, Color color) {
+    canvas.drawOval(
+      Rect.fromCenter(center: center, width: 18, height: 10),
+      fill(color.withOpacity(0.38)),
+    );
+  }
+
+  static void sparkle(Canvas canvas, Offset center, double r, Color color) {
+    final p = Path();
+    for (int i = 0; i < 8; i++) {
+      final angle = -math.pi / 2 + i * math.pi / 4;
+      final radius = i.isEven ? r : r * 0.42;
+      final x = center.dx + math.cos(angle) * radius;
+      final y = center.dy + math.sin(angle) * radius;
+
+      if (i == 0) {
+        p.moveTo(x, y);
+      } else {
+        p.lineTo(x, y);
+      }
+    }
+    p.close();
+
+    canvas.drawPath(p, fill(color));
+    canvas.drawPath(p, stroke(2.4));
+  }
+
+  static void feet(Canvas canvas, Color color) {
+    oval(
+      canvas,
+      const Rect.fromLTWH(55, 148, 35, 16),
+      fill(color),
+      stroke(3.8),
+    );
+    oval(
+      canvas,
+      const Rect.fromLTWH(120, 148, 35, 16),
+      fill(color),
+      stroke(3.8),
+    );
+  }
+
+  static void arms(Canvas canvas, Offset leftStart, Offset leftEnd, Offset rightStart, Offset rightEnd) {
+    final s = stroke(4);
+    canvas.drawLine(leftStart, leftEnd, s);
+    canvas.drawLine(rightStart, rightEnd, s);
+    canvas.drawCircle(leftEnd, 5.2, fill(const Color(0xFF242424)));
+    canvas.drawCircle(rightEnd, 5.2, fill(const Color(0xFF242424)));
+  }
 }
 
 class AvocadoMascotPainter extends CustomPainter {
@@ -487,78 +753,91 @@ class AvocadoMascotPainter extends CustomPainter {
     canvas.save();
     canvas.scale(sx, sy);
 
-    final stroke = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 4.6
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final black = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
-
-    final white = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    final cheek = Paint()
-      ..color = Colors.black.withOpacity(0.12)
-      ..style = PaintingStyle.fill;
-
-    canvas.drawOval(const Rect.fromLTWH(48, 150, 30, 15), white);
-    canvas.drawOval(const Rect.fromLTWH(124, 150, 30, 15), white);
-    canvas.drawOval(const Rect.fromLTWH(48, 150, 30, 15), stroke);
-    canvas.drawOval(const Rect.fromLTWH(124, 150, 30, 15), stroke);
+    final s = _AvatarKit.stroke();
+    _AvatarKit.ground(canvas, const Color(0xFF79D35A));
 
     final body = Path()
-      ..moveTo(96, 8)
-      ..cubicTo(72, 15, 52, 42, 38, 72)
-      ..cubicTo(17, 116, 36, 158, 91, 164)
-      ..cubicTo(146, 170, 180, 138, 165, 91)
-      ..cubicTo(153, 52, 127, 13, 96, 8)
+      ..moveTo(103, 10)
+      ..cubicTo(72, 18, 45, 54, 33, 91)
+      ..cubicTo(18, 137, 52, 165, 103, 165)
+      ..cubicTo(155, 165, 190, 136, 174, 91)
+      ..cubicTo(161, 53, 133, 18, 103, 10)
       ..close();
 
-    canvas.drawPath(body, white);
-    canvas.drawPath(body, stroke);
+    _AvatarKit.path(
+      canvas,
+      body,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(30, 10, 150, 155),
+        [
+          const Color(0xFFB9F07B),
+          const Color(0xFF58B40B),
+        ],
+      ),
+      s,
+    );
+
+    final inner = Path()
+      ..moveTo(103, 38)
+      ..cubicTo(78, 45, 58, 74, 52, 106)
+      ..cubicTo(44, 143, 72, 157, 103, 157)
+      ..cubicTo(136, 157, 165, 143, 156, 106)
+      ..cubicTo(149, 74, 128, 45, 103, 38)
+      ..close();
+
+    _AvatarKit.path(
+      canvas,
+      inner,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(52, 38, 104, 119),
+        [
+          const Color(0xFFFFF4C7),
+          const Color(0xFFFFD67A),
+        ],
+      ),
+      s,
+    );
 
     final leaf = Path()
-      ..moveTo(104, 11)
-      ..cubicTo(127, -8, 160, 4, 177, 29)
-      ..cubicTo(149, 32, 126, 25, 104, 11)
+      ..moveTo(108, 16)
+      ..cubicTo(129, -2, 161, 6, 174, 30)
+      ..cubicTo(146, 35, 124, 30, 108, 16)
       ..close();
 
-    canvas.drawPath(leaf, white);
-    canvas.drawPath(leaf, stroke);
+    _AvatarKit.path(canvas, leaf, _AvatarKit.fill(const Color(0xFF74D14C)), s);
+    canvas.drawLine(const Offset(125, 13), const Offset(170, 29), _AvatarKit.stroke(2.6));
 
-    canvas.drawLine(const Offset(124, 8), const Offset(174, 28), stroke);
+    _AvatarKit.oval(
+      canvas,
+      const Rect.fromLTWH(78, 106, 50, 45),
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(78, 106, 50, 45),
+        [
+          const Color(0xFF8B4F25),
+          const Color(0xFF4B2A16),
+        ],
+      ),
+      s,
+    );
 
-    canvas.drawOval(const Rect.fromLTWH(53, 92, 74, 71), black);
+    _AvatarKit.eye(canvas, const Offset(78, 78), r: 7);
+    _AvatarKit.eye(canvas, const Offset(128, 78), r: 7);
+    _AvatarKit.smile(canvas, const Offset(91, 92), const Offset(103, 101), const Offset(115, 92));
+    _AvatarKit.blush(canvas, const Offset(64, 94), const Color(0xFFFF8BA7));
+    _AvatarKit.blush(canvas, const Offset(142, 94), const Color(0xFFFF8BA7));
 
-    canvas.drawOval(const Rect.fromLTWH(63, 103, 14, 9), white);
+    _AvatarKit.arms(
+      canvas,
+      const Offset(51, 112),
+      const Offset(29, 127),
+      const Offset(155, 112),
+      const Offset(181, 95),
+    );
 
-    canvas.drawCircle(const Offset(67, 68), 6.5, black);
-    canvas.drawCircle(const Offset(116, 68), 6.5, black);
+    _AvatarKit.feet(canvas, const Color(0xFFFFF4C7));
 
-    canvas.drawCircle(const Offset(64, 66), 2.3, white);
-    canvas.drawCircle(const Offset(113, 66), 2.3, white);
-
-    final mouth = Path()
-      ..moveTo(87, 80)
-      ..quadraticBezierTo(94, 87, 101, 80);
-
-    canvas.drawPath(mouth, stroke);
-
-    canvas.drawCircle(const Offset(53, 82), 4.5, cheek);
-    canvas.drawCircle(const Offset(128, 82), 4.5, cheek);
-
-    canvas.drawLine(const Offset(44, 103), const Offset(30, 116), stroke);
-    canvas.drawCircle(const Offset(27, 119), 4, black);
-
-    canvas.drawLine(const Offset(152, 96), const Offset(178, 76), stroke);
-    canvas.drawLine(const Offset(178, 76), const Offset(178, 45), stroke);
-    canvas.drawLine(const Offset(178, 57), const Offset(167, 45), stroke);
-    canvas.drawLine(const Offset(178, 57), const Offset(189, 45), stroke);
+    _AvatarKit.sparkle(canvas, const Offset(168, 55), 7, const Color(0xFFFFD54F));
+    _AvatarKit.sparkle(canvas, const Offset(40, 48), 5, const Color(0xFFFFFFFF));
 
     canvas.restore();
   }
@@ -578,100 +857,95 @@ class PiggyMascotPainter extends CustomPainter {
     canvas.save();
     canvas.scale(sx, sy);
 
-    final stroke = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 4.6
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final black = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
-
-    final white = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    final red = Paint()
-      ..color = const Color(0xFFE53935)
-      ..style = PaintingStyle.fill;
-
-    final green = Paint()
-      ..color = const Color(0xFF58B40B)
-      ..style = PaintingStyle.fill;
-
-    canvas.drawOval(const Rect.fromLTWH(52, 150, 30, 14), white);
-    canvas.drawOval(const Rect.fromLTWH(125, 150, 30, 14), white);
-    canvas.drawOval(const Rect.fromLTWH(52, 150, 30, 14), stroke);
-    canvas.drawOval(const Rect.fromLTWH(125, 150, 30, 14), stroke);
+    final s = _AvatarKit.stroke();
+    _AvatarKit.ground(canvas, const Color(0xFFFF8FA3));
 
     final leftEar = Path()
-      ..moveTo(62, 35)
-      ..cubicTo(43, 18, 28, 28, 33, 52)
-      ..cubicTo(44, 50, 55, 44, 62, 35)
+      ..moveTo(65, 43)
+      ..cubicTo(48, 18, 26, 25, 33, 57)
+      ..cubicTo(47, 58, 59, 51, 65, 43)
       ..close();
 
     final rightEar = Path()
-      ..moveTo(148, 35)
-      ..cubicTo(167, 18, 182, 28, 177, 52)
-      ..cubicTo(166, 50, 155, 44, 148, 35)
+      ..moveTo(145, 43)
+      ..cubicTo(162, 18, 184, 25, 177, 57)
+      ..cubicTo(163, 58, 151, 51, 145, 43)
       ..close();
 
-    canvas.drawPath(leftEar, white);
-    canvas.drawPath(leftEar, stroke);
-    canvas.drawPath(rightEar, white);
-    canvas.drawPath(rightEar, stroke);
+    _AvatarKit.path(canvas, leftEar, _AvatarKit.fill(const Color(0xFFFFB7C8)), s);
+    _AvatarKit.path(canvas, rightEar, _AvatarKit.fill(const Color(0xFFFFB7C8)), s);
 
     final body = Path()
-      ..moveTo(105, 27)
-      ..cubicTo(61, 27, 33, 60, 33, 101)
-      ..cubicTo(33, 143, 65, 163, 107, 163)
-      ..cubicTo(149, 163, 179, 142, 178, 101)
-      ..cubicTo(177, 59, 149, 27, 105, 27)
+      ..moveTo(105, 29)
+      ..cubicTo(62, 29, 35, 60, 35, 102)
+      ..cubicTo(35, 145, 66, 165, 105, 165)
+      ..cubicTo(145, 165, 176, 145, 176, 102)
+      ..cubicTo(176, 60, 148, 29, 105, 29)
       ..close();
 
-    canvas.drawPath(body, white);
-    canvas.drawPath(body, stroke);
+    _AvatarKit.path(
+      canvas,
+      body,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(35, 29, 141, 136),
+        [
+          const Color(0xFFFFD5DF),
+          const Color(0xFFFF8FA3),
+        ],
+      ),
+      s,
+    );
 
-    canvas.drawCircle(const Offset(76, 79), 8, black);
-    canvas.drawCircle(const Offset(132, 79), 8, black);
-    canvas.drawCircle(const Offset(73, 76), 2.5, white);
-    canvas.drawCircle(const Offset(129, 76), 2.5, white);
+    _AvatarKit.eye(canvas, const Offset(77, 79), r: 7.5);
+    _AvatarKit.eye(canvas, const Offset(133, 79), r: 7.5);
 
-    canvas.drawOval(const Rect.fromLTWH(84, 86, 42, 29), white);
-    canvas.drawOval(const Rect.fromLTWH(84, 86, 42, 29), stroke);
+    _AvatarKit.oval(
+      canvas,
+      const Rect.fromLTWH(83, 88, 44, 28),
+      _AvatarKit.fill(const Color(0xFFFFC5D1)),
+      s,
+    );
 
-    canvas.drawCircle(const Offset(97, 101), 3.8, black);
-    canvas.drawCircle(const Offset(113, 101), 3.8, black);
+    canvas.drawCircle(const Offset(97, 101), 3.8, _AvatarKit.fill(const Color(0xFF242424)));
+    canvas.drawCircle(const Offset(113, 101), 3.8, _AvatarKit.fill(const Color(0xFF242424)));
 
-    final smile = Path()
-      ..moveTo(92, 120)
-      ..quadraticBezierTo(105, 129, 119, 120);
+    _AvatarKit.smile(canvas, const Offset(91, 123), const Offset(105, 133), const Offset(119, 123));
+    _AvatarKit.blush(canvas, const Offset(61, 100), const Color(0xFFFF5D83));
+    _AvatarKit.blush(canvas, const Offset(149, 100), const Color(0xFFFF5D83));
 
-    canvas.drawPath(smile, stroke);
+    final apple = Path()
+      ..moveTo(56, 114)
+      ..cubicTo(45, 112, 38, 123, 43, 137)
+      ..cubicTo(49, 154, 68, 153, 73, 138)
+      ..cubicTo(78, 123, 68, 112, 56, 114)
+      ..close();
 
-    canvas.drawLine(const Offset(40, 118), const Offset(20, 130), stroke);
-    canvas.drawLine(const Offset(170, 120), const Offset(191, 133), stroke);
-
-    canvas.drawCircle(const Offset(62, 118), 16, red);
-    canvas.drawCircle(const Offset(62, 118), 16, stroke);
+    _AvatarKit.path(canvas, apple, _AvatarKit.fill(const Color(0xFFFF5252)), s);
 
     final leaf = Path()
-      ..moveTo(62, 100)
-      ..cubicTo(68, 88, 82, 92, 81, 104)
-      ..cubicTo(72, 106, 66, 105, 62, 100)
+      ..moveTo(61, 112)
+      ..cubicTo(67, 97, 82, 101, 80, 113)
+      ..cubicTo(72, 117, 66, 116, 61, 112)
       ..close();
 
-    canvas.drawPath(leaf, green);
-    canvas.drawPath(leaf, stroke);
+    _AvatarKit.path(canvas, leaf, _AvatarKit.fill(const Color(0xFF58B40B)), s);
 
     final tail = Path()
-      ..moveTo(180, 105)
-      ..cubicTo(199, 100, 199, 123, 184, 119)
-      ..cubicTo(173, 116, 180, 105, 190, 109);
+      ..moveTo(176, 111)
+      ..cubicTo(195, 102, 202, 124, 185, 125)
+      ..cubicTo(173, 126, 178, 109, 190, 113);
 
-    canvas.drawPath(tail, stroke);
+    canvas.drawPath(tail, _AvatarKit.stroke(4));
+
+    _AvatarKit.arms(
+      canvas,
+      const Offset(48, 120),
+      const Offset(26, 132),
+      const Offset(162, 120),
+      const Offset(184, 133),
+    );
+
+    _AvatarKit.feet(canvas, const Color(0xFFFFC5D1));
 
     canvas.restore();
   }
@@ -691,110 +965,109 @@ class RabbitMascotPainter extends CustomPainter {
     canvas.save();
     canvas.scale(sx, sy);
 
-    final stroke = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 4.6
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final black = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
-
-    final white = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    final orange = Paint()
-      ..color = const Color(0xFFFF7A1A)
-      ..style = PaintingStyle.fill;
-
-    final green = Paint()
-      ..color = const Color(0xFF58B40B)
-      ..style = PaintingStyle.fill;
+    final s = _AvatarKit.stroke();
+    _AvatarKit.ground(canvas, const Color(0xFFFFC46B));
 
     final leftEar = Path()
-      ..moveTo(68, 58)
-      ..cubicTo(45, 15, 27, 5, 23, 47)
-      ..cubicTo(27, 74, 49, 83, 68, 58)
+      ..moveTo(72, 62)
+      ..cubicTo(47, 17, 25, 8, 25, 50)
+      ..cubicTo(28, 78, 52, 88, 72, 62)
       ..close();
 
     final rightEar = Path()
-      ..moveTo(117, 56)
-      ..cubicTo(137, 10, 159, 4, 162, 46)
-      ..cubicTo(159, 74, 137, 83, 117, 56)
+      ..moveTo(138, 62)
+      ..cubicTo(163, 17, 185, 8, 185, 50)
+      ..cubicTo(182, 78, 158, 88, 138, 62)
       ..close();
 
-    canvas.drawPath(leftEar, white);
-    canvas.drawPath(leftEar, stroke);
-    canvas.drawPath(rightEar, white);
-    canvas.drawPath(rightEar, stroke);
+    _AvatarKit.path(canvas, leftEar, _AvatarKit.fill(Colors.white), s);
+    _AvatarKit.path(canvas, rightEar, _AvatarKit.fill(Colors.white), s);
+
+    final innerLeft = Path()
+      ..moveTo(62, 60)
+      ..cubicTo(45, 31, 36, 28, 38, 52)
+      ..cubicTo(40, 66, 51, 72, 62, 60)
+      ..close();
+
+    final innerRight = Path()
+      ..moveTo(148, 60)
+      ..cubicTo(165, 31, 174, 28, 172, 52)
+      ..cubicTo(170, 66, 159, 72, 148, 60)
+      ..close();
+
+    canvas.drawPath(innerLeft, _AvatarKit.fill(const Color(0xFFFFB3C7)));
+    canvas.drawPath(innerRight, _AvatarKit.fill(const Color(0xFFFFB3C7)));
 
     final body = Path()
-      ..moveTo(94, 45)
-      ..cubicTo(55, 45, 33, 78, 34, 115)
-      ..cubicTo(35, 150, 60, 165, 94, 165)
-      ..cubicTo(130, 165, 157, 150, 158, 115)
-      ..cubicTo(159, 78, 134, 45, 94, 45)
+      ..moveTo(105, 45)
+      ..cubicTo(66, 45, 40, 76, 40, 116)
+      ..cubicTo(40, 151, 67, 165, 105, 165)
+      ..cubicTo(143, 165, 170, 151, 170, 116)
+      ..cubicTo(170, 76, 144, 45, 105, 45)
       ..close();
 
-    canvas.drawPath(body, white);
-    canvas.drawPath(body, stroke);
+    _AvatarKit.path(
+      canvas,
+      body,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(40, 45, 130, 120),
+        [
+          Colors.white,
+          const Color(0xFFFFF2E8),
+        ],
+      ),
+      s,
+    );
 
-    canvas.drawOval(const Rect.fromLTWH(51, 151, 28, 13), white);
-    canvas.drawOval(const Rect.fromLTWH(113, 151, 28, 13), white);
-    canvas.drawOval(const Rect.fromLTWH(51, 151, 28, 13), stroke);
-    canvas.drawOval(const Rect.fromLTWH(113, 151, 28, 13), stroke);
+    _AvatarKit.eye(canvas, const Offset(84, 89), r: 7);
+    _AvatarKit.eye(canvas, const Offset(126, 89), r: 7);
 
-    canvas.drawCircle(const Offset(73, 88), 7, black);
-    canvas.drawCircle(const Offset(113, 88), 7, black);
-    canvas.drawCircle(const Offset(70, 85), 2.3, white);
-    canvas.drawCircle(const Offset(110, 85), 2.3, white);
+    canvas.drawOval(
+      const Rect.fromLTWH(99, 99, 12, 8),
+      _AvatarKit.fill(const Color(0xFFFF8FA3)),
+    );
 
-    canvas.drawOval(const Rect.fromLTWH(87, 96, 12, 8), white);
-    canvas.drawOval(const Rect.fromLTWH(87, 96, 12, 8), stroke);
+    _AvatarKit.smile(canvas, const Offset(105, 106), const Offset(96, 116), const Offset(88, 107));
+    _AvatarKit.smile(canvas, const Offset(105, 106), const Offset(114, 116), const Offset(122, 107));
 
-    final mouth = Path()
-      ..moveTo(93, 104)
-      ..quadraticBezierTo(86, 112, 79, 104)
-      ..moveTo(93, 104)
-      ..quadraticBezierTo(101, 112, 108, 104);
-
-    canvas.drawPath(mouth, stroke);
-
-    canvas.drawLine(const Offset(69, 103), const Offset(51, 98), stroke);
-    canvas.drawLine(const Offset(69, 110), const Offset(50, 113), stroke);
-    canvas.drawLine(const Offset(117, 103), const Offset(135, 98), stroke);
-    canvas.drawLine(const Offset(117, 110), const Offset(136, 113), stroke);
+    canvas.drawLine(const Offset(75, 105), const Offset(51, 99), _AvatarKit.stroke(2.8));
+    canvas.drawLine(const Offset(75, 113), const Offset(50, 115), _AvatarKit.stroke(2.8));
+    canvas.drawLine(const Offset(135, 105), const Offset(159, 99), _AvatarKit.stroke(2.8));
+    canvas.drawLine(const Offset(135, 113), const Offset(160, 115), _AvatarKit.stroke(2.8));
 
     final carrot = Path()
-      ..moveTo(58, 126)
-      ..lineTo(112, 106)
-      ..lineTo(98, 139)
+      ..moveTo(64, 130)
+      ..lineTo(127, 105)
+      ..lineTo(106, 145)
       ..close();
 
-    canvas.drawPath(carrot, orange);
-    canvas.drawPath(carrot, stroke);
-
-    canvas.drawLine(const Offset(74, 120), const Offset(85, 130), stroke);
-    canvas.drawLine(const Offset(91, 113), const Offset(102, 123), stroke);
+    _AvatarKit.path(
+      canvas,
+      carrot,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(64, 105, 63, 40),
+        [
+          const Color(0xFFFFA726),
+          const Color(0xFFFF7043),
+        ],
+      ),
+      s,
+    );
 
     final carrotLeaf1 = Path()
-      ..moveTo(112, 106)
-      ..cubicTo(120, 92, 132, 96, 132, 108);
+      ..moveTo(126, 106)
+      ..cubicTo(131, 89, 148, 93, 145, 110);
 
     final carrotLeaf2 = Path()
-      ..moveTo(112, 106)
-      ..cubicTo(113, 90, 101, 86, 99, 103);
+      ..moveTo(126, 106)
+      ..cubicTo(120, 88, 105, 92, 111, 110);
 
-    canvas.drawPath(carrotLeaf1, green);
-    canvas.drawPath(carrotLeaf1, stroke);
-    canvas.drawPath(carrotLeaf2, green);
-    canvas.drawPath(carrotLeaf2, stroke);
+    canvas.drawPath(carrotLeaf1, _AvatarKit.stroke(4));
+    canvas.drawPath(carrotLeaf2, _AvatarKit.stroke(4));
 
-    canvas.drawLine(const Offset(45, 121), const Offset(60, 128), stroke);
-    canvas.drawLine(const Offset(142, 122), const Offset(126, 129), stroke);
+    _AvatarKit.feet(canvas, Colors.white);
+    _AvatarKit.blush(canvas, const Offset(70, 104), const Color(0xFFFF8FA3));
+    _AvatarKit.blush(canvas, const Offset(140, 104), const Color(0xFFFF8FA3));
 
     canvas.restore();
   }
@@ -814,96 +1087,97 @@ class MiuMascotPainter extends CustomPainter {
     canvas.save();
     canvas.scale(sx, sy);
 
-    final stroke = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 4.6
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final black = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
-
-    final white = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    final orange = Paint()
-      ..color = const Color(0xFFFF7A1A)
-      ..style = PaintingStyle.fill;
+    final s = _AvatarKit.stroke();
+    _AvatarKit.ground(canvas, const Color(0xFFFFB35C));
 
     final body = Path()
-      ..moveTo(69, 58)
-      ..lineTo(54, 23)
-      ..lineTo(88, 42)
-      ..cubicTo(101, 37, 115, 37, 128, 42)
-      ..lineTo(160, 23)
-      ..lineTo(147, 59)
-      ..cubicTo(166, 78, 171, 106, 162, 133)
-      ..cubicTo(151, 162, 126, 166, 105, 166)
-      ..cubicTo(82, 166, 58, 161, 48, 133)
-      ..cubicTo(39, 105, 47, 77, 69, 58)
+      ..moveTo(68, 59)
+      ..lineTo(54, 24)
+      ..lineTo(88, 43)
+      ..cubicTo(99, 38, 111, 38, 122, 43)
+      ..lineTo(156, 24)
+      ..lineTo(142, 59)
+      ..cubicTo(162, 78, 169, 106, 160, 134)
+      ..cubicTo(150, 162, 126, 166, 105, 166)
+      ..cubicTo(84, 166, 60, 162, 50, 134)
+      ..cubicTo(41, 106, 48, 78, 68, 59)
       ..close();
 
-    canvas.drawPath(body, white);
-    canvas.drawPath(body, stroke);
+    _AvatarKit.path(
+      canvas,
+      body,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(48, 24, 116, 142),
+        [
+          const Color(0xFFFFE0B2),
+          const Color(0xFFFFB35C),
+        ],
+      ),
+      s,
+    );
 
-    canvas.drawOval(const Rect.fromLTWH(63, 151, 27, 13), white);
-    canvas.drawOval(const Rect.fromLTWH(121, 151, 27, 13), white);
-    canvas.drawOval(const Rect.fromLTWH(63, 151, 27, 13), stroke);
-    canvas.drawOval(const Rect.fromLTWH(121, 151, 27, 13), stroke);
+    final chest = Path()
+      ..moveTo(105, 109)
+      ..cubicTo(82, 112, 72, 134, 80, 154)
+      ..cubicTo(93, 165, 118, 165, 131, 154)
+      ..cubicTo(138, 134, 128, 112, 105, 109)
+      ..close();
 
-    canvas.drawCircle(const Offset(82, 83), 7.5, black);
-    canvas.drawCircle(const Offset(128, 83), 7.5, black);
-    canvas.drawCircle(const Offset(79, 80), 2.5, white);
-    canvas.drawCircle(const Offset(125, 80), 2.5, white);
+    canvas.drawPath(chest, _AvatarKit.fill(const Color(0xFFFFF3E0)));
 
-    canvas.drawOval(const Rect.fromLTWH(99, 96, 12, 8), black);
+    _AvatarKit.eye(canvas, const Offset(82, 84), r: 7.5);
+    _AvatarKit.eye(canvas, const Offset(128, 84), r: 7.5);
 
-    final mouth = Path()
-      ..moveTo(105, 104)
-      ..quadraticBezierTo(98, 112, 91, 105)
-      ..moveTo(105, 104)
-      ..quadraticBezierTo(112, 112, 119, 105);
+    canvas.drawOval(
+      const Rect.fromLTWH(99, 97, 12, 8),
+      _AvatarKit.fill(const Color(0xFF242424)),
+    );
 
-    canvas.drawPath(mouth, stroke);
+    _AvatarKit.smile(canvas, const Offset(105, 105), const Offset(97, 114), const Offset(90, 106));
+    _AvatarKit.smile(canvas, const Offset(105, 105), const Offset(113, 114), const Offset(120, 106));
 
-    canvas.drawLine(const Offset(74, 99), const Offset(49, 93), stroke);
-    canvas.drawLine(const Offset(74, 108), const Offset(48, 110), stroke);
-    canvas.drawLine(const Offset(136, 99), const Offset(161, 93), stroke);
-    canvas.drawLine(const Offset(136, 108), const Offset(162, 110), stroke);
+    canvas.drawLine(const Offset(73, 100), const Offset(47, 94), _AvatarKit.stroke(2.8));
+    canvas.drawLine(const Offset(73, 109), const Offset(46, 112), _AvatarKit.stroke(2.8));
+    canvas.drawLine(const Offset(137, 100), const Offset(163, 94), _AvatarKit.stroke(2.8));
+    canvas.drawLine(const Offset(137, 109), const Offset(164, 112), _AvatarKit.stroke(2.8));
 
     final fish = Path()
-      ..moveTo(85, 126)
-      ..cubicTo(101, 105, 135, 108, 149, 126)
-      ..cubicTo(134, 145, 101, 147, 85, 126)
+      ..moveTo(80, 129)
+      ..cubicTo(99, 105, 134, 108, 151, 128)
+      ..cubicTo(135, 150, 99, 150, 80, 129)
       ..close();
 
-    canvas.drawPath(fish, orange);
-    canvas.drawPath(fish, stroke);
+    _AvatarKit.path(
+      canvas,
+      fish,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(80, 108, 71, 42),
+        [
+          const Color(0xFFFFCA28),
+          const Color(0xFFFF7043),
+        ],
+      ),
+      s,
+    );
 
     final tail = Path()
-      ..moveTo(85, 126)
-      ..lineTo(66, 112)
-      ..lineTo(66, 140)
+      ..moveTo(81, 129)
+      ..lineTo(61, 113)
+      ..lineTo(61, 145)
       ..close();
 
-    canvas.drawPath(tail, orange);
-    canvas.drawPath(tail, stroke);
-
-    canvas.drawCircle(const Offset(137, 123), 3, black);
-    canvas.drawLine(const Offset(106, 112), const Offset(117, 126), stroke);
-    canvas.drawLine(const Offset(106, 140), const Offset(117, 126), stroke);
+    _AvatarKit.path(canvas, tail, _AvatarKit.fill(const Color(0xFFFF8A50)), s);
+    canvas.drawCircle(const Offset(137, 124), 3, _AvatarKit.fill(const Color(0xFF242424)));
 
     final catTail = Path()
-      ..moveTo(160, 136)
-      ..cubicTo(187, 133, 184, 91, 166, 100);
+      ..moveTo(158, 137)
+      ..cubicTo(187, 136, 187, 92, 166, 100);
 
-    canvas.drawPath(catTail, stroke);
+    canvas.drawPath(catTail, _AvatarKit.stroke(5));
 
-    canvas.drawLine(const Offset(55, 120), const Offset(75, 130), stroke);
-    canvas.drawLine(const Offset(154, 120), const Offset(136, 130), stroke);
+    _AvatarKit.feet(canvas, const Color(0xFFFFE0B2));
+    _AvatarKit.blush(canvas, const Offset(65, 102), const Color(0xFFFF8FA3));
+    _AvatarKit.blush(canvas, const Offset(145, 102), const Color(0xFFFF8FA3));
 
     canvas.restore();
   }
@@ -923,62 +1197,69 @@ class BambooMascotPainter extends CustomPainter {
     canvas.save();
     canvas.scale(sx, sy);
 
-    final stroke = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 4.6
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
+    final s = _AvatarKit.stroke();
+    _AvatarKit.ground(canvas, const Color(0xFF7CB342));
 
-    final black = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
-
-    final white = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    final green = Paint()
-      ..color = const Color(0xFF8BC34A)
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(const Offset(63, 48), 22, black);
-    canvas.drawCircle(const Offset(145, 48), 22, black);
+    canvas.drawCircle(const Offset(62, 48), 23, _AvatarKit.fill(const Color(0xFF242424)));
+    canvas.drawCircle(const Offset(148, 48), 23, _AvatarKit.fill(const Color(0xFF242424)));
 
     final body = Path()
-      ..moveTo(104, 25)
-      ..cubicTo(61, 25, 33, 58, 33, 103)
-      ..cubicTo(33, 145, 62, 164, 104, 164)
-      ..cubicTo(146, 164, 176, 145, 176, 103)
-      ..cubicTo(176, 58, 147, 25, 104, 25)
+      ..moveTo(105, 25)
+      ..cubicTo(62, 25, 34, 58, 34, 103)
+      ..cubicTo(34, 146, 63, 165, 105, 165)
+      ..cubicTo(147, 165, 176, 146, 176, 103)
+      ..cubicTo(176, 58, 148, 25, 105, 25)
       ..close();
 
-    canvas.drawPath(body, white);
-    canvas.drawPath(body, stroke);
+    _AvatarKit.path(
+      canvas,
+      body,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(34, 25, 142, 140),
+        [
+          Colors.white,
+          const Color(0xFFEFEFEF),
+        ],
+      ),
+      s,
+    );
 
-    canvas.drawOval(const Rect.fromLTWH(53, 150, 35, 15), black);
-    canvas.drawOval(const Rect.fromLTWH(121, 150, 35, 15), black);
+    _AvatarKit.oval(
+      canvas,
+      const Rect.fromLTWH(62, 73, 36, 44),
+      _AvatarKit.fill(const Color(0xFF242424)),
+      _AvatarKit.stroke(0),
+    );
 
-    canvas.drawOval(const Rect.fromLTWH(62, 75, 35, 43), black);
-    canvas.drawOval(const Rect.fromLTWH(111, 75, 35, 43), black);
+    _AvatarKit.oval(
+      canvas,
+      const Rect.fromLTWH(112, 73, 36, 44),
+      _AvatarKit.fill(const Color(0xFF242424)),
+      _AvatarKit.stroke(0),
+    );
 
-    canvas.drawCircle(const Offset(81, 91), 7, white);
-    canvas.drawCircle(const Offset(128, 91), 7, white);
-    canvas.drawCircle(const Offset(82, 92), 3, black);
-    canvas.drawCircle(const Offset(127, 92), 3, black);
+    canvas.drawCircle(const Offset(81, 91), 7.5, _AvatarKit.fill(Colors.white));
+    canvas.drawCircle(const Offset(129, 91), 7.5, _AvatarKit.fill(Colors.white));
+    canvas.drawCircle(const Offset(82, 92), 3.2, _AvatarKit.fill(const Color(0xFF242424)));
+    canvas.drawCircle(const Offset(128, 92), 3.2, _AvatarKit.fill(const Color(0xFF242424)));
 
-    canvas.drawOval(const Rect.fromLTWH(96, 104, 17, 11), black);
+    canvas.drawOval(
+      const Rect.fromLTWH(97, 105, 17, 11),
+      _AvatarKit.fill(const Color(0xFF242424)),
+    );
 
-    final mouth = Path()
-      ..moveTo(104, 116)
-      ..quadraticBezierTo(96, 124, 88, 117)
-      ..moveTo(104, 116)
-      ..quadraticBezierTo(112, 124, 120, 117);
+    _AvatarKit.smile(canvas, const Offset(105, 118), const Offset(97, 126), const Offset(89, 119));
+    _AvatarKit.smile(canvas, const Offset(105, 118), const Offset(113, 126), const Offset(121, 119));
 
-    canvas.drawPath(mouth, stroke);
+    canvas.drawOval(
+      const Rect.fromLTWH(42, 118, 31, 31),
+      _AvatarKit.fill(const Color(0xFF242424)),
+    );
 
-    canvas.drawOval(const Rect.fromLTWH(42, 118, 30, 30), black);
-    canvas.drawOval(const Rect.fromLTWH(138, 118, 30, 30), black);
+    canvas.drawOval(
+      const Rect.fromLTWH(137, 118, 31, 31),
+      _AvatarKit.fill(const Color(0xFF242424)),
+    );
 
     canvas.save();
     canvas.translate(105, 130);
@@ -986,32 +1267,42 @@ class BambooMascotPainter extends CustomPainter {
     canvas.translate(-105, -130);
 
     final bamboo = RRect.fromRectAndRadius(
-      const Rect.fromLTWH(91, 100, 28, 61),
-      const Radius.circular(8),
+      const Rect.fromLTWH(91, 97, 29, 64),
+      const Radius.circular(9),
     );
 
-    canvas.drawRRect(bamboo, green);
-    canvas.drawRRect(bamboo, stroke);
+    canvas.drawRRect(
+      bamboo,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(91, 97, 29, 64),
+        [
+          const Color(0xFFA5D66A),
+          const Color(0xFF58B40B),
+        ],
+      ),
+    );
+    canvas.drawRRect(bamboo, s);
 
-    canvas.drawLine(const Offset(91, 116), const Offset(119, 116), stroke);
-    canvas.drawLine(const Offset(91, 136), const Offset(119, 136), stroke);
+    canvas.drawLine(const Offset(91, 115), const Offset(120, 115), _AvatarKit.stroke(3));
+    canvas.drawLine(const Offset(91, 136), const Offset(120, 136), _AvatarKit.stroke(3));
 
     final leaf1 = Path()
-      ..moveTo(118, 108)
-      ..cubicTo(140, 92, 154, 107, 132, 119)
+      ..moveTo(119, 108)
+      ..cubicTo(143, 88, 158, 106, 133, 121)
       ..close();
 
     final leaf2 = Path()
-      ..moveTo(91, 130)
-      ..cubicTo(67, 122, 60, 140, 86, 143)
+      ..moveTo(91, 132)
+      ..cubicTo(65, 121, 58, 142, 86, 146)
       ..close();
 
-    canvas.drawPath(leaf1, green);
-    canvas.drawPath(leaf1, stroke);
-    canvas.drawPath(leaf2, green);
-    canvas.drawPath(leaf2, stroke);
+    _AvatarKit.path(canvas, leaf1, _AvatarKit.fill(const Color(0xFF7CB342)), s);
+    _AvatarKit.path(canvas, leaf2, _AvatarKit.fill(const Color(0xFF7CB342)), s);
 
     canvas.restore();
+
+    canvas.drawOval(const Rect.fromLTWH(55, 150, 34, 15), _AvatarKit.fill(const Color(0xFF242424)));
+    canvas.drawOval(const Rect.fromLTWH(121, 150, 34, 15), _AvatarKit.fill(const Color(0xFF242424)));
 
     canvas.restore();
   }
@@ -1019,6 +1310,7 @@ class BambooMascotPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
 class DiamondDragonMascotPainter extends CustomPainter {
   const DiamondDragonMascotPainter();
 
@@ -1030,282 +1322,221 @@ class DiamondDragonMascotPainter extends CustomPainter {
     canvas.save();
     canvas.scale(sx, sy);
 
-    final stroke = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 4.8
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
+    final s = _AvatarKit.stroke(4.4);
+    _AvatarKit.ground(canvas, const Color(0xFF7C4DFF));
 
-    final black = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
-
-    final white = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    final gold = Paint()
-      ..color = const Color(0xFFFFC947)
-      ..style = PaintingStyle.fill;
-
-    final orangeGold = Paint()
-      ..color = const Color(0xFFFF9800)
-      ..style = PaintingStyle.fill;
-
-    final diamond = Paint()
-      ..color = const Color(0xFF76E4FF)
-      ..style = PaintingStyle.fill;
-
-    final blue = Paint()
-      ..color = const Color(0xFF4FC3F7)
-      ..style = PaintingStyle.fill;
-
-    final purple = Paint()
-      ..color = const Color(0xFF9C27B0)
-      ..style = PaintingStyle.fill;
-
-    final softPink = Paint()
-      ..color = const Color(0xFFFF8FB3)
-      ..style = PaintingStyle.fill;
-
-    final glow = Paint()
-      ..color = const Color(0xFFFFC947).withOpacity(0.22)
-      ..style = PaintingStyle.fill;
-
-    // Glow background
-    canvas.drawCircle(const Offset(105, 86), 76, glow);
     canvas.drawCircle(
-      const Offset(105, 86),
-      58,
-      Paint()
-        ..color = const Color(0xFF76E4FF).withOpacity(0.13)
-        ..style = PaintingStyle.fill,
+      const Offset(105, 88),
+      76,
+      _AvatarKit.fill(const Color(0xFFFFD54F).withOpacity(0.24)),
     );
 
-    // Stars
-    _drawStar(canvas, const Offset(26, 31), 8, gold, stroke);
-    _drawStar(canvas, const Offset(183, 38), 7, gold, stroke);
-    _drawStar(canvas, const Offset(181, 126), 6, diamond, stroke);
-    _drawStar(canvas, const Offset(33, 128), 6, diamond, stroke);
+    canvas.drawCircle(
+      const Offset(105, 88),
+      58,
+      _AvatarKit.fill(const Color(0xFF80DEEA).withOpacity(0.18)),
+    );
 
-    // Wings
+    _AvatarKit.sparkle(canvas, const Offset(27, 34), 8, const Color(0xFFFFD54F));
+    _AvatarKit.sparkle(canvas, const Offset(184, 38), 7, const Color(0xFF80DEEA));
+    _AvatarKit.sparkle(canvas, const Offset(34, 128), 6, Colors.white);
+    _AvatarKit.sparkle(canvas, const Offset(181, 126), 6, const Color(0xFFFF8FA3));
+
     final leftWing = Path()
-      ..moveTo(69, 79)
-      ..cubicTo(39, 50, 18, 50, 11, 82)
-      ..cubicTo(30, 73, 42, 85, 48, 104)
-      ..cubicTo(54, 88, 63, 83, 69, 79)
+      ..moveTo(70, 83)
+      ..cubicTo(38, 51, 16, 55, 11, 88)
+      ..cubicTo(31, 78, 44, 91, 50, 110)
+      ..cubicTo(55, 94, 63, 87, 70, 83)
       ..close();
 
     final rightWing = Path()
-      ..moveTo(141, 79)
-      ..cubicTo(171, 50, 192, 50, 199, 82)
-      ..cubicTo(180, 73, 168, 85, 162, 104)
-      ..cubicTo(156, 88, 147, 83, 141, 79)
+      ..moveTo(140, 83)
+      ..cubicTo(172, 51, 194, 55, 199, 88)
+      ..cubicTo(179, 78, 166, 91, 160, 110)
+      ..cubicTo(155, 94, 147, 87, 140, 83)
       ..close();
 
-    canvas.drawPath(leftWing, purple);
-    canvas.drawPath(leftWing, stroke);
-    canvas.drawPath(rightWing, purple);
-    canvas.drawPath(rightWing, stroke);
+    _AvatarKit.path(
+      canvas,
+      leftWing,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(11, 51, 59, 59),
+        [
+          const Color(0xFFB388FF),
+          const Color(0xFF7C4DFF),
+        ],
+      ),
+      s,
+    );
 
-    canvas.drawLine(const Offset(27, 78), const Offset(48, 104), stroke);
-    canvas.drawLine(const Offset(183, 78), const Offset(162, 104), stroke);
+    _AvatarKit.path(
+      canvas,
+      rightWing,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(140, 51, 59, 59),
+        [
+          const Color(0xFFB388FF),
+          const Color(0xFF7C4DFF),
+        ],
+      ),
+      s,
+    );
 
-    // Feet
-    canvas.drawOval(const Rect.fromLTWH(54, 151, 31, 15), gold);
-    canvas.drawOval(const Rect.fromLTWH(125, 151, 31, 15), gold);
-    canvas.drawOval(const Rect.fromLTWH(54, 151, 31, 15), stroke);
-    canvas.drawOval(const Rect.fromLTWH(125, 151, 31, 15), stroke);
-
-    // Tail
     final tail = Path()
-      ..moveTo(151, 128)
-      ..cubicTo(182, 130, 185, 99, 164, 102)
-      ..cubicTo(177, 92, 195, 101, 195, 119)
-      ..cubicTo(194, 145, 166, 153, 145, 143);
+      ..moveTo(150, 129)
+      ..cubicTo(183, 130, 187, 99, 166, 101)
+      ..cubicTo(181, 90, 198, 101, 198, 120)
+      ..cubicTo(198, 145, 168, 155, 145, 143);
 
-    canvas.drawPath(tail, white);
-    canvas.drawPath(tail, stroke);
+    _AvatarKit.path(canvas, tail, _AvatarKit.fill(const Color(0xFFFFF8E1)), s);
 
-    final tailGem = Path()
-      ..moveTo(190, 118)
-      ..lineTo(200, 107)
-      ..lineTo(207, 120)
-      ..lineTo(198, 132)
-      ..close();
-
-    canvas.drawPath(tailGem, diamond);
-    canvas.drawPath(tailGem, stroke);
-
-    // Body
     final body = Path()
       ..moveTo(105, 31)
-      ..cubicTo(70, 31, 43, 62, 43, 105)
-      ..cubicTo(43, 146, 69, 164, 105, 164)
-      ..cubicTo(141, 164, 167, 146, 167, 105)
-      ..cubicTo(167, 62, 140, 31, 105, 31)
+      ..cubicTo(69, 31, 43, 62, 43, 105)
+      ..cubicTo(43, 146, 69, 165, 105, 165)
+      ..cubicTo(141, 165, 167, 146, 167, 105)
+      ..cubicTo(167, 62, 141, 31, 105, 31)
       ..close();
 
-    canvas.drawPath(body, white);
-    canvas.drawPath(body, stroke);
+    _AvatarKit.path(
+      canvas,
+      body,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(43, 31, 124, 134),
+        [
+          const Color(0xFFFFF8E1),
+          const Color(0xFFFFE082),
+        ],
+      ),
+      s,
+    );
 
-    // Belly gem
-    final belly = Path()
-      ..moveTo(105, 95)
-      ..lineTo(130, 118)
-      ..lineTo(119, 151)
-      ..lineTo(91, 151)
-      ..lineTo(80, 118)
+    final bellyGem = Path()
+      ..moveTo(105, 92)
+      ..lineTo(132, 118)
+      ..lineTo(120, 153)
+      ..lineTo(90, 153)
+      ..lineTo(78, 118)
       ..close();
 
-    canvas.drawPath(belly, diamond);
-    canvas.drawPath(belly, stroke);
+    _AvatarKit.path(
+      canvas,
+      bellyGem,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(78, 92, 54, 61),
+        [
+          const Color(0xFFB2EBF2),
+          const Color(0xFF26C6DA),
+        ],
+      ),
+      s,
+    );
 
-    canvas.drawLine(const Offset(105, 95), const Offset(105, 151), stroke);
-    canvas.drawLine(const Offset(80, 118), const Offset(130, 118), stroke);
+    canvas.drawLine(const Offset(105, 92), const Offset(105, 153), _AvatarKit.stroke(2.4));
+    canvas.drawLine(const Offset(78, 118), const Offset(132, 118), _AvatarKit.stroke(2.4));
 
-    // Head horns
     final leftHorn = Path()
-      ..moveTo(72, 45)
-      ..lineTo(57, 18)
-      ..lineTo(86, 35)
+      ..moveTo(74, 45)
+      ..lineTo(58, 18)
+      ..lineTo(87, 36)
       ..close();
 
     final rightHorn = Path()
-      ..moveTo(138, 45)
-      ..lineTo(153, 18)
-      ..lineTo(124, 35)
+      ..moveTo(136, 45)
+      ..lineTo(152, 18)
+      ..lineTo(123, 36)
       ..close();
 
-    canvas.drawPath(leftHorn, gold);
-    canvas.drawPath(leftHorn, stroke);
-    canvas.drawPath(rightHorn, gold);
-    canvas.drawPath(rightHorn, stroke);
+    _AvatarKit.path(canvas, leftHorn, _AvatarKit.fill(const Color(0xFFFFC107)), s);
+    _AvatarKit.path(canvas, rightHorn, _AvatarKit.fill(const Color(0xFFFFC107)), s);
 
-    // Crown
     final crown = Path()
-      ..moveTo(77, 31)
-      ..lineTo(86, 8)
-      ..lineTo(99, 29)
-      ..lineTo(105, 4)
-      ..lineTo(112, 29)
-      ..lineTo(125, 8)
-      ..lineTo(134, 31)
-      ..lineTo(128, 46)
-      ..lineTo(83, 46)
+      ..moveTo(77, 33)
+      ..lineTo(86, 10)
+      ..lineTo(99, 30)
+      ..lineTo(105, 5)
+      ..lineTo(112, 30)
+      ..lineTo(125, 10)
+      ..lineTo(134, 33)
+      ..lineTo(128, 47)
+      ..lineTo(83, 47)
       ..close();
 
-   
-    canvas.drawPath(crown, gold);
-    canvas.drawPath(crown, stroke);
+    _AvatarKit.path(
+      canvas,
+      crown,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(77, 5, 57, 42),
+        [
+          const Color(0xFFFFF176),
+          const Color(0xFFFFB300),
+        ],
+      ),
+      s,
+    );
 
-    canvas.drawCircle(const Offset(86, 15), 4.5, diamond);
-    canvas.drawCircle(const Offset(105, 10), 5, softPink);
-    canvas.drawCircle(const Offset(125, 15), 4.5, diamond);
-    canvas.drawCircle(const Offset(86, 15), 4.5, stroke);
-    canvas.drawCircle(const Offset(105, 10), 5, stroke);
-    canvas.drawCircle(const Offset(125, 15), 4.5, stroke);
-
-    // Face
-    canvas.drawOval(const Rect.fromLTWH(68, 70, 18, 25), black);
-    canvas.drawOval(const Rect.fromLTWH(124, 70, 18, 25), black);
-
-    canvas.drawCircle(const Offset(75, 76), 3.5, white);
-    canvas.drawCircle(const Offset(132, 76), 3.5, white);
-    canvas.drawCircle(const Offset(79, 86), 2, white);
-    canvas.drawCircle(const Offset(136, 86), 2, white);
+    _AvatarKit.eye(canvas, const Offset(77, 79), r: 8.5);
+    _AvatarKit.eye(canvas, const Offset(133, 79), r: 8.5);
 
     final snout = Path()
-      ..moveTo(90, 92)
-      ..cubicTo(97, 84, 113, 84, 120, 92)
-      ..cubicTo(124, 103, 116, 114, 105, 114)
-      ..cubicTo(94, 114, 86, 103, 90, 92)
+      ..moveTo(90, 94)
+      ..cubicTo(97, 86, 113, 86, 120, 94)
+      ..cubicTo(124, 105, 116, 116, 105, 116)
+      ..cubicTo(94, 116, 86, 105, 90, 94)
       ..close();
 
-    canvas.drawPath(snout, white);
-    canvas.drawPath(snout, stroke);
+    _AvatarKit.path(canvas, snout, _AvatarKit.fill(const Color(0xFFFFFDF4)), s);
+    canvas.drawOval(
+      const Rect.fromLTWH(100, 98, 10, 7),
+      _AvatarKit.fill(const Color(0xFF242424)),
+    );
 
-    canvas.drawOval(const Rect.fromLTWH(100, 96, 10, 7), black);
+    _AvatarKit.smile(canvas, const Offset(105, 105), const Offset(97, 113), const Offset(91, 106));
+    _AvatarKit.smile(canvas, const Offset(105, 105), const Offset(113, 113), const Offset(119, 106));
 
-    final smile = Path()
-      ..moveTo(105, 103)
-      ..quadraticBezierTo(98, 110, 91, 104)
-      ..moveTo(105, 103)
-      ..quadraticBezierTo(112, 110, 119, 104);
+    _AvatarKit.blush(canvas, const Offset(61, 100), const Color(0xFFFF8FA3));
+    _AvatarKit.blush(canvas, const Offset(149, 100), const Color(0xFFFF8FA3));
 
-    canvas.drawPath(smile, stroke);
+    _AvatarKit.arms(
+      canvas,
+      const Offset(55, 114),
+      const Offset(30, 103),
+      const Offset(155, 114),
+      const Offset(180, 103),
+    );
 
-    canvas.drawCircle(const Offset(61, 99), 6, softPink);
-    canvas.drawCircle(const Offset(149, 99), 6, softPink);
-
-    // Arms
-    canvas.drawLine(const Offset(55, 113), const Offset(31, 104), stroke);
-    canvas.drawLine(const Offset(155, 113), const Offset(179, 104), stroke);
-
-    canvas.drawCircle(const Offset(29, 103), 8, white);
-    canvas.drawCircle(const Offset(181, 103), 8, white);
-    canvas.drawCircle(const Offset(29, 103), 8, stroke);
-    canvas.drawCircle(const Offset(181, 103), 8, stroke);
-
-    // Luxury coin/diamond in hand
     final handDiamond = Path()
-      ..moveTo(29, 84)
-      ..lineTo(42, 98)
-      ..lineTo(29, 114)
-      ..lineTo(16, 98)
+      ..moveTo(29, 83)
+      ..lineTo(43, 98)
+      ..lineTo(29, 115)
+      ..lineTo(15, 98)
       ..close();
 
-    canvas.drawPath(handDiamond, diamond);
-    canvas.drawPath(handDiamond, stroke);
-    canvas.drawLine(const Offset(16, 98), const Offset(42, 98), stroke);
-    canvas.drawLine(const Offset(29, 84), const Offset(29, 114), stroke);
+    _AvatarKit.path(
+      canvas,
+      handDiamond,
+      _AvatarKit.gradient(
+        const Rect.fromLTWH(15, 83, 28, 32),
+        [
+          const Color(0xFFE0F7FA),
+          const Color(0xFF26C6DA),
+        ],
+      ),
+      s,
+    );
 
-    canvas.drawCircle(const Offset(181, 84), 14, orangeGold);
-    canvas.drawCircle(const Offset(181, 84), 14, stroke);
-    canvas.drawCircle(const Offset(181, 84), 7, gold);
-    canvas.drawCircle(const Offset(181, 84), 7, stroke);
+    canvas.drawCircle(const Offset(181, 84), 14, _AvatarKit.fill(const Color(0xFFFF9800)));
+    canvas.drawCircle(const Offset(181, 84), 14, s);
+    canvas.drawCircle(const Offset(181, 84), 7, _AvatarKit.fill(const Color(0xFFFFD54F)));
+    canvas.drawCircle(const Offset(181, 84), 7, s);
 
-    // Chest sparkle
-    _drawStar(canvas, const Offset(105, 123), 8, white, stroke);
-    _drawStar(canvas, const Offset(119, 132), 4.5, gold, stroke);
-    _drawStar(canvas, const Offset(92, 133), 4.5, gold, stroke);
+    _AvatarKit.feet(canvas, const Color(0xFFFFC107));
 
-    // Small claws
-    canvas.drawLine(const Offset(63, 162), const Offset(58, 166), stroke);
-    canvas.drawLine(const Offset(70, 164), const Offset(66, 169), stroke);
-    canvas.drawLine(const Offset(139, 164), const Offset(144, 169), stroke);
-    canvas.drawLine(const Offset(147, 162), const Offset(152, 166), stroke);
+    _AvatarKit.sparkle(canvas, const Offset(105, 125), 8, Colors.white);
+    _AvatarKit.sparkle(canvas, const Offset(122, 136), 5, const Color(0xFFFFD54F));
+    _AvatarKit.sparkle(canvas, const Offset(89, 136), 5, const Color(0xFFFF8FA3));
 
     canvas.restore();
-  }
-
-  void _drawStar(
-    Canvas canvas,
-    Offset center,
-    double radius,
-    Paint fill,
-    Paint stroke,
-  ) {
-    final path = Path();
-
-    for (int i = 0; i < 8; i++) {
-      final angle = -math.pi / 2 + i * math.pi / 4;
-      final r = i.isEven ? radius : radius * 0.42;
-      final x = center.dx + math.cos(angle) * r;
-      final y = center.dy + math.sin(angle) * r;
-
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-
-    path.close();
-
-    canvas.drawPath(path, fill);
-    canvas.drawPath(path, stroke);
   }
 
   @override

@@ -22,6 +22,7 @@ class AuthenticationService {
   // Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
   Future<void> signOut() async {
+    await GoogleSignIn().signOut();
     await _firebaseAuth.signOut();
     log('Signed Out');
   }
@@ -60,12 +61,34 @@ class AuthenticationService {
         bookmarkedRecipes: [],
         followers: [],
         following: [],
+        createdAt: DateTime.now(),
+        goalCalories: 2000,
+        dailyStreak: 0,
+        totalStars: 0,
       );
 
       await _firestore
           .collection("users")
           .doc(userCredential.user!.uid)
           .set(user.toJson());
+
+      await _firestore
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .collection('tree_data')
+          .doc('main')
+          .set({
+        'treeLevel': 1,
+        'totalXp': 0,
+        'currentXp': 0,
+        'treeStage': 'Seed',
+        'streakDays': 0,
+        'todayXp': 0,
+        'dataDate': DateTime.now().toIso8601String().substring(0, 10),
+        'lastActiveDate': '',
+        'todayActivities': [],
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
 
       log('Signed Up');
       return "success";
@@ -77,19 +100,89 @@ class AuthenticationService {
 
   // GOOGLE AUTHENTICATION
 
-  Future<UserCredential> signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: '409829871485-92a71rr7pnon4ks5dkgud05cf8571kei.apps.googleusercontent.com',
+      );
+      await googleSignIn.signOut();
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+      if (googleUser == null) {
+        log('Google sign-in cancelled by user');
+        return null;
+      }
 
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-    // TODO: generate firebase document for google users
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
-    log('Signed Up With Google');
-    return await _firebaseAuth.signInWithCredential(credential);
+      if (googleAuth.idToken == null && googleAuth.accessToken == null) {
+        throw Exception('Không lấy được thông tin xác thực Google');
+      }
+
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+        accessToken: googleAuth.accessToken,
+      );
+
+      final userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
+      final user = userCredential.user;
+
+      if (user != null) {
+        final userDoc =
+            await _firestore.collection('users').doc(user.uid).get();
+        if (!userDoc.exists) {
+          final model.User newUser = model.User(
+            username: user.displayName ?? 'User',
+            sex: null,
+            uid: user.uid,
+            photoUrl: user.photoURL ?? '',
+            email: user.email ?? '',
+            bio: '',
+            isDarkMode: true,
+            bookmarkedRecipes: [],
+            followers: [],
+            following: [],
+            createdAt: DateTime.now(),
+            goalCalories: 2000,
+            dailyStreak: 0,
+            totalStars: 0,
+          );
+
+          await _firestore
+              .collection('users')
+              .doc(user.uid)
+              .set(newUser.toJson());
+
+          await _firestore
+              .collection('users')
+              .doc(user.uid)
+              .collection('tree_data')
+              .doc('main')
+              .set({
+            'treeLevel': 1,
+            'totalXp': 0,
+            'currentXp': 0,
+            'treeStage': 'Seed',
+            'streakDays': 0,
+            'todayXp': 0,
+            'dataDate': DateTime.now().toIso8601String().substring(0, 10),
+            'lastActiveDate': '',
+            'todayActivities': [],
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+        }
+      }
+
+      log('Signed Up With Google');
+      return userCredential;
+    } on FirebaseAuthException catch (e) {
+      log('Google sign-in Firebase error: ${e.message}');
+      throw Exception(e.message ?? 'Đăng nhập Google thất bại');
+    } catch (e) {
+      log('Google sign-in error: $e');
+      rethrow;
+    }
   }
 }

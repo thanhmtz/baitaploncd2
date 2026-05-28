@@ -19,7 +19,7 @@ class _FoodDetailsScreenState extends State<FoodDetailsScreen> {
   late TextEditingController servingsController;
   late TextEditingController servingUnitController;
   late double servings, servingSize;
-  late Map<String, dynamic> protein, fat, carbs, calories;
+  late Map<String, dynamic> protein, fat, carbs, calories, fiber, sugar, sodium;
 
   @override
   void initState() {
@@ -30,17 +30,23 @@ class _FoodDetailsScreenState extends State<FoodDetailsScreen> {
     servingSize = widget.food.servingSize ?? 100;
     servingUnit = widget.food.servingSizeUnit ?? 'g';
     servings = widget.food.numberOfServings ?? 1;
-    
+
     if (widget.food.nutrients.isNotEmpty) {
       protein = widget.food.nutrientFromMap(1003);
       fat = widget.food.nutrientFromMap(1004);
       carbs = widget.food.nutrientFromMap(1005);
       calories = widget.food.nutrientFromMap(1008);
+      fiber = widget.food.nutrientFromMap(1079);
+      sugar = widget.food.nutrientFromMap(2000);
+      sodium = widget.food.nutrientFromMap(1093);
     } else {
       protein = {'value': widget.food.protein ?? 0, 'unitName': 'g'};
       fat = {'value': widget.food.fat ?? 0, 'unitName': 'g'};
       carbs = {'value': widget.food.carbs ?? 0, 'unitName': 'g'};
       calories = {'value': widget.food.calories ?? 0, 'unitName': 'kcal'};
+      fiber = {'value': widget.food.fiber ?? 0, 'unitName': 'g'};
+      sugar = {'value': widget.food.sugar ?? 0, 'unitName': 'g'};
+      sodium = {'value': widget.food.sodium ?? 0, 'unitName': 'mg'};
     }
   }
 
@@ -70,7 +76,10 @@ class _FoodDetailsScreenState extends State<FoodDetailsScreen> {
     double totalCarbs = (carbs['value'] ?? widget.food.carbs ?? 0) * servings;
     double totalFat = (fat['value'] ?? widget.food.fat ?? 0) * servings;
     double totalProtein = (protein['value'] ?? widget.food.protein ?? 0) * servings;
-    
+    double totalFiber = (fiber['value'] ?? widget.food.fiber ?? 0) * servings;
+    double totalSugar = (sugar['value'] ?? widget.food.sugar ?? 0) * servings;
+    double totalSodium = (sodium['value'] ?? widget.food.sodium ?? 0) * servings;
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -104,6 +113,9 @@ class _FoodDetailsScreenState extends State<FoodDetailsScreen> {
                     totalProtein,
                     imageUrl: widget.food.imageUrl,
                     nutrients: widget.food.nutrients,
+                    fiber: totalFiber,
+                    sugar: totalSugar,
+                    sodium: totalSodium,
                   );
                   Navigator.pop(context);
                 },
@@ -157,8 +169,8 @@ class _FoodDetailsScreenState extends State<FoodDetailsScreen> {
                                   children: [
                                     IconButton(
                                       icon: const Icon(Icons.remove_circle_outline),
-                                      onPressed: servings > 0.5 
-                                          ? () => setState(() => servings -= 0.5) 
+                                      onPressed: servings > 0.5
+                                          ? () => setState(() => servings -= 0.5)
                                           : null,
                                     ),
                                     Text('$servings', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -166,7 +178,12 @@ class _FoodDetailsScreenState extends State<FoodDetailsScreen> {
                                       icon: const Icon(Icons.add_circle_outline),
                                       onPressed: () => setState(() => servings += 0.5),
                                     ),
-                                    Text('x ${servingSize.toInt()}$servingUnit'),
+                                    Flexible(
+                                      child: Text(
+                                        'x ${servingSize.toInt()}$servingUnit',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ],

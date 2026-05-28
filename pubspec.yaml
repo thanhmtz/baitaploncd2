@@ -12,6 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_localizations:
+    sdk: flutter
+
   firebase_core: ^2.14.0
   firebase_auth: ^4.6.3
   google_sign_in: ^6.1.4
@@ -21,7 +24,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_launcher_icons: ^0.13.1
 
-  shared_preferences: ^2.0.13
+  shared_preferences: ^2.2.3
   image_picker: ^1.0.0
   curved_navigation_bar: ^1.0.3
   path_provider: ^2.0.9
@@ -46,7 +49,9 @@ dependencies:
   pedometer: ^4.0.1
   permission_handler: ^11.0.1
   wakelock_plus: ^1.1.4
-  intl: ^0.17.0
+
+  intl: ^0.18.1
+
   fl_chart: ^0.63.0
   percent_indicator: ^4.0.0
   heart_bpm: ^2.0.0
@@ -68,9 +73,17 @@ dependencies:
   firebase_messaging: ^14.6.4
   expandable_text: ^2.3.0
   fab_circular_menu: ^1.0.2
+  share_plus: ^7.2.2
+
+  audioplayers: ^5.2.1
+  vibration: ^3.1.8
+  timezone: ^0.9.2
+  google_fonts: 5.1.0
+  google_generative_ai: ^0.4.6
+  speech_to_text: ^6.6.0
 
 # dependency_overrides:
-  # image_picker_android: 0.8.4+13
+#   image_picker_android: 0.8.4+13
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +96,7 @@ flutter_icons:
   image_path: "assets/images/app_logo.png"
 
 flutter:
+  generate: true
   uses-material-design: true
 
   assets:
@@ -92,11 +106,47 @@ flutter:
     - assets/svgs/
     - assets/json/
     - assets/illustrations/
+    - assets/audio/effects/rainbirt.mp3
+    - assets/audio/ambient/rain.mp3
+    - assets/audio/ambient/ocean.mp3
+    - assets/images/meditation/1.jpg
+    - assets/images/meditation/2.jpg
+    - assets/images/meditation/3.jpg
+    - assets/images/ui/5037007.jpg
+    - assets/images/ui/hh.png
+    - assets/images/ui/2.jpg
+    - assets/images/hh/
+    - assets/images/ui/5 (1).png
+    - assets/images/ui/5 (2).png
+    - assets/images/ui/5 (3).png
+    - assets/images/ui/5 (4).png
+    - assets/images/ui/5 (5).png
+    - assets/images/ui/5 (6).png
+    - assets/images/ui/5 (7).png
+    - assets/images/ui/7 (1).png
+    - assets/images/ui/7 (2).png
+    - assets/images/ui/7 (3).png
+    - assets/images/ui/7 (4).png
+    - assets/images/ui/7 (5).png
+    - assets/images/tree/1.png
+    - assets/images/tree/2.png
+    - assets/images/tree/3.png 
+    - assets/images/tree/4.png  
+    - assets/images/tree/5.png  
 
+
+
+    
   fonts:
     - family: IndieFlower
       fonts:
         - asset: assets/fonts/IndieFlower-Regular.ttf
+
     - family: Avenir
       fonts:
         - asset: assets/fonts/AvenirLTStd-Book.otf
+          weight: 400
+        - asset: assets/fonts/AvenirLTStd-Roman.otf
+          weight: 600
+        - asset: assets/fonts/AvenirLTStd-Black.otf
+          weight: 900

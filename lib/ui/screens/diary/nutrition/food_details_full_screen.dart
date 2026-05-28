@@ -109,15 +109,25 @@ class _FoodDetailsFullScreenState extends State<FoodDetailsFullScreen> {
               ),
               clipBehavior: Clip.antiAlias,
               child: imageUrl != null && imageUrl.isNotEmpty
-                  ? Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const Icon(
-                        Icons.fastfood_rounded,
-                        size: 72,
-                        color: greenColor,
-                      ),
-                    )
+                  ? (imageUrl.startsWith('assets/')
+                      ? Image.asset(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.fastfood_rounded,
+                            size: 72,
+                            color: greenColor,
+                          ),
+                        )
+                      : Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.fastfood_rounded,
+                            size: 72,
+                            color: greenColor,
+                          ),
+                        ))
                   : const Icon(
                       Icons.fastfood_rounded,
                       size: 72,
@@ -271,8 +281,6 @@ class _FoodDetailsFullScreenState extends State<FoodDetailsFullScreen> {
       final dateStr = DateFormat('d-M-y').format(DateTime.now());
       final mealKey = widget.food['_mealKey']?.toString() ?? widget.meal;
 
-      debugPrint('Deleting food: ${widget.food['name']} from $mealKey at $dateStr');
-
       final docRef = FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
@@ -280,10 +288,7 @@ class _FoodDetailsFullScreenState extends State<FoodDetailsFullScreen> {
           .doc(dateStr);
 
       final doc = await docRef.get();
-      if (!doc.exists) {
-        debugPrint('Document does not exist');
-        return;
-      }
+      if (!doc.exists) return;
 
       final data = doc.data()!;
       final mealData = data[mealKey];
@@ -292,20 +297,44 @@ class _FoodDetailsFullScreenState extends State<FoodDetailsFullScreen> {
         final foods = List<Map<String, dynamic>>.from(
           mealData['foods'].map((f) => Map<String, dynamic>.from(f as Map)),
         );
-        
+
         int? foodIndex;
+        Map<String, dynamic>? foundFood;
+        final foodId = widget.food['id']?.toString();
         for (int i = 0; i < foods.length; i++) {
-          if (foods[i]['name'] == widget.food['name']) {
+          if ((foodId != null && foods[i]['id']?.toString() == foodId) ||
+              foods[i]['name'] == widget.food['name']) {
             foodIndex = i;
+            foundFood = foods[i];
             break;
           }
         }
-        
-        if (foodIndex != null) {
-          debugPrint('Found food at index: $foodIndex, removing...');
+
+        if (foodIndex != null && foundFood != null) {
+          final delCals = _toDouble(foundFood['calories']);
+          final delCarbs = _toDouble(foundFood['carbs']);
+          final delProtein = _toDouble(foundFood['protein']);
+          final delFat = _toDouble(foundFood['fat']);
+          final delFiber = _toDouble(foundFood['fiber']);
+          final delSugar = _toDouble(foundFood['sugar']);
+          final delSodium = _toDouble(foundFood['sodium']);
+
           foods.removeAt(foodIndex);
-          await docRef.update({mealKey: {'foods': foods}});
-          debugPrint('Food deleted successfully');
+
+          await docRef.update({
+            'totalCalories': FieldValue.increment(-delCals),
+            'totalProtein': FieldValue.increment(-delProtein),
+            'totalCarbs': FieldValue.increment(-delCarbs),
+            'totalFat': FieldValue.increment(-delFat),
+            if (delFiber > 0) 'totalFiber': FieldValue.increment(-delFiber),
+            if (delSugar > 0) 'totalSugar': FieldValue.increment(-delSugar),
+            if (delSodium > 0) 'totalSodium': FieldValue.increment(-delSodium),
+            '$mealKey.${mealKey.toLowerCase()}Calories': FieldValue.increment(-delCals),
+            '$mealKey.${mealKey.toLowerCase()}Protein': FieldValue.increment(-delProtein),
+            '$mealKey.${mealKey.toLowerCase()}Carbs': FieldValue.increment(-delCarbs),
+            '$mealKey.${mealKey.toLowerCase()}Fat': FieldValue.increment(-delFat),
+            '$mealKey.foods': foods,
+          });
         }
       }
     } catch (e) {

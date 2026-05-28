@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:health_tracker/shared/services/notification_service.dart';
+import 'package:health_tracker/shared/services/tree_service.dart';
+import 'package:health_tracker/providers/tree_provider.dart';
 import 'heart_stats_screen.dart';
 
 class MeassureBPMScreen extends StatefulWidget {
@@ -495,12 +497,12 @@ class _MeassureBPMScreenState extends State<MeassureBPMScreen>
       final currentSteps = prefs.getInt('current_steps') ?? 0;
       
       NotificationService().showHealthStatusNotification(
-        steps: currentSteps,
-        stepGoal: 12000,
         bpm: _bpm,
-        heartStatus: _analyzeHeartRate(),
       );
-      
+
+      // Give XP for heart rate measurement
+      TreeService().addHeartXp();
+
       debugPrint('Auto-saved heart rate: $_bpm BPM - notification updated with steps: $currentSteps');
     } catch (e) {
       debugPrint('Auto-save heart rate error: $e');
@@ -1121,6 +1123,98 @@ class _MeassureBPMScreenState extends State<MeassureBPMScreen>
     );
   }
 
+  void _showSuccessToast(String text) {
+    try {
+      final overlay = Overlay.of(context);
+      late OverlayEntry overlayEntry;
+      overlayEntry = OverlayEntry(
+        builder: (context) {
+          return TweenAnimationBuilder<double>(
+            duration: const Duration(milliseconds: 450),
+            tween: Tween(begin: -120.0, end: 40.0),
+            curve: Curves.easeOutBack,
+            builder: (context, value, child) {
+              return Positioned(
+                top: value,
+                left: 0,
+                right: 0,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Center(
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxWidth: MediaQuery.of(context).size.width * 0.85,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 18,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.88),
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.18),
+                            blurRadius: 18,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: const Color(0xFF2DBB7A),
+                                width: 2,
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.check,
+                                color: Color(0xFF2DBB7A),
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Flexible(
+                            child: Text(
+                              text,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      );
+      overlay.insert(overlayEntry);
+      Future.delayed(const Duration(seconds: 2), () {
+        overlayEntry.remove();
+      });
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(text), backgroundColor: Colors.green.shade700),
+        );
+      }
+    }
+  }
+
   Future<void> _saveHeartRate() async {
     if (_bpm <= 0) return;
 
@@ -1150,12 +1244,7 @@ class _MeassureBPMScreenState extends State<MeassureBPMScreen>
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Đã lưu: $_bpm BPM - ${_analyzeHeartRate()}'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        _showSuccessToast('Đã lưu: $_bpm BPM - ${_analyzeHeartRate()}');
       }
     } catch (e) {
       debugPrint('Save heart rate error: $e');

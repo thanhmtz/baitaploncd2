@@ -5,9 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:health_tracker/shared/styles/colors.dart';
 import 'package:health_tracker/shared/services/notification_service.dart';
+import 'package:health_tracker/shared/services/user_provider.dart';
 import 'package:health_tracker/ui/screens/diary/heart/meassure_bpm_screen.dart';
 import 'package:health_tracker/ui/screens/diary/heart/heart_stats_screen.dart';
 import 'package:health_tracker/ui/screens/diary/nutrition/add_meal_screen.dart';
@@ -17,6 +19,12 @@ import 'package:health_tracker/ui/screens/diary/sleep/sleep_stats_screen.dart';
 import 'package:health_tracker/ui/screens/diary/water/add_water_screen.dart';
 import 'package:health_tracker/ui/screens/diary/water/water_stats_screen.dart';
 import 'package:health_tracker/ui/screens/diary/weight/add_weight_screen.dart';
+import 'package:health_tracker/ui/screens/diary/blood_pressure/add_blood_pressure_screen.dart';
+import 'package:health_tracker/ui/screens/diary/blood_pressure/blood_pressure_stats_screen.dart';
+import 'package:health_tracker/ui/screens/diary/blood_sugar/add_blood_sugar_screen.dart';
+import 'package:health_tracker/ui/screens/diary/blood_sugar/blood_sugar_stats_screen.dart';
+import 'package:health_tracker/ui/screens/health_calculator/health_calculator_screen.dart';
+import 'package:health_tracker/ui/screens/plans/meal_plan/meal_plan_screen.dart';
 import 'package:health_tracker/ui/widgets/indicator_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +32,7 @@ import 'package:health_tracker/ui/widgets/step_counter_widget.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
+import 'package:provider/provider.dart';
 
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -42,6 +51,7 @@ DateTime date = DateTime.now();
   final Future<SharedPreferences> prefs = SharedPreferences.getInstance();
 
   int _lastSavedBpm = 0;
+  double _todaySleepHours = 0;
   final NotificationService _notificationService = NotificationService();
 
   @override
@@ -64,14 +74,22 @@ DateTime date = DateTime.now();
     final today = DateTime.now();
     final todayKey = '${today.year}_${today.month}_${today.day}';
     
-    final bpmKey = 'heart_rate_$todayKey';
-    _lastSavedBpm = prefs.getInt(bpmKey) ?? 0;
+    await _fetchLatestBpm();
+    
+    _todaySleepHours = prefs.getDouble('sleep_duration_$todayKey') ?? 0;
     
     await _notificationService.initialize();
     
     if (mounted) {
       setState(() {});
     }
+  }
+
+  Future<void> _reloadSleep() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now();
+    _todaySleepHours = prefs.getDouble('sleep_duration_${today.year}_${today.month}_${today.day}') ?? 0;
+    if (mounted) setState(() {});
   }
 
   @override
@@ -82,22 +100,44 @@ DateTime date = DateTime.now();
   }
 
   Future<void> _reloadBpm() async {
-    final prefs = await SharedPreferences.getInstance();
-    final today = DateTime.now();
-    final todayKey = '${today.year}_${today.month}_${today.day}';
-    final bpmKey = 'heart_rate_$todayKey';
-    final newBpm = prefs.getInt(bpmKey) ?? 0;
-    
-    if (newBpm != _lastSavedBpm) {
-      _lastSavedBpm = newBpm;
-      if (mounted) {
-        setState(() {});
-      }
+    final old = _lastSavedBpm;
+    await _fetchLatestBpm();
+    if (_lastSavedBpm != old && mounted) {
+      setState(() {});
     }
+  }
+
+  Future<void> _fetchLatestBpm() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('health_data')
+          .doc('heart_rate')
+          .collection('records')
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        _lastSavedBpm = (snapshot.docs.first.data()['bpm'] as num?)?.toInt() ?? 0;
+      }
+    } catch (e) {
+      debugPrint('Fetch BPM error: $e');
+    }
+  }
+
+  double? get _goalCal {
+    final user = context.read<UserProvider>().getUser;
+    if (user?.goalCalories != null) return user!.goalCalories!.toDouble();
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final goalCal = _goalCal ?? 2100;
     return Scaffold(
         // drawer: const NavDrawer(),
         // appBar: CustomAppBar(title: "Diary"),
@@ -125,8 +165,8 @@ DateTime date = DateTime.now();
                         children: [
                           Text(
                             DateTime.now().hour > 12 || DateTime.now().hour < 3
-                                ? 'Good evening, '
-                                : 'Good morning, ',
+                                ? l10n.goodEvening
+                                : l10n.goodMorning,
                             style: const TextStyle(fontSize: 22),
                           ),
                           Text(
@@ -196,9 +236,9 @@ DateTime date = DateTime.now();
                                         children: [
                                           Row(
                                             children: [
-                                              const Expanded(
-                                                  child: Text('Heart rate',
-                                                      style: TextStyle(
+                                              Expanded(
+                                                  child: Text(l10n.heartRate,
+                                                      style: const TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontSize: 20))),
@@ -319,7 +359,7 @@ DateTime date = DateTime.now();
                                                 width: 4,
                                               ),
                                               Text(
-                                                'bpm',
+                                                l10n.bpm,
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     color:
@@ -377,10 +417,10 @@ DateTime date = DateTime.now();
                                                 children: [
                                                   Row(
                                                     children: [
-                                                      const Expanded(
+                                                      Expanded(
                                                           child: Text(
-                                                        'Water',
-                                                        style: TextStyle(
+                                                        l10n.water,
+                                                        style: const TextStyle(
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                             fontSize: 20),
@@ -582,18 +622,18 @@ DateTime date = DateTime.now();
                                               }
                                               return Column(
                                                 children: [
-                                                  const Row(
+                                                  Row(
                                                     children: [
                                                       Expanded(
                                                           child: Text(
-                                                              'Calories',
-                                                              style: TextStyle(
+                                                              l10n.calories,
+                                                              style: const TextStyle(
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
                                                                   fontSize:
                                                                       20))),
-                                                      Align(
+                                                      const Align(
                                                         alignment: Alignment
                                                             .centerRight,
                                                         child: Icon(
@@ -620,17 +660,17 @@ DateTime date = DateTime.now();
                                                       radius: 45,
                                                       lineWidth: 7,
                                                       animation: true,
-                                                      percent: calories < 2100
-                                                          ? calories / 2100
+                                                      percent: calories < goalCal
+                                                          ? calories / goalCal
                                                           : 1,
                                                       center: Column(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
                                                                 .center,
                                                         children: [
-                                                          Text(
-                                                            calories.toString(),
-                                                            style: const TextStyle(
+                                                           Text(
+                                                             calories.toStringAsFixed(0),
+                                                             style: const TextStyle(
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold,
@@ -639,7 +679,7 @@ DateTime date = DateTime.now();
                                                           const SizedBox(
                                                             height: 2,
                                                           ),
-                                                          Text('Kcal',
+                                                          Text(l10n.kcal,
                                                               style: TextStyle(
                                                                   fontWeight:
                                                                       FontWeight
@@ -693,32 +733,10 @@ DateTime date = DateTime.now();
                                                           const SizedBox(
                                                             height: 8,
                                                           ),
-                                                          const Text('Carbs'),
-                                                          const SizedBox(
-                                                            height: 4,
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Text(
-                                                                carbs
-                                                                    .toString(),
-                                                                style: const TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize:
-                                                                        11),
-                                                              ),
-                                                              const Text(
-                                                                'g',
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    fontSize:
-                                                                        10),
-                                                              ),
-                                                            ],
-                                                          )
+                                                          Text(l10n.carbs,
+                                                              style: const TextStyle(
+                                                                  fontSize:
+                                                                      8)),
                                                         ],
                                                       ),
                                                       Column(
@@ -734,31 +752,10 @@ DateTime date = DateTime.now();
                                                           const SizedBox(
                                                             height: 8,
                                                           ),
-                                                          const Text('Fat'),
-                                                          const SizedBox(
-                                                            height: 4,
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Text(
-                                                                fat.toString(),
-                                                                style: const TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize:
-                                                                        11),
-                                                              ),
-                                                              const Text(
-                                                                'g',
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    fontSize:
-                                                                        10),
-                                                              ),
-                                                            ],
-                                                          )
+                                                          Text(l10n.fat,
+                                                              style: const TextStyle(
+                                                                  fontSize:
+                                                                      8)),
                                                         ],
                                                       ),
                                                       Column(
@@ -776,33 +773,40 @@ DateTime date = DateTime.now();
                                                           const SizedBox(
                                                             height: 8,
                                                           ),
-                                                          const Text('Protein'),
-                                                          const SizedBox(
-                                                            height: 4,
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              Text(
-                                                                protein
-                                                                    .toString(),
-                                                                style: const TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize:
-                                                                        11),
-                                                              ),
-                                                              const Text(
-                                                                'g',
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    fontSize:
-                                                                        10),
-                                                              ),
-                                                            ],
-                                                          )
+                                                          Text(l10n.protein,
+                                                              style: const TextStyle(
+                                                                  fontSize:
+                                                                      8)),
                                                         ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 8),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceEvenly,
+                                                    children: [
+                                                      Text(
+                                                        '${carbs.toStringAsFixed(0)}${l10n.gram}',
+                                                        style: const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 8),
+                                                      ),
+                                                      Text(
+                                                        '${fat.toStringAsFixed(0)}${l10n.gram}',
+                                                        style: const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 8),
+                                                      ),
+                                                      Text(
+                                                        '${protein.toStringAsFixed(0)}${l10n.gram}',
+                                                        style: const TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 8),
                                                       ),
                                                     ],
                                                   ),
@@ -819,13 +823,14 @@ DateTime date = DateTime.now();
                                       borderRadius: BorderRadius.circular(20)),
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(20),
-                                    onTap: () {
-                                      Navigator.push(
+                                    onTap: () async {
+                                      await Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 const SleepStatsScreen(),
                                           ));
+                                      _reloadSleep();
                                     },
                                     child: Padding(
                                       padding: const EdgeInsets.all(16.0),
@@ -833,20 +838,21 @@ DateTime date = DateTime.now();
                                         children: [
                                           Row(
                                             children: [
-                                              const Expanded(
+                                              Expanded(
                                                   child: Text(
-                                                'Sleep',
+                                                l10n.sleep,
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 20),
                                               )),
                                               IconButton(
-                                                  onPressed: () {
-                                                    Navigator.push(
+                                                  onPressed: () async {
+                                                    await Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
                                                             builder: (context) =>
                                                                 const RecordSleepScreen()));
+                                                    _reloadSleep();
                                                   },
                                                   icon: const Icon(
                                                     CupertinoIcons
@@ -861,8 +867,10 @@ DateTime date = DateTime.now();
                                           ),
                                           Row(
                                             children: [
-                                              const Text(
-                                                '8:30',
+                                              Text(
+                                                _todaySleepHours > 0
+                                                    ? _todaySleepHours.toStringAsFixed(1)
+                                                    : '--',
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 24),
@@ -871,7 +879,7 @@ DateTime date = DateTime.now();
                                                 width: 4,
                                               ),
                                               Text(
-                                                'Hrs/day',
+                                                l10n.sleepHours,
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     color:
@@ -889,6 +897,235 @@ DateTime date = DateTime.now();
                           )
                         ],
                       ),
+                      // ? BLOOD PRESSURE CARD
+                      Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const BloodPressureStatsScreen(),
+                                    ));
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(children: [
+                                  Row(children: [
+                                    Expanded(
+                                        child: Text(
+                                      l10n.bloodPressure,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
+                                    )),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.favorite,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const AddBloodPressureScreen()));
+                                      },
+                                    )
+                                  ]),
+                                  SizedBox(
+                                    height: 80,
+                                    width: double.infinity,
+                                    child: StreamBuilder<Object>(
+                                        stream: FirebaseFirestore.instance
+                                            .collection('users')
+                                            .doc(FirebaseAuth
+                                                .instance.currentUser!.uid)
+                                            .collection('diary')
+                                            .doc(DateFormat('d-M-y')
+                                                .format(date))
+                                            .snapshots(),
+                                        builder: (context,
+                                            AsyncSnapshot snapshot) {
+                                          if (!snapshot.hasData) {
+                                            return const MyCircularIndicator();
+                                          }
+                                          int systolic = 0, diastolic = 0;
+                                          if (snapshot.data!.exists &&
+                                              snapshot.data!.data()!
+                                                  .containsKey(
+                                                      'bloodPressure')) {
+                                            final list = snapshot
+                                                .data!.get('bloodPressure');
+                                            if (list is List &&
+                                                list.isNotEmpty) {
+                                              final last = list.last;
+                                              systolic =
+                                                  (last['systolic'] as num?)
+                                                          ?.toInt() ??
+                                                      0;
+                                              diastolic =
+                                                  (last['diastolic'] as num?)
+                                                          ?.toInt() ??
+                                                      0;
+                                            }
+                                          }
+                                          return Center(
+                                            child: Text(
+                                              systolic > 0
+                                                  ? '$systolic/$diastolic'
+                                                  : '--/--',
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 28),
+                                            ),
+                                          );
+                                        }),
+                                  ),
+                                  Text(
+                                    l10n.mmHg,
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600),
+                                  ),
+                                ]),
+                              ))),
+                      // ? BLOOD SUGAR CARD
+                      Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const BloodSugarStatsScreen(),
+                                    ));
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(children: [
+                                  Row(children: [
+                                    Expanded(
+                                        child: Text(
+                                      l10n.bloodSugar,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
+                                    )),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.bloodtype,
+                                        color: Colors.teal,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const AddBloodSugarScreen()));
+                                      },
+                                    )
+                                  ]),
+                                  SizedBox(
+                                    height: 80,
+                                    width: double.infinity,
+                                    child: StreamBuilder<Object>(
+                                        stream: FirebaseFirestore.instance
+                                            .collection('users')
+                                            .doc(FirebaseAuth
+                                                .instance.currentUser!.uid)
+                                            .collection('diary')
+                                            .doc(DateFormat('d-M-y')
+                                                .format(date))
+                                            .snapshots(),
+                                        builder: (context,
+                                            AsyncSnapshot snapshot) {
+                                          if (!snapshot.hasData) {
+                                            return const MyCircularIndicator();
+                                          }
+                                          double sugar = 0;
+                                          if (snapshot.data!.exists &&
+                                              snapshot.data!.data()!
+                                                  .containsKey(
+                                                      'bloodSugar')) {
+                                            final list = snapshot
+                                                .data!.get('bloodSugar');
+                                            if (list is List &&
+                                                list.isNotEmpty) {
+                                              final last = list.last;
+                                              sugar = (last['value'] as num?)
+                                                      ?.toDouble() ??
+                                                  0;
+                                            }
+                                          }
+                                          return Center(
+                                            child: Text(
+                                              sugar > 0
+                                                  ? sugar.toStringAsFixed(1)
+                                                  : '--',
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 28),
+                                            ),
+                                          );
+                                        }),
+                                  ),
+                                  Text(
+                                    l10n.mmol,
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600),
+                                  ),
+                                ]),
+                              ))),
+                      // ? MEAL PLAN CARD
+                      Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const MealPlanScreen(),
+                                    ));
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(children: [
+                                  Row(children: [
+                                    Expanded(
+                                        child: Text(
+                                      l10n.mealPlan,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
+                                    )),
+                                    const Icon(
+                                      Icons.restaurant_menu,
+                                      color: Colors.green,
+                                    )
+                                  ]),
+                                  const SizedBox(height: 16),
+                                  Icon(
+                                    Icons.calendar_month,
+                                    size: 36,
+                                    color: Colors.green.shade300,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    l10n.tapToAddMeal,
+                                    style: TextStyle(
+                                        color: Colors.grey.shade600),
+                                  ),
+                                ]),
+                              ))),
                       // ? WEIGHT CARD
                       Card(
                           shape: RoundedRectangleBorder(
@@ -901,9 +1138,9 @@ DateTime date = DateTime.now();
                                 child: Column(children: [
                                   Row(
                                     children: [
-                                      const Expanded(
+                                      Expanded(
                                           child: Text(
-                                        'Weight',
+                                        l10n.weight,
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 20),
@@ -925,71 +1162,91 @@ DateTime date = DateTime.now();
                                     ],
                                   ),
                                   // ? WEIGHT CHART
-                                  SizedBox(
-                                    height: 180,
-                                    width: double.infinity,
-                                    child: LineChart(LineChartData(
-                                      gridData: const FlGridData(
-                                          drawVerticalLine: false,
-                                          drawHorizontalLine: true),
-                                      borderData: FlBorderData(show: false),
-                                      titlesData: const FlTitlesData(
-                                        show: true,
-                                        topTitles: AxisTitles(
-                                          sideTitles:
-                                              SideTitles(showTitles: false),
-                                        ),
-                                        rightTitles: AxisTitles(
-                                          sideTitles:
-                                              SideTitles(showTitles: false),
-                                        ),
-                                        bottomTitles: AxisTitles(
-                                          sideTitles: SideTitles(
-                                            showTitles: true,
-                                            reservedSize: 30,
-                                            interval: 1,
-                                            getTitlesWidget:
-                                                weightBottomTitleWidgets,
+                                  StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                                    stream: FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(FirebaseAuth.instance.currentUser!.uid)
+                                        .collection('diary')
+                                        .snapshots(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const SizedBox(
+                                          height: 180,
+                                          width: double.infinity,
+                                          child: Center(
+                                            child: MyCircularIndicator(),
                                           ),
-                                        ),
-                                        leftTitles: AxisTitles(
-                                          sideTitles: SideTitles(
-                                            showTitles: true,
-                                            interval: 1,
-                                            getTitlesWidget:
-                                                weightLeftTitleWidgets,
-                                            reservedSize: 42,
-                                          ),
-                                        ),
-                                      ),
-                                      minX: 0,
-                                      maxX: 4,
-                                      minY: 40,
-                                      maxY: 90,
-                                      lineBarsData: [
-                                        LineChartBarData(
-                                          spots: const [
-                                            FlSpot(0, 60),
-                                            FlSpot(4, 57),
-                                          ],
-                                          isCurved: true,
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Color.fromARGB(255, 92, 98, 255),
-                                              Color.fromARGB(255, 73, 79, 255),
-                                            ],
-                                            begin: Alignment.centerLeft,
-                                            end: Alignment.centerRight,
-                                          ),
-                                          barWidth: 4,
-                                          isStrokeCapRound: true,
-                                          dotData: const FlDotData(
-                                            show: false,
-                                          ),
-                                        )
-                                      ],
-                                    )),
+                                        );
+                                      }
+
+                                      if (snapshot.hasError) {
+                                        return _buildWeightEmptyState(
+                                          'Không tải được dữ liệu cân nặng',
+                                        );
+                                      }
+
+                                      final records = _extractWeightRecords(
+                                        snapshot.data?.docs ?? [],
+                                      );
+
+                                      return _buildWeightChart(records);
+                                    },
                                   ),
+                                ]),
+                              ))),
+                      // ? HEALTH CALCULATOR CARD
+                      Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const HealthCalculatorScreen()));
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(children: [
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.withOpacity(0.12),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: const Icon(
+                                      Icons.calculate,
+                                      color: Colors.blue,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          l10n.healthCalculator,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          l10n.healthCalculatorSubtitle,
+                                          style: TextStyle(
+                                              color: Colors.grey.shade600,
+                                              fontSize: 13),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.chevron_right),
                                 ]),
                               ))),
                     ],
@@ -1048,10 +1305,10 @@ DateTime date = DateTime.now();
                       context: context,
                       builder: (context) {
                         return SimpleDialog(
-                          title: const Text('Meals'),
+                          title: Text(AppLocalizations.of(context)!.addMeal),
                           children: [
                             SimpleDialogOption(
-                                child: const Text('Breakfast'),
+                                child: Text(AppLocalizations.of(context)!.breakfast),
                                 onPressed: () {
                                   Navigator.push(
                                       context,
@@ -1062,7 +1319,7 @@ DateTime date = DateTime.now();
                                               )));
                                 }),
                             SimpleDialogOption(
-                                child: const Text('Lunch'),
+                                child: Text(AppLocalizations.of(context)!.lunch),
                                 onPressed: () {
                                   Navigator.push(
                                       context,
@@ -1072,7 +1329,7 @@ DateTime date = DateTime.now();
                                                   title: 'Lunch')));
                                 }),
                             SimpleDialogOption(
-                                child: const Text('Dinner'),
+                                child: Text(AppLocalizations.of(context)!.dinner),
                                 onPressed: () {
                                   Navigator.push(
                                       context,
@@ -1082,7 +1339,7 @@ DateTime date = DateTime.now();
                                                   title: 'Dinner')));
                                 }),
                             SimpleDialogOption(
-                                child: const Text('Snacks'),
+                                child: Text(AppLocalizations.of(context)!.snack),
                                 onPressed: () {
                                   Navigator.push(
                                       context,
@@ -1139,6 +1396,377 @@ DateTime date = DateTime.now();
           ],
         ));
   }
+
+  List<_WeightRecord> _extractWeightRecords(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    final records = <_WeightRecord>[];
+
+    for (final doc in docs) {
+      final data = doc.data();
+      final weight = _readWeightValue(data);
+      final recordDate = _readWeightDate(doc.id, data);
+
+      if (weight == null || weight <= 0 || recordDate == null) {
+        continue;
+      }
+
+      records.add(
+        _WeightRecord(
+          date: DateTime(
+            recordDate.year,
+            recordDate.month,
+            recordDate.day,
+          ),
+          weight: weight,
+        ),
+      );
+    }
+
+    records.sort((a, b) => a.date.compareTo(b.date));
+
+    // Nếu một ngày có nhiều dữ liệu, giữ bản ghi cuối cùng của ngày đó.
+    final mergedByDay = <String, _WeightRecord>{};
+    for (final record in records) {
+      final key = DateFormat('yyyy-MM-dd').format(record.date);
+      mergedByDay[key] = record;
+    }
+
+    final merged = mergedByDay.values.toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+
+    // Chỉ hiển thị các mốc gần nhất để biểu đồ không bị rối.
+    if (merged.length > 8) {
+      return merged.sublist(merged.length - 8);
+    }
+
+    return merged;
+  }
+
+  double? _readWeightValue(Map<String, dynamic> data) {
+    final candidates = <dynamic>[
+      data['weight'],
+      data['Weight'],
+      data['bodyWeight'],
+      data['body_weight'],
+      data['currentWeight'],
+      data['current_weight'],
+    ];
+
+    for (final value in candidates) {
+      final parsed = _toChartDouble(value);
+      if (parsed != null && parsed > 0) {
+        return parsed;
+      }
+    }
+
+    return null;
+  }
+
+  DateTime? _readWeightDate(String docId, Map<String, dynamic> data) {
+    final candidates = <dynamic>[
+      data['date'],
+      data['createdAt'],
+      data['updatedAt'],
+      docId,
+    ];
+
+    for (final value in candidates) {
+      final parsed = _toChartDate(value);
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+
+    return null;
+  }
+
+  double? _toChartDouble(dynamic value) {
+    if (value == null) return null;
+
+    if (value is num) {
+      return value.toDouble();
+    }
+
+    if (value is String) {
+      return double.tryParse(value.trim().replaceAll(',', '.'));
+    }
+
+    if (value is Map) {
+      final map = Map<dynamic, dynamic>.from(value);
+      return _toChartDouble(
+        map['value'] ??
+            map['weight'] ??
+            map['kg'] ??
+            map['bodyWeight'] ??
+            map['currentWeight'],
+      );
+    }
+
+    if (value is List && value.isNotEmpty) {
+      return _toChartDouble(value.last);
+    }
+
+    return null;
+  }
+
+  DateTime? _toChartDate(dynamic value) {
+    if (value == null) return null;
+
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+
+    if (value is DateTime) {
+      return value;
+    }
+
+    if (value is String) {
+      final text = value.trim();
+      if (text.isEmpty) return null;
+
+      final isoDate = DateTime.tryParse(text);
+      if (isoDate != null) return isoDate;
+
+      final formats = [
+        DateFormat('d-M-y'),
+        DateFormat('d-M-yyyy'),
+        DateFormat('dd-MM-yyyy'),
+        DateFormat('d/M/y'),
+        DateFormat('d/M/yyyy'),
+        DateFormat('yyyy-MM-dd'),
+      ];
+
+      for (final format in formats) {
+        try {
+          return format.parseStrict(text);
+        } catch (_) {
+          // Thử format tiếp theo.
+        }
+      }
+    }
+
+    return null;
+  }
+
+  String _formatChartWeight(double value) {
+    if (value == value.roundToDouble()) {
+      return value.toStringAsFixed(0);
+    }
+    return value.toStringAsFixed(1);
+  }
+
+  Widget _buildWeightEmptyState(String message) {
+    return Container(
+      height: 180,
+      width: double.infinity,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.04)
+            : Colors.black.withOpacity(0.035),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.grey.shade600,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWeightChart(List<_WeightRecord> records) {
+    if (records.isEmpty) {
+      return _buildWeightEmptyState('Chưa có dữ liệu cân nặng');
+    }
+
+    final spots = <FlSpot>[
+      for (int i = 0; i < records.length; i++)
+        FlSpot(i.toDouble(), records[i].weight),
+    ];
+
+    final weights = records.map((item) => item.weight).toList();
+    final minWeight = weights.reduce((a, b) => a < b ? a : b);
+    final maxWeight = weights.reduce((a, b) => a > b ? a : b);
+
+    final yPadding = records.length == 1
+        ? 2.0
+        : ((maxWeight - minWeight) * 0.25).clamp(1.5, 6.0).toDouble();
+
+    var minY = (minWeight - yPadding).floorToDouble();
+    final maxY = (maxWeight + yPadding).ceilToDouble();
+
+    if (minY < 0) minY = 0;
+
+    final yRange = maxY - minY;
+    final yInterval = (yRange / 4).clamp(1.0, 20.0).toDouble();
+    final bottomStep = records.length <= 4 ? 1 : (records.length / 4).ceil();
+
+    return SizedBox(
+      height: 180,
+      width: double.infinity,
+      child: LineChart(
+        LineChartData(
+          minX: 0,
+          maxX: records.length == 1 ? 1 : (records.length - 1).toDouble(),
+          minY: minY,
+          maxY: maxY,
+          gridData: FlGridData(
+            drawVerticalLine: false,
+            drawHorizontalLine: true,
+            horizontalInterval: yInterval,
+            getDrawingHorizontalLine: (value) {
+              return FlLine(
+                color: Colors.grey.withOpacity(0.18),
+                strokeWidth: 1,
+              );
+            },
+          ),
+          borderData: FlBorderData(show: false),
+          titlesData: FlTitlesData(
+            show: true,
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 32,
+                interval: 1,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+
+                  if (index < 0 || index >= records.length) {
+                    return const SizedBox.shrink();
+                  }
+
+                  final shouldShow = index == 0 ||
+                      index == records.length - 1 ||
+                      index % bottomStep == 0;
+
+                  if (!shouldShow) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      DateFormat('d/M').format(records[index].date),
+                      style: const TextStyle(
+                        color: Color(0xff727272),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 42,
+                interval: yInterval,
+                getTitlesWidget: (value, meta) {
+                  return Text(
+                    value.toStringAsFixed(0),
+                    style: const TextStyle(
+                      color: Color(0xff67727d),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.left,
+                  );
+                },
+              ),
+            ),
+          ),
+          lineTouchData: LineTouchData(
+            enabled: true,
+            touchTooltipData: LineTouchTooltipData(
+              tooltipRoundedRadius: 12,
+              tooltipPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 8,
+              ),
+              getTooltipItems: (touchedSpots) {
+                return touchedSpots.map((spot) {
+                  final index = spot.x.toInt().clamp(0, records.length - 1).toInt();
+                  final record = records[index];
+
+                  return LineTooltipItem(
+                    '${_formatChartWeight(record.weight)} kg\n'
+                    '${DateFormat('d/M/y').format(record.date)}',
+                    const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+          ),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              isCurved: records.length > 2,
+              gradient: const LinearGradient(
+                colors: [
+                  Color.fromARGB(255, 92, 98, 255),
+                  Color.fromARGB(255, 73, 79, 255),
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              barWidth: 4,
+              isStrokeCapRound: true,
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (spot, percent, barData, index) {
+                  return FlDotCirclePainter(
+                    radius: 4,
+                    color: const Color.fromARGB(255, 92, 98, 255),
+                    strokeWidth: 2,
+                    strokeColor: Colors.white,
+                  );
+                },
+              ),
+              belowBarData: BarAreaData(
+                show: true,
+                gradient: LinearGradient(
+                  colors: [
+                    const Color.fromARGB(255, 92, 98, 255).withOpacity(0.28),
+                    const Color.fromARGB(255, 92, 98, 255).withOpacity(0.02),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+}
+
+class _WeightRecord {
+  const _WeightRecord({
+    required this.date,
+    required this.weight,
+  });
+
+  final DateTime date;
+  final double weight;
 }
 
 class MyClipper extends CustomClipper<Path> {

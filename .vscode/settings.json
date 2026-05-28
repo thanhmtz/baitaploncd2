@@ -9,5 +9,6 @@
         "source.fixAll": "explicit"
     },
     "cmake.sourceDirectory": "${workspaceFolder}/windows",
-    "cmake.configureOnOpen": true
+    "cmake.configureOnOpen": true,
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

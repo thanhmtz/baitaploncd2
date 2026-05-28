@@ -1,23 +1,23 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:health_tracker/data/models/onboarding_model.dart';
 import 'package:health_tracker/shared/constants/assets_path.dart';
 
 enum Sex { male, female }
 
-List<OnBoardingModel> onboardinglist = const [
+List<OnBoardingModel> getOnboardingList(AppLocalizations l10n) => [
   OnBoardingModel(
     img: MyAssets.onboradingone,
-    title: 'Manage Your Task',
-    description:
-        'With This Small App You Can Orgnize All Your Tasks and Duties In A One Single App.',
+    title: l10n.manageYourTask,
+    description: l10n.manageYourTaskDesc,
   ),
   OnBoardingModel(
     img: MyAssets.onboradingtwo,
-    title: 'Plan Your Day',
-    description: 'Add A Task And The App Will Remind You.',
+    title: l10n.planYourDay,
+    description: l10n.planYourDayDesc,
   ),
   OnBoardingModel(
     img: MyAssets.onboradingthree,
-    title: 'Accomplish Your Goals ',
-    description: 'Track Your Activities And Accomplish Your Goals.',
+    title: l10n.accomplishYourGoals,
+    description: l10n.accomplishYourGoalsDesc,
   ),
 ];

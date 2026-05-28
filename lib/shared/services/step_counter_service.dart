@@ -3,6 +3,8 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:health_tracker/shared/services/notification_service.dart';
+import 'package:health_tracker/shared/services/tree_service.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,12 +19,18 @@ class StepCounterService {
   String _pedestrianStatus = 'unknown';
   bool _isInitialized = false;
   bool _isInitializing = false;
+  bool _dailyStepRewardGiven = false;
 
   int _walkingSteps = 0;
   int _runningSteps = 0;
   int _lastStepCount = 0;
   DateTime _lastStepTime = DateTime.now();
   double _stepsPerMinute = 0;
+  String _lastDateKey = '';
+
+  static const int _walkingThreshold = 80;
+  static const int _runningThreshold = 160;
+  static const int _minTimeBetweenUpdates = 2;
 
   StreamSubscription<StepCount>? _stepCountSubscription;
   StreamSubscription<PedestrianStatus>? _pedestrianStatusSubscription;
@@ -55,9 +63,15 @@ class StepCounterService {
     if (savedDate != todayKey) {
       await prefs.setInt('initial_steps', 0);
       await prefs.setString('steps_date', todayKey);
+      await prefs.setInt('walking_steps', 0);
+      await prefs.setInt('running_steps', 0);
       _initialSteps = 0;
+      _walkingSteps = 0;
+      _runningSteps = 0;
     } else {
       _initialSteps = prefs.getInt('initial_steps') ?? 0;
+      _walkingSteps = prefs.getInt('walking_steps') ?? 0;
+      _runningSteps = prefs.getInt('running_steps') ?? 0;
     }
   }
 
@@ -73,40 +87,75 @@ class StepCounterService {
     );
   }
 
-void _onStepCount(StepCount event) async {
+  void _onStepCount(StepCount event) async {
     log('Raw step count: ${event.steps}');
+    
+    final now = DateTime.now();
+    final todayKey = _getDateKey(now);
 
+    if (_lastDateKey.isNotEmpty && _lastDateKey != todayKey) {
+      _walkingSteps = 0;
+      _runningSteps = 0;
+      _dailyStepRewardGiven = false;
+    }
+    _lastDateKey = todayKey;
+
+    // Detect device reboot: counter reset to smaller value
+    if (_initialSteps > 0 && event.steps < _initialSteps) {
+      log('Device reboot detected, resetting initial steps');
+      _initialSteps = event.steps;
+      _todaySteps = 0;
+      _walkingSteps = 0;
+      _runningSteps = 0;
+      _lastStepCount = event.steps;
+      _lastStepTime = now;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('initial_steps', event.steps);
+      await prefs.setInt('walking_steps', 0);
+      await prefs.setInt('running_steps', 0);
+      return;
+    }
+
+    // First event: set baseline
     if (_initialSteps == 0 && event.steps > 0) {
       _initialSteps = event.steps;
+      _lastStepCount = event.steps;
+      _lastStepTime = now;
       final prefs = await SharedPreferences.getInstance();
-      final today = DateTime.now();
-      final todayKey = _getDateKey(today);
       await prefs.setInt('initial_steps', event.steps);
       await prefs.setString('steps_date', todayKey);
-      log('Saved initial steps: $event.steps}');
-      _lastStepCount = event.steps;
-      _lastStepTime = DateTime.now();
+      log('Saved initial steps: $event.steps');
+      // _todaySteps stays 0 until next event
+      return;
     }
 
     int calculatedSteps = event.steps - _initialSteps;
     if (calculatedSteps < 0) calculatedSteps = 0;
 
-    final now = DateTime.now();
     final timeDiff = now.difference(_lastStepTime).inSeconds;
-    if (timeDiff > 0) {
-      final stepDiff = event.steps - _lastStepCount;
+    final stepDiff = event.steps - _lastStepCount;
+    
+    if (stepDiff > 0 && timeDiff >= _minTimeBetweenUpdates) {
       _stepsPerMinute = (stepDiff / timeDiff) * 60;
 
-      if (_stepsPerMinute >= 160) {
-        _runningSteps += stepDiff.abs();
-      } else if (_stepsPerMinute >= 80) {
-        _walkingSteps += stepDiff.abs();
+      if (_stepsPerMinute >= _runningThreshold) {
+        _runningSteps += stepDiff;
+      } else if (_stepsPerMinute >= _walkingThreshold) {
+        _walkingSteps += stepDiff;
       }
     }
 
-    _lastStepCount = event.steps;
-    _lastStepTime = now;
+    if (stepDiff > 0) {
+      _lastStepCount = event.steps;
+      _lastStepTime = now;
+    }
+    
     _todaySteps = calculatedSteps;
+    
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('walking_steps', _walkingSteps);
+    await prefs.setInt('running_steps', _runningSteps);
+    
     await _saveStepsToFirestore(calculatedSteps);
   }
 
@@ -116,6 +165,12 @@ void _onStepCount(StepCount event) async {
 
     final today = DateTime.now();
     final dateKey = _getDateKey(today);
+
+    // Reset reward flag if new day
+    if (_lastDateKey != dateKey) {
+      _dailyStepRewardGiven = false;
+      _lastDateKey = dateKey;
+    }
 
     try {
       await _firestore
@@ -127,6 +182,14 @@ void _onStepCount(StepCount event) async {
         'totalSteps': steps,
         'lastUpdated': Timestamp.fromDate(today),
       }, SetOptions(merge: true));
+
+      // Give XP for reaching 10000 steps (once per day)
+      if (steps >= 10000 && !_dailyStepRewardGiven) {
+        _dailyStepRewardGiven = true;
+        TreeService().addStepsXp();
+        NotificationService().showGoalAchievedNotification(steps, 10000);
+        log('XP reward given for 10000 steps!');
+      }
     } catch (e) {
       log('Error saving steps to Firestore: $e');
     }

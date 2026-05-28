@@ -1,14 +1,27 @@
 import 'package:flutter/material.dart';
 
 class GenderPicker extends StatefulWidget {
-  const GenderPicker({Key? key, /*required this.onChanged*/}) : super(key: key);
-  // final Function onChanged;
+  final int initialValue;
+  final ValueChanged<int> onChanged;
+
+  const GenderPicker({
+    Key? key,
+    this.initialValue = 0,
+    required this.onChanged,
+  }) : super(key: key);
+
   @override
   State<GenderPicker> createState() => _GenderPickerState();
 }
 
 class _GenderPickerState extends State<GenderPicker> {
-  int selected = 0;
+  late int selected;
+
+  @override
+  void initState() {
+    super.initState();
+    selected = widget.initialValue;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +35,7 @@ class _GenderPickerState extends State<GenderPicker> {
                 setState(() {
                   selected = 0;
                 });
+                widget.onChanged(0);
               },
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -47,6 +61,7 @@ class _GenderPickerState extends State<GenderPicker> {
                 setState(() {
                   selected = 1;
                 });
+                widget.onChanged(1);
               },
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
